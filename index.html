@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HK PropPulse | 香港楼市硬数据与AI舆情个人研究终端</title>
+  <title>HK PropPulse v3.0 | 全港18区硬数据 · 真实租盘核验 · 市区唐楼投资终端</title>
   <style>
     :root[data-theme="dark"] {
       --bg-base: #0b0f17;
@@ -49,11 +49,7 @@
       --shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang HK", "Microsoft YaHei", sans-serif;
@@ -65,25 +61,17 @@
       flex-direction: column;
     }
 
-    a {
-      color: var(--accent);
-      text-decoration: none;
-      transition: opacity 0.15s;
-    }
-    a:hover {
-      text-decoration: underline;
-      opacity: 0.9;
-    }
+    a { color: var(--accent); text-decoration: none; transition: opacity 0.15s; }
+    a:hover { text-decoration: underline; opacity: 0.9; }
 
-    /* Top Header */
     .topbar {
       background: var(--bg-surface);
       border-bottom: 1px solid var(--border);
-      padding: 0.85rem 1.5rem;
+      padding: 0.8rem 1.25rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1rem;
+      gap: 0.85rem;
       position: sticky;
       top: 0;
       z-index: 100;
@@ -91,547 +79,146 @@
       flex-wrap: wrap;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
+    .brand { display: flex; align-items: center; gap: 0.7rem; }
     .brand-logo {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
+      width: 38px; height: 38px; border-radius: 10px;
       background: linear-gradient(135deg, #0284c7, #38bdf8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 1.1rem;
-      color: #fff;
-      letter-spacing: -0.5px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 1.05rem; color: #fff;
     }
-
-    .brand-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-
-    .brand-sub {
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--bull);
-      border-radius: 50%;
-      display: inline-block;
-      box-shadow: 0 0 8px var(--bull);
-    }
+    .brand-title { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.02em; }
+    .brand-sub { font-size: 0.73rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.45rem; }
+    .status-dot { width: 8px; height: 8px; background: var(--bull); border-radius: 50%; display: inline-block; box-shadow: 0 0 8px var(--bull); }
 
     .nav-tabs {
-      display: flex;
-      gap: 0.4rem;
-      background: var(--bg-elevated);
-      padding: 0.3rem;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      flex-wrap: wrap;
+      display: flex; gap: 0.3rem; background: var(--bg-elevated);
+      padding: 0.28rem; border-radius: 10px; border: 1px solid var(--border); flex-wrap: wrap;
     }
-
     .nav-tab {
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
-      padding: 0.48rem 0.95rem;
-      border-radius: 7px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s;
+      border: none; background: transparent; color: var(--text-secondary);
+      padding: 0.44rem 0.8rem; border-radius: 7px; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
     }
+    .nav-tab:hover { color: var(--text-primary); }
+    .nav-tab.active { background: var(--bg-surface); color: var(--accent); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); }
 
-    .nav-tab:hover {
-      color: var(--text-primary);
-    }
-
-    .nav-tab.active {
-      background: var(--bg-surface);
-      color: var(--accent);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-    }
-
-    .top-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
+    .top-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
     .btn {
-      background: var(--bg-elevated);
-      color: var(--text-primary);
-      border: 1px solid var(--border);
-      padding: 0.45rem 0.85rem;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      transition: all 0.15s;
+      background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border);
+      padding: 0.42rem 0.78rem; border-radius: 8px; font-size: 0.79rem; font-weight: 600;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.15s;
     }
+    .btn:hover { background: var(--bg-hover); border-color: var(--accent); }
+    .btn-primary { background: var(--accent); color: #0b0f17; border-color: var(--accent); }
+    .btn-primary:hover { opacity: 0.92; background: var(--accent); }
 
-    .btn:hover {
-      background: var(--bg-hover);
-      border-color: var(--accent);
-    }
+    .container { max-width: 1460px; width: 100%; margin: 0 auto; padding: 1.2rem 1.4rem 2.5rem; flex: 1; }
+    .tab-pane { display: none; animation: fadeIn 0.2s ease-out; }
+    .tab-pane.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-    .btn-primary {
-      background: var(--accent);
-      color: #0b0f17;
-      border-color: var(--accent);
-    }
-
-    .btn-primary:hover {
-      opacity: 0.92;
-      background: var(--accent);
-    }
-
-    /* Main Container */
-    .container {
-      max-width: 1440px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 1.25rem 1.5rem 2.5rem;
-      flex: 1;
-    }
-
-    .tab-pane {
-      display: none;
-      animation: fadeIn 0.2s ease-out;
-    }
-
-    .tab-pane.active {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* KPI Row */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.25rem;
-    }
-
-    @media (max-width: 1100px) {
-      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    @media (max-width: 640px) {
-      .kpi-grid { grid-template-columns: 1fr; }
-    }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.95rem; margin-bottom: 1.2rem; }
+    @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .kpi-grid { grid-template-columns: 1fr; } }
 
     .card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.15rem;
-      box-shadow: var(--shadow);
+      background: var(--bg-surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.1rem; box-shadow: var(--shadow);
     }
-
-    .kpi-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 0.5rem;
-    }
-
-    .kpi-label {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      font-weight: 600;
-    }
-
+    .kpi-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.45rem; }
+    .kpi-label { font-size: 0.78rem; color: var(--text-secondary); font-weight: 600; }
     .badge {
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 0.18rem 0.5rem;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
+      font-size: 0.71rem; font-weight: 700; padding: 0.16rem 0.48rem;
+      border-radius: 999px; display: inline-flex; align-items: center; gap: 0.22rem; white-space: nowrap;
     }
-
     .badge-bull { background: var(--bull-soft); color: var(--bull); }
     .badge-bear { background: var(--bear-soft); color: var(--bear); }
     .badge-neutral { background: var(--neutral-soft); color: var(--neutral); }
     .badge-accent { background: var(--accent-soft); color: var(--accent); }
     .badge-purple { background: var(--purple-soft); color: var(--purple); }
 
-    .kpi-value {
-      font-size: 1.65rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin: 0.2rem 0 0.4rem;
-    }
-
+    .kpi-value { font-size: 1.55rem; font-weight: 800; letter-spacing: -0.02em; margin: 0.15rem 0 0.35rem; }
     .kpi-sub {
-      font-size: 0.76rem;
-      color: var(--text-secondary);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 0.45rem;
-      border-top: 1px dashed var(--border);
+      font-size: 0.75rem; color: var(--text-secondary); display: flex;
+      justify-content: space-between; align-items: center; padding-top: 0.42rem; border-top: 1px dashed var(--border);
     }
 
-    /* Main Grid Layouts */
-    .grid-2-1 {
-      display: grid;
-      grid-template-columns: 2.15fr 1fr;
-      gap: 1.25rem;
-      margin-bottom: 1.25rem;
-    }
+    .grid-2-1 { display: grid; grid-template-columns: 2.15fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
+    .grid-1-1 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
+    @media (max-width: 1024px) { .grid-2-1, .grid-1-1 { grid-template-columns: 1fr; } }
 
-    .grid-1-1 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-
-    @media (max-width: 1024px) {
-      .grid-2-1, .grid-1-1 { grid-template-columns: 1fr; }
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-    }
-
-    .section-title {
-      font-size: 1rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    /* District Bar Chart & SVG Chart */
-    .chart-controls {
-      display: flex;
-      gap: 0.4rem;
-      flex-wrap: wrap;
-    }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.9rem; flex-wrap: wrap; gap: 0.6rem; }
+    .section-title { font-size: 0.98rem; font-weight: 700; display: flex; align-items: center; gap: 0.45rem; }
+    .chart-controls { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
 
     .chip-btn {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      color: var(--text-secondary);
-      padding: 0.3rem 0.7rem;
-      border-radius: 6px;
-      font-size: 0.76rem;
-      font-weight: 600;
-      cursor: pointer;
+      background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-secondary);
+      padding: 0.3rem 0.68rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
     }
+    .chip-btn.active { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
 
-    .chip-btn.active {
-      background: var(--accent-soft);
-      color: var(--accent);
-      border-color: var(--accent);
-    }
+    .bar-list { display: flex; flex-direction: column; gap: 0.52rem; margin-top: 0.4rem; }
+    .bar-row { display: grid; grid-template-columns: 175px 1fr 115px; align-items: center; gap: 0.7rem; font-size: 0.8rem; }
+    .bar-track { height: 11px; background: var(--bg-elevated); border-radius: 999px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #0284c7, #38bdf8); transition: width 0.35s ease; }
+    .bar-val { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
 
-    .bar-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-      margin-top: 0.5rem;
-    }
-
-    .bar-row {
-      display: grid;
-      grid-template-columns: 135px 1fr 110px;
-      align-items: center;
-      gap: 0.75rem;
-      font-size: 0.82rem;
-    }
-
-    .bar-track {
-      height: 12px;
-      background: var(--bg-elevated);
-      border-radius: 999px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .bar-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #0284c7, #38bdf8);
-      transition: width 0.4s ease;
-    }
-
-    .bar-val {
-      text-align: right;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Tables */
-    .table-wrap {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.83rem;
-    }
-
-    th, td {
-      padding: 0.7rem 0.75rem;
-      text-align: left;
-      border-bottom: 1px solid var(--border);
-    }
-
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.81rem; }
+    th, td { padding: 0.65rem 0.7rem; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
     th {
-      color: var(--text-secondary);
-      font-weight: 600;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      background: var(--bg-elevated);
+      color: var(--text-secondary); font-weight: 600; font-size: 0.74rem;
+      text-transform: uppercase; letter-spacing: 0.03em; background: var(--bg-elevated); white-space: nowrap;
     }
+    tr:hover td { background: var(--bg-hover); }
+    .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-    tr:hover td {
-      background: var(--bg-hover);
-    }
-
-    .num {
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Sentiment Gauge & Feed */
-    .sentiment-meter {
-      display: flex;
-      height: 14px;
-      border-radius: 999px;
-      overflow: hidden;
-      margin: 0.85rem 0 0.5rem;
-      border: 1px solid var(--border);
-    }
-
+    .sentiment-meter { display: flex; height: 14px; border-radius: 999px; overflow: hidden; margin: 0.8rem 0 0.45rem; border: 1px solid var(--border); }
     .meter-bull { background: var(--bull); }
     .meter-neutral { background: var(--neutral); }
     .meter-bear { background: var(--bear); }
+    .sentiment-legend { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.9rem; }
 
-    .sentiment-legend {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.76rem;
-      color: var(--text-secondary);
-      margin-bottom: 1rem;
-    }
+    .feed-list { display: flex; flex-direction: column; gap: 0.8rem; }
+    .feed-item { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem; transition: border-color 0.15s; }
+    .feed-item:hover { border-color: var(--accent); }
+    .feed-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; font-size: 0.74rem; color: var(--text-secondary); flex-wrap: wrap; gap: 0.4rem; }
+    .feed-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text-primary); }
+    .feed-ai-box { font-size: 0.79rem; color: var(--text-secondary); background: var(--bg-surface); border-left: 3px solid var(--accent); padding: 0.5rem 0.7rem; border-radius: 0 6px 6px 0; margin-top: 0.45rem; }
 
-    .feed-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.85rem;
-    }
-
-    .feed-item {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 0.95rem;
-      transition: border-color 0.15s;
-    }
-
-    .feed-item:hover {
-      border-color: var(--accent);
-    }
-
-    .feed-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.45rem;
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      flex-wrap: wrap;
-      gap: 0.4rem;
-    }
-
-    .feed-title {
-      font-size: 0.92rem;
-      font-weight: 700;
-      margin-bottom: 0.4rem;
-      color: var(--text-primary);
-    }
-
-    .feed-ai-box {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      background: var(--bg-surface);
-      border-left: 3px solid var(--accent);
-      padding: 0.55rem 0.75rem;
-      border-radius: 0 6px 6px 0;
-      margin-top: 0.5rem;
-    }
-
-    /* Calculator Form */
-    .calc-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-    @media (max-width: 640px) {
-      .calc-grid { grid-template-columns: 1fr; }
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .form-label {
-      font-size: 0.78rem;
-      color: var(--text-secondary);
-      display: flex;
-      justify-content: space-between;
-      font-weight: 600;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      accent-color: var(--accent);
-      cursor: pointer;
-    }
-
+    .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; }
+    @media (max-width: 640px) { .calc-grid { grid-template-columns: 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.68rem; }
+    .form-label { font-size: 0.77rem; color: var(--text-secondary); display: flex; justify-content: space-between; font-weight: 600; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
     input[type="text"], select {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-      padding: 0.48rem 0.75rem;
-      border-radius: 8px;
-      font-size: 0.84rem;
-      outline: none;
+      background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-primary);
+      padding: 0.44rem 0.7rem; border-radius: 8px; font-size: 0.81rem; outline: none;
     }
-
-    input[type="text"]:focus, select:focus {
-      border-color: var(--accent);
-    }
+    input[type="text"]:focus, select:focus { border-color: var(--accent); }
 
     .calc-result-box {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 0.65rem;
+      background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.95rem; display: flex; flex-direction: column; gap: 0.6rem;
     }
+    .calc-stat { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 0.42rem; border-bottom: 1px dashed var(--border); font-size: 0.81rem; }
+    .calc-stat-val { font-size: 1.02rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 
-    .calc-stat {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      padding-bottom: 0.45rem;
-      border-bottom: 1px dashed var(--border);
-      font-size: 0.83rem;
-    }
-
-    .calc-stat-val {
-      font-size: 1.05rem;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Code Block for Pipeline */
     pre.code-box {
-      background: #090d16;
-      color: #e2e8f0;
-      padding: 1rem;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      overflow-x: auto;
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-      font-size: 0.78rem;
-      line-height: 1.55;
-      max-height: 400px;
+      background: #090d16; color: #e2e8f0; padding: 0.95rem; border-radius: 10px;
+      border: 1px solid var(--border); overflow-x: auto;
+      font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: 0.76rem; line-height: 1.5; max-height: 380px;
     }
 
-    .watchlist-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.45rem;
-      margin-top: 0.6rem;
-    }
+    .watchlist-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.55rem; }
+    .watch-tag { background: var(--bg-elevated); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 999px; font-size: 0.76rem; display: inline-flex; align-items: center; gap: 0.35rem; }
+    .watch-tag button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-weight: 700; }
+    .watch-tag button:hover { color: var(--bear); }
 
-    .watch-tag {
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      padding: 0.28rem 0.65rem;
-      border-radius: 999px;
-      font-size: 0.78rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
+    .progress-mini { width: 75px; height: 7px; background: var(--bg-elevated); border-radius: 999px; overflow: hidden; display: inline-block; vertical-align: middle; margin-right: 5px; }
+    .progress-mini > span { display: block; height: 100%; background: var(--bull); }
 
-    .watch-tag button {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-weight: 700;
-    }
-    .watch-tag button:hover {
-      color: var(--bear);
-    }
-
-    .progress-mini {
-      width: 80px;
-      height: 7px;
-      background: var(--bg-elevated);
-      border-radius: 999px;
-      overflow: hidden;
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-    .progress-mini > span {
-      display: block;
-      height: 100%;
-      background: var(--bull);
-    }
-
-    .footer-note {
-      text-align: center;
-      padding: 1.2rem;
-      font-size: 0.76rem;
-      color: var(--text-muted);
-      border-top: 1px solid var(--border);
-      background: var(--bg-surface);
-    }
+    .footer-note { text-align: center; padding: 1.1rem; font-size: 0.75rem; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--bg-surface); }
   </style>
 </head>
 <body>
@@ -641,289 +228,377 @@
     <div class="brand">
       <div class="brand-logo">HK</div>
       <div>
-        <div class="brand-title">HK PropPulse 个人楼市量化与舆情终端</div>
+        <div class="brand-title">HK PropPulse v3.0 · 全港18区硬数据 · 真实租盘 · 市区唐楼终端</div>
         <div class="brand-sub">
           <span class="status-dot"></span>
-          <span id="syncStatusText">云端自动同步就绪 · 基准: 2026年10月最新核实数据 (支持自动读取 market_data.json)</span>
+          <span id="syncStatusText">云端自动同步就绪 · 覆盖全港18区细分 / 28Hse核验租盘 / 市区唐楼寻宝 (2026-10-14 17:03:51 HKT)</span>
         </div>
       </div>
     </div>
 
     <nav class="nav-tabs" role="tablist">
-      <button class="nav-tab active" onclick="switchTab('overview', this)">1. 硬数据总览与分区呎价</button>
-      <button class="nav-tab" onclick="switchTab('market', this)">2. 新盘追踪与按揭/回报计算器</button>
-      <button class="nav-tab" onclick="switchTab('sentiment', this)">3. AI 论坛/小红书舆情聚合</button>
-      <button class="nav-tab" onclick="switchTab('pipeline', this)">4. 零基础 GitHub 自动更新配置 (保姆级)</button>
+      <button class="nav-tab active" onclick="switchTab('overview', this)">1. 全港18区尺价与细分</button>
+      <button class="nav-tab" onclick="switchTab('rentals', this)">2. 真实租盘核验库 (Fact-Checked)</button>
+      <button class="nav-tab" onclick="switchTab('tonglau', this)">3. 市区唐楼寻宝与投资评估</button>
+      <button class="nav-tab" onclick="switchTab('market', this)">4. 一手新盘与供平过租计算器</button>
+      <button class="nav-tab" onclick="switchTab('sentiment', this)">5. AI 论坛/小红书舆情</button>
+      <button class="nav-tab" onclick="switchTab('pipeline', this)">6. GitHub 自动更新配置</button>
     </nav>
 
     <div class="top-actions">
-      <button class="btn btn-primary" onclick="fetchCloudData(true)" title="从云端 market_data.json 拉取最新爬虫数据">🔄 刷新最新云端数据</button>
-      <button class="btn" onclick="exportResearchCSV()" title="导出当前硬数据与新盘对比表为CSV">⬇ 导出研究 CSV</button>
-      <button class="btn" onclick="toggleTheme()" id="themeBtn">☀ 浅色模式</button>
+      <button class="btn btn-primary" onclick="fetchCloudData(true)" title="从云端 market_data.json 拉取最新爬虫数据">🔄 刷新云端数据</button>
+      <button class="btn" onclick="exportResearchCSV()" title="导出全港18区、真实租盘与唐楼对比表为CSV">⬇ 导出研究 CSV</button>
+      <button class="btn" onclick="toggleTheme()" id="themeBtn">☀ 浅色</button>
     </div>
   </header>
 
-  <!-- Main Content -->
   <main class="container">
 
-    <!-- TAB 1: OVERVIEW & HARD DATA -->
+    <!-- TAB 1: ALL 18 DISTRICTS SUBDIVIDED & HARD DATA -->
     <section id="tab-overview" class="tab-pane active">
-      <!-- 4 Core Hard-Data KPI Cards -->
       <div class="kpi-grid">
         <div class="card">
           <div class="kpi-header">
-            <span class="kpi-label">中原城市领先指数 (CCL 分区最新)</span>
+            <span class="kpi-label">中原城市领先指数 (CCL 四区全升)</span>
             <span class="badge badge-bull">▲ 周环比全线回升</span>
           </div>
-          <div class="kpi-value">161.11 <span style="font-size:0.85rem;font-weight:500;color:var(--text-secondary);">中小型单位</span></div>
+          <div class="kpi-value">161.11 <span style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">中小型单位</span></div>
           <div class="kpi-sub">
-            <span>大型单位: <strong>161.68</strong> (+0.94% WoW)</span>
-            <a href="https://hk.centanet.com/info/en/index" target="_blank" rel="noopener">中原官方数据 ↗</a>
+            <span>新界东 <strong>173.38</strong> | 新界西 <strong>144.60</strong></span>
+            <a href="https://hk.centanet.com/info/en/index" target="_blank" rel="noopener">中原官方 ↗</a>
           </div>
         </div>
 
         <div class="card">
           <div class="kpi-header">
-            <span class="kpi-label">美联楼价指数 (Midland Index)</span>
-            <span class="badge badge-neutral">WoW +0.1% / MoM -0.1%</span>
+            <span class="kpi-label">美联全港 18 区完整监测</span>
+            <span class="badge badge-accent">港岛4+九龙5+新界9</span>
           </div>
-          <div class="kpi-value">148.90 <span style="font-size:0.85rem;font-weight:500;color:var(--text-secondary);">点 (12/10更新)</span></div>
+          <div class="kpi-value">148.90 <span style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">点 (信心指数 69.8)</span></div>
           <div class="kpi-sub">
-            <span>全港线上買賣放盘: <strong>33,030</strong> 伙</span>
-            <a href="https://www.midland.com.hk/en/market-insight" target="_blank" rel="noopener">美联楼市洞察 ↗</a>
+            <span>在售盘: <strong>33,030</strong> | 在租盘: <strong>14,932</strong></span>
+            <a href="https://www.midland.com.hk/en/market-insight" target="_blank" rel="noopener">美联洞察 ↗</a>
           </div>
         </div>
 
         <div class="card">
           <div class="kpi-header">
-            <span class="kpi-label">28Hse 屋网放盘库 & 租金指数</span>
+            <span class="kpi-label">28Hse 真实租盘 & 租金指数</span>
             <span class="badge badge-bull">ERI 破 122 创历史新高</span>
           </div>
-          <div class="kpi-value">38,633 <span style="font-size:0.85rem;font-weight:500;color:var(--text-secondary);">在售住宅盘源</span></div>
+          <div class="kpi-value">8,044+ <span style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">新界及全港活跃租盘</span></div>
           <div class="kpi-sub">
-            <span>覆盖全港 <strong>11,560</strong> 个屋苑成交档案</span>
-            <a href="https://www.28hse.com/en/buy/apartment" target="_blank" rel="noopener">28Hse 实时盘源 ↗</a>
+            <span>西营盘尺租达 <strong>$71.7/呎</strong> | 淘大 <strong>$46.7/呎</strong></span>
+            <a href="https://www.28hse.com/en/rent/apartment" target="_blank" rel="noopener">28Hse 租屋库 ↗</a>
           </div>
         </div>
 
         <div class="card">
           <div class="kpi-header">
-            <span class="kpi-label">官方硬数据基准 (差估署 & 土注处)</span>
-            <span class="badge badge-accent">2026年10月刊已同步</span>
+            <span class="kpi-label">市区唐楼高息与强拍新政</span>
+            <span class="badge badge-purple">强拍门槛降至 65%–70%</span>
           </div>
-          <div class="kpi-value">RVD & IRIS <span style="font-size:0.85rem;font-weight:500;color:var(--text-secondary);">月度核实</span></div>
+          <div class="kpi-value">5.6%–8.6% <span style="font-size:0.82rem;font-weight:500;color:var(--text-secondary);">改装套房回报</span></div>
           <div class="kpi-sub">
-            <a href="https://www.rvd.gov.hk/en/publications/property_market_statistics.html" target="_blank" rel="noopener">差估署统计 ↗</a>
-            <a href="https://www.landreg.gov.hk/en/monthly/monthly.htm" target="_blank" rel="noopener">土地注册处月报 ↗</a>
+            <span>旺角/深水埗唐楼实尺 <strong>$4,808–$5,905</strong></span>
+            <a href="https://www.28hse.com/buy/apartment/housetype-tong_lau" target="_blank" rel="noopener">28Hse 唐楼专库 ↗</a>
           </div>
         </div>
       </div>
 
-      <!-- Main Row: Left Quantitative Charts, Right CCL Sub-indices & Sentiment Summary -->
       <div class="grid-2-1">
-        <!-- Left Card: District Price/ft² & CCL Breakdown -->
+        <!-- Left: 18 Districts Interactive Bar Chart -->
         <div class="card">
           <div class="section-header">
-            <div class="section-title">
-              <span>📊 香港核心分区平均实用呎价与指数对比 (硬数据实测)</span>
-            </div>
+            <div class="section-title">📊 全港 18 区平均实用呎价横评 (港岛4区 · 九龙5区 · 新界东4区 · 新界西及离岛5区)</div>
             <div class="chart-controls">
-              <button class="chip-btn active" onclick="renderDistrictView('all', this)">全部9大核心区</button>
-              <button class="chip-btn" onclick="renderDistrictView('hk', this)">港岛区</button>
-              <button class="chip-btn" onclick="renderDistrictView('kln', this)">九龙区</button>
-              <button class="chip-btn" onclick="renderDistrictView('nt', this)">新界区</button>
+              <button class="chip-btn active" onclick="renderDistrictView('all', this)">全港18区完整视图</button>
+              <button class="chip-btn" onclick="renderDistrictView('hk', this)">港岛 (4区)</button>
+              <button class="chip-btn" onclick="renderDistrictView('kln', this)">九龙 (5区)</button>
+              <button class="chip-btn" onclick="renderDistrictView('nte', this)">新界东 (4区: 沙田/大埔/北/西贡将)</button>
+              <button class="chip-btn" onclick="renderDistrictView('ntw', this)">新界西及离岛 (5区: 荃/葵/屯/元/离)</button>
             </div>
           </div>
-
-          <p style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:0.8rem;">
-            数据来源：<a href="https://www.midland.com.hk/en/market-insight" target="_blank" rel="noopener">美联物业各区平均实用呎价统计</a> 及 <a href="https://hk.centanet.com/info/en/index" target="_blank" rel="noopener">中原城市领先指数 (CCL) 2026/10/09 公布值</a>。点击上方按钮可按区域过滤对比：
+          <p style="font-size:0.77rem;color:var(--text-secondary);margin-bottom:0.7rem;">
+            数据来源：<a href="https://www.midland.com.hk/en/market-insight" target="_blank" rel="noopener">美联物业全港各区近30日平均实用呎价统计</a> 及 <a href="https://hk.centanet.com/info/en/index" target="_blank" rel="noopener">中原 CCL 分区指数</a>。点击上方区域按钮可切换对比：
           </p>
-
           <div id="districtBarContainer" class="bar-list"></div>
-
-          <!-- Sub-table for Centa-City Leading Index Regional Breakdown -->
-          <div style="margin-top:1.35rem;padding-top:1rem;border-top:1px solid var(--border);">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;">
-              <span style="font-size:0.86rem;font-weight:700;">📌 中原 CCL 四大分区与单位类型最新录得值 (2026/10/09)</span>
-              <a href="https://hk.centanet.com/findproperty/en/centadata" target="_blank" rel="noopener" style="font-size:0.76rem;">查看网上找楼成交 ↗</a>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>CCL 分类指数</th>
-                    <th class="num">最新指数 (点)</th>
-                    <th class="num">按周变动 (WoW)</th>
-                    <th class="num">按月变动 (MoM)</th>
-                    <th>市场结构信号</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>港岛区 (HK Island)</strong></td>
-                    <td class="num">164.90</td>
-                    <td class="num" style="color:var(--text-secondary);">—</td>
-                    <td class="num" style="color:var(--bull);">+0.34%</td>
-                    <td>蓝筹屋苑抗跌，豪宅及西半山租务强劲</td>
-                  </tr>
-                  <tr>
-                    <td><strong>九龙区 (Kowloon)</strong></td>
-                    <td class="num">162.44</td>
-                    <td class="num" style="color:var(--text-secondary);">—</td>
-                    <td class="num" style="color:var(--bull);">+1.79%</td>
-                    <td>长沙湾/油塘/启德一手交投带动二手气氛</td>
-                  </tr>
-                  <tr>
-                    <td><strong>新界东 (NT East)</strong></td>
-                    <td class="num">173.38</td>
-                    <td class="num" style="color:var(--bull);">+0.78%</td>
-                    <td class="num" style="color:var(--bull);">+0.43%</td>
-                    <td>沙田/大埔刚需盘稳步回升，内地生租务支撑</td>
-                  </tr>
-                  <tr>
-                    <td><strong>新界西 (NT West)</strong></td>
-                    <td class="num">144.60</td>
-                    <td class="num" style="color:var(--bull);">+0.39%</td>
-                    <td class="num" style="color:var(--bull);">+0.68%</td>
-                    <td>荃湾/屯门/元朗上车盘吸引收租及用家</td>
-                  </tr>
-                  <tr>
-                    <td><strong>大型单位 (Large Units)</strong></td>
-                    <td class="num">161.68</td>
-                    <td class="num" style="color:var(--bull);">+0.94%</td>
-                    <td class="num" style="color:var(--text-secondary);">—</td>
-                    <td>换楼客与高才通家庭客源支撑中大户型</td>
-                  </tr>
-                  <tr>
-                    <td><strong>中小型单位 (Small/Medium)</strong></td>
-                    <td class="num">161.11</td>
-                    <td class="num" style="color:var(--bull);">+0.64%</td>
-                    <td class="num" style="color:var(--text-secondary);">—</td>
-                    <td>细价楼止跌回稳，租金回报率走高封堵跌幅</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
         </div>
 
-        <!-- Right Card: Macro Rent vs Price Scissors & AI Market Pulse -->
-        <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;gap:1rem;">
+        <!-- Right: Regional Market Structure & Quick Navigation -->
+        <div class="card" style="display:flex;flex-direction:column;justify-content:space-between;gap:0.9rem;">
           <div>
             <div class="section-header">
-              <div class="section-title">🧭 2026 Q4 楼市「租升价稳」核心背离诊断</div>
-              <span class="badge badge-purple">硬数据 + 舆情综合</span>
+              <div class="section-title">🧭 新界东/西补全与全港投资价值地图</div>
+              <span class="badge badge-accent">18区全覆盖</span>
             </div>
-
-            <p style="font-size:0.81rem;color:var(--text-secondary);margin-bottom:0.75rem;">
-              综合 <a href="https://www.28hse.com/en/" target="_blank" rel="noopener">28Hse 市场周报</a>、<a href="https://www.rvd.gov.hk/doc/en/statistics/full.pdf" target="_blank" rel="noopener">差估署10月统计月报</a> 与全网社区讨论，当前香港楼市呈现三大核心趋势：
-            </p>
-
-            <div style="display:flex;flex-direction:column;gap:0.65rem;margin-bottom:1rem;">
-              <div style="background:var(--bg-elevated);padding:0.75rem;border-radius:8px;border-left:3px solid var(--bull);">
-                <div style="font-size:0.82rem;font-weight:700;margin-bottom:0.2rem;">1. 租金指数连创新高（ERI 突破 122 点）</div>
-                <div style="font-size:0.77rem;color:var(--text-secondary);">
-                  受专才输入及内地生赴港租房旺季拉动，<a href="https://www.28hse.com/en/" target="_blank" rel="noopener">Eva 租金指数突破 122 点</a>，西半山（如 <a href="https://lihkg.com/category/37?page=10" target="_blank" rel="noopener">15 WESTERN STREET 月租按年升6%</a>）及新界东/西铁路沿线租金回报率显著抬升。
+            <div style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.79rem;">
+              <div style="background:var(--bg-elevated);padding:0.7rem;border-radius:8px;border-left:3px solid var(--accent);">
+                <div style="font-weight:700;margin-bottom:0.2rem;">1. 新界东 4 区：高校+科学园+将军澳跨湾红利</div>
+                <div style="color:var(--text-secondary);">
+                  <strong>沙田区 ($15,061/呎)</strong> 与 <strong>大埔区 ($11,946/呎)</strong> 坐拥中大及科学园庞大租客群，<a href="https://www.28hse.com/en/rent/apartment/property-4010652" target="_blank" rel="noopener">大围金狮花园</a>尺租达 $47.8/呎；<strong>西贡及将军澳 ($14,890/呎)</strong> 凭 <a href="https://www.midland.com.hk/en/" target="_blank" rel="noopener">日出康城月成交60宗</a> 冠绝全港；<strong>北区 ($10,391/呎)</strong> 紧贴北都及罗湖口岸。
                 </div>
               </div>
 
-              <div style="background:var(--bg-elevated);padding:0.75rem;border-radius:8px;border-left:3px solid var(--accent);">
-                <div style="font-size:0.82rem;font-weight:700;margin-bottom:0.2rem;">2. 一手新盘折实抢客，九龙区逆市升 1.79%</div>
-                <div style="font-size:0.77rem;color:var(--text-secondary);">
-                  发展商采取「求量先求价」策略，大埔 <a href="https://www.28hse.com/en/" target="_blank" rel="noopener">Sierra Sea 2C(2)期</a> 折实呎价低至 $12,958 起，油塘 <a href="https://www.28hse.com/en/" target="_blank" rel="noopener">The Atlas I</a> 折实 $13,012 起，冻结部分二手购买力。
+              <div style="background:var(--bg-elevated);padding:0.7rem;border-radius:8px;border-left:3px solid var(--bull);">
+                <div style="font-weight:700;margin-bottom:0.2rem;">2. 新界西及离岛 5 区：千元尺租比与机场快线走廊</div>
+                <div style="color:var(--text-secondary);">
+                  <strong>葵青区 ($12,143/呎)</strong> <a href="https://www.28hse.com/en/rent/apartment/property-4035784" target="_blank" rel="noopener">青衣盈翠半岛</a>两房月租达 $23,500–$26,000；<strong>荃湾区 ($12,127/呎)</strong> 双铁配套成熟；<strong>元朗 ($10,485/呎)</strong> <a href="https://www.midland.com.hk/en/" target="_blank" rel="noopener">嘉湖山庄低至 $8,573/呎</a>；<strong>屯门 ($10,438/呎)</strong> 与 <strong>离岛东涌/愉景湾 ($10,811/呎)</strong> 受惠机场及深圳湾通勤。
                 </div>
               </div>
 
-              <div style="background:var(--bg-elevated);padding:0.75rem;border-radius:8px;border-left:3px solid var(--neutral);">
-                <div style="font-size:0.82rem;font-weight:700;margin-bottom:0.2rem;">3. 社交舆情：筑底修复共识 vs 高位旧盘蚀让</div>
-                <div style="font-size:0.77rem;color:var(--text-secondary);">
-                  <a href="https://lihkg.com/thread/4102914/page/1" target="_blank" rel="noopener">连登房屋台热门分析</a>普遍认为当前属「筑底反弹+政策利好修复」，但早年高位入市或大额换楼盘（如<a href="https://lihkg.com/category/37" target="_blank" rel="noopener">奥运站两房持货15年蚀285万</a>）仍偶现止蚀。
+              <div style="background:var(--bg-elevated);padding:0.7rem;border-radius:8px;border-left:3px solid var(--purple);">
+                <div style="font-weight:700;margin-bottom:0.2rem;">3. 市区唐楼寻宝：油尖旺 / 深水埗 / 九龙城</div>
+                <div style="color:var(--text-secondary);">
+                  在 <a href="https://www.midland.com.hk/en/district/Kowloon-Sham-Shui-Po-130ND20025" target="_blank" rel="noopener">深水埗区</a> 与 <a href="https://www.28hse.com/buy/a2/dg110/c5448" target="_blank" rel="noopener">旺角/太子</a>，60年代唐楼实尺仅 <strong>$4,808–$5,905/呎</strong>，改装4套房表面回报率超 <strong>8%</strong>，且受惠 65%–70% 强拍新门槛。
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Sentiment Meter Box -->
-          <div style="background:var(--bg-elevated);padding:0.9rem;border-radius:10px;border:1px solid var(--border);">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:0.82rem;font-weight:700;">🤖 全网四大社区 AI 情绪加权指数</span>
-              <span class="badge badge-neutral">偏谨慎乐观 (54/100)</span>
-            </div>
-            <div class="sentiment-meter">
-              <div class="meter-bull" style="width: 36%;" title="看涨/积极入市 36%"></div>
-              <div class="meter-neutral" style="width: 38%;" title="观望/收租对比 38%"></div>
-              <div class="meter-bear" style="width: 26%;" title="看淡/等劈价 26%"></div>
-            </div>
-            <div class="sentiment-legend">
-              <span style="color:var(--bull);font-weight:600;">● 看涨/趁低吸纳 36%</span>
-              <span style="color:var(--neutral);font-weight:600;">● 租买权衡/观望 38%</span>
-              <span style="color:var(--bear);font-weight:600;">● 看跌/忧虑供应 26%</span>
-            </div>
-            <button class="btn" style="width:100%;justify-content:center;" onclick="switchTab('sentiment', document.querySelectorAll('.nav-tab')[2])">
-              查看连登 / 香讨 / 小红书 实时帖文详情 →
+          <div style="display:flex;flex-direction:column;gap:0.5rem;">
+            <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="switchTab('rentals', document.querySelectorAll('.nav-tab')[1])">
+              查看各区 Fact-Checked 真实租盘核验库 →
+            </button>
+            <button class="btn" style="width:100%;justify-content:center;border-color:var(--purple);color:var(--purple);" onclick="switchTab('tonglau', document.querySelectorAll('.nav-tab')[2])">
+              进入市区唐楼寻宝与回报率测算专版 →
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Bottom Row: Official Hard Data Portals Quick-Access Matrix -->
+      <!-- Full 18 Districts Subarea & Benchmark Estates Table -->
       <div class="card">
         <div class="section-header">
-          <div class="section-title">🔗 个人研究必查：香港权威硬数据与交易登记源直达矩阵</div>
-          <span style="font-size:0.76rem;color:var(--text-secondary);">所有链接均经真实核验，点击可直接在新窗口打开对应数据源</span>
+          <div class="section-title">🗺️ 全港 18 区细分板块、代表屋苑尺价、尺租区间与投资定位全表</div>
+          <div class="chart-controls">
+            <input type="text" id="distSearchInput" placeholder="搜索区名、子板块或屋苑 (如: 马鞍山 / 青衣 / 嘉湖)..." oninput="renderDistrictTable()" style="width:280px;" />
+          </div>
         </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>数据源名称</th>
-                <th>机构属性</th>
-                <th>核心追踪指标</th>
-                <th>更新频率</th>
-                <th>数据获取方式 (个人自用)</th>
-                <th>官方直达链接</th>
+                <th>所属大区</th>
+                <th>行政区 (18区)</th>
+                <th class="num">全区平均实尺</th>
+                <th class="num">参考实用尺租</th>
+                <th class="num">估算租金回报</th>
+                <th>细分板块与核验代表屋苑尺价</th>
+                <th>区域核心供求与投资亮点</th>
+                <th>数据核验</th>
+              </tr>
+            </thead>
+            <tbody id="districtDetailTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: FACT-CHECKED REAL RENTAL LISTINGS -->
+    <section id="tab-rentals" class="tab-pane">
+      <div class="card" style="margin-bottom:1.2rem;">
+        <div class="section-header">
+          <div class="section-title">🏠 全港各区 Fact-Checked 真实租盘核验库 (附 28Hse / 美联真实物业编号与原帖链接)</div>
+          <div class="chart-controls">
+            <input type="text" id="rentalSearchInput" placeholder="搜索屋苑、地区或租客群 (如: 淘大 / 青衣 / 学生)..." oninput="renderRentalTable()" style="width:250px;" />
+            <select id="rentalRegionFilter" onchange="renderRentalTable()">
+              <option value="all">全部大区 (港岛 / 九龙 / 新界东 / 新界西)</option>
+              <option value="港岛">港岛区 (西营盘 / 黄竹坑 / 鸭脷洲)</option>
+              <option value="九龙">九龙区 (九龙湾 / 钻石山 / 启德)</option>
+              <option value="新界东">新界东 (将军澳 / 大围 / 沙田第一城)</option>
+              <option value="新界西">新界西 (青衣 / 元朗 / 屯门)</option>
+            </select>
+          </div>
+        </div>
+        <p style="font-size:0.79rem;color:var(--text-secondary);margin-bottom:0.85rem;">
+          以下每一条租盘均经过 2026 年 10 月 <a href="https://www.28hse.com/en/rent/apartment" target="_blank" rel="noopener">28Hse 香港屋网</a> 及 <a href="https://www.midland.com.hk/en/list/rent" target="_blank" rel="noopener">美联物业租务库</a> 真实房源页面核对（包含具体座数、楼层带、实用面积、月租叫价/成交价及同屋苑放租盘源区间），点击右侧链接可直接打开原房源页核查：
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>核验编号</th>
+                <th>区域及板块</th>
+                <th>真实屋苑与座数/楼层</th>
+                <th>户型间隔</th>
+                <th class="num">实用面积</th>
+                <th class="num">核实月租 (HK$)</th>
+                <th class="num">实用尺租</th>
+                <th class="num">估算回报率</th>
+                <th>主力租客画像 & 盘源核验细节</th>
+                <th>真实房源直达</th>
+              </tr>
+            </thead>
+            <tbody id="rentalTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: URBAN TONG LAU INVESTMENT RADAR -->
+    <section id="tab-tonglau" class="tab-pane">
+      <!-- Top Row: Real Tong Lau Listings + Interactive Tong Lau Co-living & Redevelopment Calculator -->
+      <div class="grid-2-1">
+        <div class="card">
+          <div class="section-header">
+            <div class="section-title">🧱 市区高价值唐楼实盘寻宝库 (28Hse 2026年10月真实在售核验)</div>
+            <div class="chart-controls">
+              <select id="tongLauFilter" onchange="renderTongLauTable()">
+                <option value="all">全部投资策略 (高息套房 + 重建并购)</option>
+                <option value="套房">现成套房高息收租 (>7.5%回报)</option>
+                <option value="收购">博市建局/财团收购重建</option>
+                <option value="校网">41名校网 / 低门槛入场</option>
+              </select>
+            </div>
+          </div>
+          <p style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:0.8rem;">
+            筛选自 <a href="https://www.28hse.com/buy/apartment/housetype-tong_lau" target="_blank" rel="noopener">28Hse 唐楼放售专库</a>，重点锁定<strong>旺角、太子、深水埗、九龙城</strong>地铁步程圈内实尺 $4,808–$7,588/呎、具高现金流或旧区重建价值的真实在售盘源：
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>核心地段</th>
+                  <th>唐楼实盘名称与特色</th>
+                  <th class="num">实用面积</th>
+                  <th class="num">叫价 (万)</th>
+                  <th class="num">实用尺价</th>
+                  <th class="num">预估月租</th>
+                  <th class="num">预估回报率</th>
+                  <th>投资逻辑与重建范围分析</th>
+                  <th>核验链接</th>
+                </tr>
+              </thead>
+              <tbody id="tongLauTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right: Interactive Tong Lau Subdivision ROI & URA Redevelopment Calculator -->
+        <div class="card">
+          <div class="section-header">
+            <div class="section-title">📐 唐楼「改装套房收租 + 博强拍收购」回报测算器</div>
+            <span class="badge badge-purple">唐楼投资专用</span>
+          </div>
+          <p style="font-size:0.77rem;color:var(--text-secondary);margin-bottom:0.8rem;">
+            模拟买入市区唐楼后间隔为独立卫浴套房（Co-living/Studio）的真实总成本回报率（含翻新预算）及强拍重建潜力评分：
+          </p>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>唐楼买入总价 (HK$ 万)</span>
+              <span id="tlLblPrice" style="color:var(--accent);">300 万</span>
+            </div>
+            <input type="range" id="tlRngPrice" min="120" max="800" step="10" value="300" oninput="updateTongLauCalc()" />
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>实用面积 (平方呎 ft²)</span>
+              <span id="tlLblArea" style="color:var(--accent);">550 呎 (买入尺价 $5,455/呎)</span>
+            </div>
+            <input type="range" id="tlRngArea" min="200" max="1000" step="10" value="550" oninput="updateTongLauCalc()" />
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>翻新及合规防水/消防执修预算 (HK$ 万)</span>
+              <span id="tlLblReno" style="color:var(--neutral);">35 万 (若买现成套房可调为0)</span>
+            </div>
+            <input type="range" id="tlRngReno" min="0" max="120" step="5" value="35" oninput="updateTongLauCalc()" />
+          </div>
+
+          <div class="calc-grid">
+            <div class="form-group">
+              <div class="form-label">
+                <span>出租套房数量 (间)</span>
+                <span id="tlLblRooms">4 间套房</span>
+              </div>
+              <input type="range" id="tlRngRooms" min="1" max="6" step="1" value="4" oninput="updateTongLauCalc()" />
+            </div>
+
+            <div class="form-group">
+              <div class="form-label">
+                <span>每间套房平均月租 (HK$)</span>
+                <span id="tlLblRoomRent" style="color:var(--bull);">$5,300 /间</span>
+              </div>
+              <input type="range" id="tlRngRoomRent" min="3500" max="12000" step="100" value="5300" oninput="updateTongLauCalc()" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span>楼龄与所在街区类型 (决定强拍门槛)</span>
+            </div>
+            <select id="tlZoneType" onchange="updateTongLauCalc()">
+              <option value="70_desig">楼龄 ≥60年 · 指定旧区(深水埗/旺角/九龙城/湾仔/中西区) → 强拍门槛 65%</option>
+              <option value="50_desig">楼龄 50-59年 · 指定旧区(相连街区地盘) → 强拍门槛 70%</option>
+              <option value="50_non">楼龄 50-59年 · 非指定区单幢孤岛 → 强拍门槛 80%</option>
+            </select>
+          </div>
+
+          <div class="calc-result-box">
+            <div class="calc-stat">
+              <span>全包总投资成本 (楼价 + 翻新 + 印花税/杂费)</span>
+              <span class="calc-stat-val" id="tlResTotalCost">HK$ 341.0 万</span>
+            </div>
+            <div class="calc-stat">
+              <span>每月总租金收入 / 年总租金</span>
+              <span class="calc-stat-val" id="tlResAnnualRent" style="color:var(--bull);">HK$ 21,200/月 (年收 25.44 万)</span>
+            </div>
+            <div class="calc-stat">
+              <span>连装修真实总成本净回报率 (Net Yield on Cost)</span>
+              <span class="calc-stat-val" id="tlResNetYield" style="color:var(--bull);">6.85% (约 14.6 年纯租回本)</span>
+            </div>
+            <div class="calc-stat" style="border-bottom:none;padding-bottom:0;">
+              <span>旧区并购/重建价值评估等级</span>
+              <span class="calc-stat-val" id="tlResScore" style="color:var(--purple);">★ 88/100 (65%强拍门槛·高优级)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Compulsory Sale Policy & Due Diligence Matrix -->
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">⚖️ 寻找高投资价值唐楼：2024–2026 强拍新例门槛与实战尽职调查（避坑）清单</div>
+          <span style="font-size:0.75rem;color:var(--text-secondary);">依据《土地（为重新发展而强制售卖）（修订）条例》及 <a href="https://blog.owlsquarecoliving.com/%E8%88%8A%E6%A8%93%E6%94%B6%E8%B3%BC/" target="_blank" rel="noopener">Owl Square</a> / <a href="https://www.spacious.hk/zh-tw/blog/%E8%88%8A%E6%A8%93%E6%94%B6%E8%B3%BC-%E6%8A%95%E8%B3%87%E8%88%8A%E6%A8%93%E5%A4%A7%E8%A6%81%E8%A8%A3/" target="_blank" rel="noopener">千居 Spacious</a> 核实整理</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>评估维度</th>
+                <th>高投资价值唐楼标准（建议买入）</th>
+                <th>高风险/低价值陷阱（坚决避开）</th>
+                <th>政策与核查工具依据</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><strong>差饷物业估价署 (RVD)</strong></td>
-                <td>政府官方部门</td>
-                <td>私人住宅售价指数、租金指数、各面积类别平均租金回报率、落成量预测</td>
-                <td>每月更新</td>
-                <td>直接下载 XLS/CSV 或通过 DATA.GOV.HK API 拉取</td>
-                <td><a href="https://www.rvd.gov.hk/en/publications/property_market_statistics.html" target="_blank" rel="noopener">RVD 物业市场统计 ↗</a> | <a href="https://data.gov.hk/en-data/dataset/hk-rvd-tsinfo_rvd-property-market-statistics" target="_blank" rel="noopener">开放数据 API ↗</a></td>
+                <td><strong>1. 强拍门槛与楼龄地段</strong></td>
+                <td>楼龄 <strong>50–70年+</strong>，位于市建局「指定地区」（<strong>深水埗、长沙湾、油麻地、旺角、九龙城、土瓜湾、湾仔、西营盘/上环、荃湾</strong>），强拍门槛已降至 <strong>65% 或 70%</strong>。</td>
+                <td>楼龄不足50年、或位于非指定区且周边已被新建单幢大厦夹死（无法合并邻近地盘），强拍门槛仍维持 80%。</td>
+                <td><a href="https://blog.owlsquarecoliving.com/%E8%88%8A%E6%A8%93%E6%94%B6%E8%B3%BC/" target="_blank" rel="noopener">2026香港旧楼收购与强拍新例指南 ↗</a></td>
               </tr>
               <tr>
-                <td><strong>土地注册处 (Land Registry & IRIS)</strong></td>
-                <td>政府官方部门</td>
-                <td>全港每月楼宇买卖合约宗数、总值、一手/二手登记拆分、具体单位查册</td>
-                <td>每月 / 实时查册</td>
-                <td>月报网页抓取表格 / IRIS 综合注册资讯系统查询</td>
-                <td><a href="https://www.landreg.gov.hk/en/monthly/monthly.htm" target="_blank" rel="noopener">每月统计数字 ↗</a> | <a href="https://www.iris.gov.hk/" target="_blank" rel="noopener">IRIS 网上查册 ↗</a></td>
+                <td><strong>2. 剩余地积比率与地盘合并</strong></td>
+                <td>现存楼高仅 4–6 层、无电梯、与相邻数幢旧楼紧密相连（新例允许相连地段合并计算业权分数），重建后可放宽至 7.5–9 倍住宅/商住地积比。</td>
+                <td>已用尽地积比率的 12–15 层高密度洋楼（俗称「牙签楼」地基），发展商收购重建无利润空间。</td>
+                <td><a href="https://hk.propmark.com/hong-kong-real-estate-blog/zh-hk/hong-kong-compulsory-sale-old-building-investment-risks/" target="_blank" rel="noopener">PropMark 强拍放宽后旧楼投资拆解 ↗</a></td>
               </tr>
               <tr>
-                <td><strong>中原城市领先指数 (CCL & Centadata)</strong></td>
-                <td>龙头代理行 + 城大</td>
-                <td>每周最新临时买卖合约价格指数（四大分区 + 大中小型单位）、屋苑历史成交尺价</td>
-                <td>每周五公布</td>
-                <td>Python BeautifulSoup/Playwright 定时读取周报表格</td>
-                <td><a href="https://hk.centanet.com/info/en/index" target="_blank" rel="noopener">CCL 指数主页 ↗</a> | <a href="https://hk.centanet.com/findproperty/en/centadata" target="_blank" rel="noopener">中原楼市成交 ↗</a></td>
+                <td><strong>3. 楼层选择与收租流动性</strong></td>
+                <td>优先选 <strong>1/F – 3/F 黄金低层</strong>（租客无需爬8层楼梯，且发展商收购时低层近铺位估值更高）或<strong>顶层连入契天台</strong>（使用面积倍增）。</td>
+                <td>无入契天台的 7/F–8/F 顶层且出现严重天台渗水，或地面无铁闸、治安混乱的「三无大厦」。</td>
+                <td><a href="https://www.28hse.com/buy/apartment/property-4034979" target="_blank" rel="noopener">28Hse 旺角3/F有街闸唐楼样本 ↗</a></td>
               </tr>
               <tr>
-                <td><strong>美联物业楼市洞察 (Midland Insight)</strong></td>
-                <td>龙头代理行</td>
-                <td>美联楼价指数 (148.9)、美联信心指数 (反映减价盘比例)、18区平均实用呎价</td>
-                <td>每周 / 每日</td>
-                <td>抓取 Market Insight JSON 状态与成交记录列表</td>
-                <td><a href="https://www.midland.com.hk/en/market-insight" target="_blank" rel="noopener">楼市走势图 ↗</a> | <a href="https://www.midland.com.hk/en/market-insight/confidence-index" target="_blank" rel="noopener">美联信心指数 ↗</a></td>
-              </tr>
-              <tr>
-                <td><strong>28Hse 香港屋网 & House730</strong></td>
-                <td>本地大型放盘平台</td>
-                <td>业主自让盘与代理放盘量 (38,633伙)、Eva楼价与租金指数、一手新盘价单与销量</td>
-                <td>实时 / 每周</td>
-                <td>监控特定屋苑放盘叫价变动，捕捉急让劈价盘</td>
-                <td><a href="https://www.28hse.com/en/epi/latest_transaction" target="_blank" rel="noopener">28Hse 成交与指数 ↗</a> | <a href="https://www.house730.com/en-us/market-data/" target="_blank" rel="noopener">House730 数据 ↗</a></td>
+                <td><strong>4. 屋宇署命令与按揭查册</strong></td>
+                <td>通过 <a href="https://www.iris.gov.hk/" target="_blank" rel="noopener">IRIS 土地注册处查册</a> 确认无严重未解除「钉契」（Building Order），或挑选已做好间房且银行估足价的盘源（按揭一般按「75减楼龄」或透过财务/中资行承造5-6成）。</td>
+                <td>附带巨额强制验楼令/修葺令摊分（动辄每户摊分30–60万）、无契楼、或违反建筑物条例封死走火通道的违规套房。</td>
+                <td><a href="https://decoman-tenement.com/%E5%94%90%E6%A8%93%E5%85%A8%E6%94%BB%E7%95%A5%EF%BC%9A%E5%BE%9E%E6%AD%B7%E5%8F%B2%E7%89%B9%E8%89%B2%E5%88%B0%E8%B2%B7%E8%B3%A3%E6%8C%89%E6%8F%AD%EF%BC%8C%E4%B8%80%E6%96%87%E7%9C%85%E9%A6%99/" target="_blank" rel="noopener">唐楼2026买卖按揭与风险全攻略 ↗</a></td>
               </tr>
             </tbody>
           </table>
@@ -931,10 +606,9 @@
       </div>
     </section>
 
-    <!-- TAB 2: NEW LAUNCHES & CARRY TRADE CALCULATOR -->
+    <!-- TAB 4: NEW LAUNCHES & CARRY TRADE CALCULATOR -->
     <section id="tab-market" class="tab-pane">
       <div class="grid-2-1">
-        <!-- New Launches Table -->
         <div class="card">
           <div class="section-header">
             <div class="section-title">🏗️ 2026年10月香港重点一手新盘开价与去化追踪 (数据源: 28Hse)</div>
@@ -943,13 +617,10 @@
                 <option value="all">全部区域 (7个活跃新盘)</option>
                 <option value="港岛">港岛区 (北角)</option>
                 <option value="九龙">九龙区 (红磡/油塘/长沙湾/牛池湾)</option>
-                <option value="新界">新界区 (大埔/西贡)</option>
+                <option value="新界东">新界东 (大埔/西贡)</option>
               </select>
             </div>
           </div>
-          <p style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:0.8rem;">
-            数据实时同步自 <a href="https://www.28hse.com/en/" target="_blank" rel="noopener">28Hse 一手新盘频道</a>，帮助你对比同区一手折实呎价与二手屋苑溢价/折让幅度：
-          </p>
           <div class="table-wrap">
             <table>
               <thead>
@@ -968,16 +639,11 @@
           </div>
         </div>
 
-        <!-- Interactive Mortgage vs Rent Carry Calculator -->
         <div class="card">
           <div class="section-header">
-            <div class="section-title">🧮 个人买楼收租 vs 按揭供款利差计算器</div>
-            <span class="badge badge-accent">实时联动测算</span>
+            <div class="section-title">🧮 私楼买楼收租 vs 按揭供款利差计算器</div>
+            <span class="badge badge-accent">供平过租检测</span>
           </div>
-          <p style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:0.9rem;">
-            针对当前「租金破顶、楼价筑底」行情，输入目标单位参数即可测算表面/净租金回报率及每月正负现金流（供平过租检测）：
-          </p>
-
           <div class="form-group">
             <div class="form-label">
               <span>目标买入楼价 (HK$ 万)</span>
@@ -985,7 +651,6 @@
             </div>
             <input type="range" id="rngPrice" min="250" max="2500" step="10" value="600" oninput="updateCalculator()" />
           </div>
-
           <div class="form-group">
             <div class="form-label">
               <span>实用面积 (平方呎 ft²)</span>
@@ -993,7 +658,6 @@
             </div>
             <input type="range" id="rngArea" min="180" max="1500" step="10" value="420" oninput="updateCalculator()" />
           </div>
-
           <div class="form-group">
             <div class="form-label">
               <span>预计每月租金收入 (HK$)</span>
@@ -1001,138 +665,61 @@
             </div>
             <input type="range" id="rngRent" min="8000" max="80000" step="500" value="20500" oninput="updateCalculator()" />
           </div>
-
           <div class="calc-grid">
             <div class="form-group">
-              <div class="form-label">
-                <span>按揭成数 (%)</span>
-                <span id="lblLtv">70%</span>
-              </div>
+              <div class="form-label"><span>按揭成数 (%)</span><span id="lblLtv">70%</span></div>
               <input type="range" id="rngLtv" min="30" max="90" step="5" value="70" oninput="updateCalculator()" />
             </div>
-
             <div class="form-group">
-              <div class="form-label">
-                <span>按揭实际年利率 (%)</span>
-                <span id="lblRate">3.625%</span>
-              </div>
+              <div class="form-label"><span>按揭实际年利率 (%)</span><span id="lblRate">3.625%</span></div>
               <input type="range" id="rngRate" min="2.0" max="5.5" step="0.125" value="3.625" oninput="updateCalculator()" />
             </div>
           </div>
-
           <div class="calc-result-box">
-            <div class="calc-stat">
-              <span>表面租金回报率 (Gross Yield)</span>
-              <span class="calc-stat-val" id="resGrossYield" style="color:var(--bull);">4.10%</span>
-            </div>
-            <div class="calc-stat">
-              <span>扣除管理费/差饷后净回报率 (估算)</span>
-              <span class="calc-stat-val" id="resNetYield" style="color:var(--accent);">3.52%</span>
-            </div>
-            <div class="calc-stat">
-              <span>30年期每月按揭供款</span>
-              <span class="calc-stat-val" id="resMortgage">HK$ 19,154</span>
-            </div>
-            <div class="calc-stat" style="border-bottom:none;padding-bottom:0;">
-              <span>每月「租金 - 供款」净现金流</span>
-              <span class="calc-stat-val" id="resCashflow" style="color:var(--bull);">+HK$ 1,346 (供平过租)</span>
-            </div>
+            <div class="calc-stat"><span>表面租金回报率 (Gross Yield)</span><span class="calc-stat-val" id="resGrossYield" style="color:var(--bull);">4.10%</span></div>
+            <div class="calc-stat"><span>扣除管理费/差饷后净回报率 (估算)</span><span class="calc-stat-val" id="resNetYield" style="color:var(--accent);">3.52%</span></div>
+            <div class="calc-stat"><span>30年期每月按揭供款</span><span class="calc-stat-val" id="resMortgage">HK$ 19,154</span></div>
+            <div class="calc-stat" style="border-bottom:none;padding-bottom:0;"><span>每月「租金 - 供款」净现金流</span><span class="calc-stat-val" id="resCashflow" style="color:var(--bull);">+HK$ 1,346 (供平过租)</span></div>
           </div>
-        </div>
-      </div>
-
-      <!-- Bottom Card: Notable Secondary Market & Rental Movers -->
-      <div class="card">
-        <div class="section-header">
-          <div class="section-title">⚡ 二手异动个案与租务市场实录 (摘自连登房屋台 / 地产站 / 美联成交)</div>
-          <span style="font-size:0.76rem;color:var(--text-secondary);">用于辅助判断个别板块抗跌力与业主心理防线</span>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>板块 / 屋苑个案</th>
-                <th>交易类型</th>
-                <th>核心成交 / 市场数据</th>
-                <th>市场信号解读</th>
-                <th>来源依据</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>奥运站屋苑 (两房单位)</strong></td>
-                <td><span class="badge badge-bear">二手蚀让</span></td>
-                <td>业主持货 15 年埋单蚀 <strong>285 万港元</strong>沽出两房</td>
-                <td>反映部分早年高溢价买入或曾作加按的业主在换楼/套现压力下选择大幅减价离场</td>
-                <td><a href="https://lihkg.com/category/37" target="_blank" rel="noopener">LIHKG 房屋台实录 ↗</a></td>
-              </tr>
-              <tr>
-                <td><strong>西半山 (15 WESTERN STREET)</strong></td>
-                <td><span class="badge badge-bull">租务畅旺</span></td>
-                <td>西半山上月录 <strong>470 宗租赁</strong>，该盘月租一年升 <strong>6%</strong></td>
-                <td>港岛核心区受金融专才及港大周边租客支撑，细单位租金持续跑赢楼价</td>
-                <td><a href="https://lihkg.com/category/37?page=10" target="_blank" rel="noopener">LIHKG 房屋台租务追踪 ↗</a></td>
-              </tr>
-              <tr>
-                <td><strong>油塘 (擎海 I / The Atlas I)</strong></td>
-                <td><span class="badge badge-accent">一手加推</span></td>
-                <td>提价 1% 加推 194 伙，一房最平 <strong>418 万</strong>，折实均呎 <strong>$14,688</strong></td>
-                <td>市区400万出头一房新盘极具吸金力，直接挤压同区九龙东二手旧楼议价空间</td>
-                <td><a href="https://lihkg.com/category/37?page=2" target="_blank" rel="noopener">LIHKG 房屋台 ↗</a> / <a href="https://www.28hse.com/en/" target="_blank" rel="noopener">28Hse ↗</a></td>
-              </tr>
-              <tr>
-                <td><strong>元朗上车盘 (低层连巨型平台特色户)</strong></td>
-                <td><span class="badge badge-neutral">热议成交</span></td>
-                <td>309 呎实用面积连 844 呎大平台，以 <strong>325 万港元</strong>成交</td>
-                <td>低总价上车盘仍有承接，但社区热议「妹仔大过主人婆」平台卫生与维修风险</td>
-                <td><a href="https://ps.hket.com/article/3440636/" target="_blank" rel="noopener">HKET 地产站热话 ↗</a></td>
-              </tr>
-            </tbody>
-          </table>
         </div>
       </div>
     </section>
 
-    <!-- TAB 3: AI SENTIMENT & SOCIAL FEED -->
+    <!-- TAB 5: AI SENTIMENT & SOCIAL FEED -->
     <section id="tab-sentiment" class="tab-pane">
       <div class="grid-2-1">
-        <!-- Left: Multi-channel Forum & Social Media Feed -->
         <div class="card">
           <div class="section-header">
             <div class="section-title">💬 全网楼市社区与社交媒体 AI 舆情聚合流</div>
             <div class="chart-controls">
-              <input type="text" id="feedSearchInput" placeholder="搜索屋苑、区域或关键词..." oninput="renderSocialFeed()" />
+              <input type="text" id="feedSearchInput" placeholder="搜索屋苑、唐楼或关键词..." oninput="renderSocialFeed()" />
               <select id="feedSourceFilter" onchange="renderSocialFeed()">
-                <option value="all">所有渠道 (LIHKG / 香讨 / HKET / 小红书)</option>
+                <option value="all">所有渠道 (LIHKG / 香讨 / 旧楼专题 / 小红书)</option>
                 <option value="LIHKG">连登讨论区 (LIHKG 房屋台)</option>
+                <option value="TongLau">旧楼并购与唐楼投资专题</option>
                 <option value="Discuss">香港讨论区 (地产版)</option>
-                <option value="HKET">HKET 地产站 / 亲子热话</option>
-                <option value="Xiaohongshu">小红书 (港漂置业/看房笔记)</option>
+                <option value="HKET">HKET 地产站热话</option>
+                <option value="Xiaohongshu">小红书 (港漂置业/租房)</option>
               </select>
               <select id="feedStanceFilter" onchange="renderSocialFeed()">
                 <option value="all">全部情绪倾向</option>
-                <option value="bull">看涨 / 积极入市</option>
+                <option value="bull">看涨 / 积极寻宝</option>
                 <option value="neutral">理性分析 / 租买对比</option>
-                <option value="bear">看跌 / 风险警示</option>
+                <option value="bear">看跌 / 蚀让警示</option>
               </select>
             </div>
           </div>
-
           <div id="socialFeedContainer" class="feed-list"></div>
         </div>
 
-        <!-- Right: Personal Watchlist & Estate Pros/Cons AI Extractor -->
-        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+        <div style="display:flex;flex-direction:column;gap:1.2rem;">
           <div class="card">
             <div class="section-header">
-              <div class="section-title">🎯 个人自用：重点关注屋苑/关键词监控池</div>
+              <div class="section-title">🎯 个人自用：重点关注屋苑/唐楼关键词监控池</div>
               <span class="badge badge-accent">点击标签可过滤左栏</span>
             </div>
-            <p style="font-size:0.78rem;color:var(--text-secondary);">
-              添加你正在研究的屋苑或议题，点击任意标签即可一键过滤左侧舆情流：
-            </p>
-            <div style="display:flex;gap:0.5rem;margin-top:0.65rem;">
-              <input type="text" id="newWatchInput" placeholder="输入屋苑或关键词 (如: 太古城)" style="flex:1;" />
+            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+              <input type="text" id="newWatchInput" placeholder="输入屋苑或关键词 (如: 唐楼 / 沙田第一城)" style="flex:1;" />
               <button class="btn btn-primary" onclick="addWatchTag()">+ 添加监控</button>
             </div>
             <div id="watchlistContainer" class="watchlist-tags"></div>
@@ -1140,25 +727,16 @@
 
           <div class="card">
             <div class="section-header">
-              <div class="section-title">⚖️ 热门板块社区口碑「红黑榜」AI 提炼</div>
+              <div class="section-title">⚖️ 2026 社区热门议题：买市区唐楼 vs 买新界上车私楼</div>
             </div>
-            <div style="display:flex;flex-direction:column;gap:0.75rem;font-size:0.8rem;">
-              <div style="background:var(--bg-elevated);padding:0.8rem;border-radius:8px;">
-                <div style="font-weight:700;margin-bottom:0.3rem;display:flex;justify-content:space-between;">
-                  <span>🏙️ 淘大花园 vs 沙田第一城 (上车收租王对比)</span>
-                  <a href="https://ps.hket.com/article/3440636/" target="_blank" rel="noopener">来源热帖 ↗</a>
-                </div>
-                <div style="color:var(--bull);margin-bottom:0.2rem;">✔ <strong>社区赞誉点</strong>：淘大饮食商场配套极密（周边4间戏院）、沙田第一城校网与铁路连接强、内地生合租需求极稳。</div>
-                <div style="color:var(--bear);">✖ <strong>社区槽点</strong>：楼龄均较高，需留意大维修摊分费用及早期钻石厅/吕字厅实用率差异。</div>
+            <div style="display:flex;flex-direction:column;gap:0.7rem;font-size:0.79rem;">
+              <div style="background:var(--bg-elevated);padding:0.75rem;border-radius:8px;">
+                <div style="font-weight:700;margin-bottom:0.25rem;color:var(--bull);">✔ 市区唐楼派（旺角/深水埗/九龙城 300万内）：</div>
+                <div style="color:var(--text-secondary);">尺价仅 $4,800–$6,000/呎，无昂贵会所管理费；间4间套房月收 $18,000–$21,600（回报率 7%–8.6%），且享 65%–70% 强拍新门槛博收购期权。</div>
               </div>
-
-              <div style="background:var(--bg-elevated);padding:0.8rem;border-radius:8px;">
-                <div style="font-weight:700;margin-bottom:0.3rem;display:flex;justify-content:space-between;">
-                  <span>🏗️ 市区一手新盘 vs 同区30年旧楼</span>
-                  <a href="https://lihkg.com/thread/3145129/page/5" target="_blank" rel="noopener">连登热议 ↗</a>
-                </div>
-                <div style="color:var(--bull);margin-bottom:0.2rem;">✔ <strong>买新楼派观点</strong>：免代理佣金（或享高回赠）、附送全新装修及全套家电（省40-50万现金）、免首数年大维修担忧、会所配套吸引年轻租客。</div>
-                <div style="color:var(--bear);">✖ <strong>买旧楼派观点</strong>：新盘开放式/一房纳米则溢价高、管理费昂贵（普遍每呎 $4.8-$6+），二手转手若遇同区新期数推出易受压。</div>
+              <div style="background:var(--bg-elevated);padding:0.75rem;border-radius:8px;">
+                <div style="font-weight:700;margin-bottom:0.25rem;color:var(--accent);">✔ 新界铁盘派（沙田第一城/嘉湖山庄/盈翠半岛）：</div>
+                <div style="color:var(--text-secondary);">银行按揭容易批核（最高7-9成、30年还款期），二手转手成交极快，内地学生与家庭租客素质稳定，无需操心旧楼渗水或分间套房管理。</div>
               </div>
             </div>
           </div>
@@ -1166,508 +744,69 @@
       </div>
     </section>
 
-    <!-- TAB 4: ZERO-CODING GITHUB CLOUD AUTO-UPDATE WIZARD -->
+    <!-- TAB 6: GITHUB CLOUD AUTO-UPDATE WIZARD -->
     <section id="tab-pipeline" class="tab-pane">
-      <div class="card" style="margin-bottom:1.25rem;border-color:var(--accent);">
+      <div class="card" style="margin-bottom:1.2rem;border-color:var(--accent);">
         <div class="section-header">
-          <div class="section-title">🚀 零基础保姆级指南：不用敲一行代码，在 GitHub 网页靠鼠标点击实现「24小时免费云端自动更新」</div>
-          <span class="badge badge-bull">全程免费 · 手机电脑随时看</span>
+          <div class="section-title">🚀 零基础保姆级指南：在 GitHub 网页靠鼠标拖拽实现「24小时免费云端自动更新」</div>
+          <span class="badge badge-bull">v3.0 全套文件已同步升级</span>
         </div>
-        <p style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:1rem;">
-          你完全不需要懂编程或安装 Git 软件！本网页已经内置了<strong>自动读取云端 <code>market_data.json</code></strong> 的功能。你只需要在 GitHub 网页版上像「发网盘文件」一样上传 3 个文件，GitHub 的免费云端机器人就会每天早晚 9:00 / 18:00 自动帮你运行爬虫并更新网站数据。
+        <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:0.9rem;">
+          本页面及配套的 <code>market_data.json</code>、<code>scraper.py</code> 均已升级包含<strong>全港18区细分、真实核验租盘及市区唐楼专库</strong>。你在 GitHub 仓库里只需上传覆盖同名文件即可：
         </p>
-
-        <!-- One-click Download Bar -->
-        <div style="background:var(--bg-elevated);padding:1rem;border-radius:10px;border:1px solid var(--border);margin-bottom:1.1rem;">
-          <div style="font-size:0.86rem;font-weight:700;margin-bottom:0.6rem;color:var(--accent);">
-            📦 第一步：先点击下方按钮，把为你打包好的 3 个核心文件下载到你电脑桌面
-          </div>
-          <div style="display:flex;gap:0.65rem;flex-wrap:wrap;">
-            <button class="btn btn-primary" onclick="downloadFile('index.html', document.documentElement.outerHTML)">⬇ 1. 下载网站主页 (index.html)</button>
-            <button class="btn btn-primary" onclick="downloadScraperPy()">⬇ 2. 下载云端爬虫脚本 (scraper.py)</button>
-            <button class="btn btn-primary" onclick="downloadInitialJson()">⬇ 3. 下载初始数据包 (market_data.json)</button>
-            <button class="btn" onclick="copyWorkflowYaml()">📋 复制定时任务配置 (update_data.yml)</button>
-          </div>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <button class="btn btn-primary" onclick="downloadFile('index.html', document.documentElement.outerHTML)">⬇ 1. 下载最新主页 (index.html)</button>
+          <button class="btn btn-primary" onclick="downloadInitialJson()">⬇ 2. 下载18区+租盘+唐楼数据包 (market_data.json)</button>
         </div>
-
-        <!-- 4-Step Visual Walkthrough Table -->
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th style="width:110px;">操作步骤</th>
-                <th style="width:240px;">你在网页上做什么</th>
-                <th>具体点击哪个按钮（纯鼠标操作，5分钟搞定）</th>
+                <th style="width:100px;">步骤</th>
+                <th style="width:220px;">操作内容</th>
+                <th>具体网页点击位置</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td><span class="badge badge-accent">第 1 步</span></td>
-                <td><strong>注册并新建一个免费仓库</strong></td>
-                <td>
-                  1. 打开 <a href="https://github.com/" target="_blank" rel="noopener">github.com</a> 注册并登录账号。<br/>
-                  2. 点击网页右上角的 <strong>「+」号 → 「New repository」</strong>。<br/>
-                  3. 在 <em>Repository name</em> 填入 <code>hk-property-tracker</code>，选择 <strong>Public（公开，可享免费无限次云端运行与免费网页托管）</strong>，勾选 <strong>Add a README file</strong>，然后点击底部绿色按钮 <strong>Create repository</strong>。
-                </td>
+                <td><strong>新建公开仓库</strong></td>
+                <td>登录 <a href="https://github.com/" target="_blank" rel="noopener">github.com</a> → 右上角「+」→ <strong>New repository</strong> → 填 <code>hk-property-tracker</code> → 选 <strong>Public</strong> → 勾选 <strong>Add a README file</strong> → 点击 <strong>Create repository</strong>。</td>
               </tr>
               <tr>
                 <td><span class="badge badge-accent">第 2 步</span></td>
-                <td><strong>用鼠标拖拽上传 3 个文件</strong></td>
-                <td>
-                  1. 在你新建好的仓库页面，点击右上方的 <strong>「Add file」 → 「Upload files」</strong>。<br/>
-                  2. 把刚才下载到桌面的 <code>index.html</code>、<code>scraper.py</code>、<code>market_data.json</code> 这 3 个文件直接<strong>用鼠标拖进网页框里</strong>。<br/>
-                  3. 拖入后点击底部绿色按钮 <strong>Commit changes</strong> 保存。
-                </td>
+                <td><strong>拖拽上传核心文件</strong></td>
+                <td>点击仓库右上角 <strong>Add file → Upload files</strong>，把下载的 <code>index.html</code>、<code>market_data.json</code>、<code>scraper.py</code> 拖进网页框 → 点击底部绿色按钮 <strong>Commit changes</strong>。</td>
               </tr>
               <tr>
                 <td><span class="badge badge-accent">第 3 步</span></td>
-                <td><strong>粘贴定时自动运行机器人配置</strong></td>
-                <td>
-                  1. 回到仓库主页，再次点击 <strong>「Add file」 → 「Create new file」</strong>。<br/>
-                  2. 在上方文件名输入框（<em>Name your file...</em>）里，完整输入：<br/>
-                  <code style="color:var(--accent);font-weight:700;">.github/workflows/update_data.yml</code> （注意前面有个小圆点 <code>.</code>，GitHub 会自动帮你建好文件夹）。<br/>
-                  3. 点击上方 <strong>「📋 复制定时任务配置 (update_data.yml)」</strong> 按钮，粘贴到下方大文本框里，点击右上角绿色按钮 <strong>Commit changes</strong>。
-                </td>
+                <td><strong>创建定时任务文件</strong></td>
+                <td>点击 <strong>Add file → Create new file</strong> → 文件名填 <code>.github/workflows/update_data.yml</code> → 粘贴我们提供的 <code>update_data.yml</code> 内容 → 点击 <strong>Commit changes</strong>。</td>
               </tr>
               <tr>
                 <td><span class="badge badge-bull">第 4 步</span></td>
-                <td><strong>开启免费网站网址 (GitHub Pages)</strong></td>
-                <td>
-                  1. 点击仓库顶部菜单栏最右边的 <strong>「Settings」⚙️</strong>，在左侧边栏找到并点击 <strong>「Pages」</strong>。<br/>
-                  2. 在 <em>Build and deployment → Branch</em> 下拉框中，把 <code>None</code> 改为 <strong><code>main</code></strong>，点击旁边的 <strong>Save</strong>。<br/>
-                  3. 等待约 1 分钟刷新页面，顶部就会出现你的专属永久网址（形如 <code>https://你的用户名.github.io/hk-property-tracker/</code>），用手机或电脑随时打开都是最新数据！
-                </td>
+                <td><strong>开启免费网站网址</strong></td>
+                <td>点击仓库顶部 <strong>Settings → 左侧 Pages</strong> → 将 Branch 从 <code>None</code> 改为 <strong><code>main</code></strong> 并点 <strong>Save</strong>，1分钟后即可打开生成的永久网址。</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-
-      <div class="grid-1-1">
-        <div class="card">
-          <div class="section-header">
-            <div class="section-title">🤖 定时任务配置文件 (<code>.github/workflows/update_data.yml</code>)</div>
-            <button class="btn btn-primary" onclick="copyWorkflowYaml()">📋 一键复制配置内容</button>
-          </div>
-          <p style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:0.7rem;">
-            这是第 3 步需要粘贴的内容。它告诉 GitHub 服务器每天香港时间 09:00 和 18:00 自动运行一次 <code>scraper.py</code> 并把抓到的最新楼市数据保存回网站：
-          </p>
-          <pre class="code-box" id="workflowYamlBox">name: Auto Update HK Property Data
-
-on:
-  schedule:
-    # 每天香港时间早上 09:00 和晚上 18:00 自动运行 (UTC 01:00 和 10:00)
-    - cron: '0 1,10 * * *'
-  workflow_dispatch: # 允许你在 GitHub 网页上随时点击按钮手动立即更新
-
-permissions:
-  contents: write
-
-jobs:
-  scrape-and-update:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 1. 检出仓库代码
-        uses: actions/checkout@v4
-
-      - name: 2. 安装 Python 环境
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: 3. 安装解析库 BeautifulSoup4
-        run: pip install beautifulsoup4 lxml
-
-      - name: 4. 运行香港楼市爬虫更新 market_data.json
-        run: python scraper.py
-
-      - name: 5. 自动保存最新数据到网站
-        run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "HK PropPulse AutoBot"
-          git add market_data.json
-          git diff --staged --quiet || git commit -m "Auto-update HK property market data"
-          git push
-</pre>
-        </div>
-
-        <div class="card">
-          <div class="section-header">
-            <div class="section-title">🐍 云端自动抓取脚本 (<code>scraper.py</code>)</div>
-            <button class="btn btn-primary" onclick="downloadScraperPy()">⬇ 直接下载 scraper.py</button>
-          </div>
-          <p style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:0.7rem;">
-            已内置容错保护机制：自动抓取 <a href="https://www.28hse.com/en/buy/apartment" target="_blank" rel="noopener">28Hse 在售盘源数</a>、<a href="https://www.midland.com.hk/en/list/buy" target="_blank" rel="noopener">美联最新楼价指数</a> 及 <a href="https://www.discuss.com.hk/forumdisplay.php?fid=110" target="_blank" rel="noopener">香港讨论区地产版最新帖文</a> 并智能识别看涨/看跌情绪标签：
-          </p>
-          <pre class="code-box" id="pythonCodeBlock">#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-HK PropPulse - GitHub Actions 云端全自动楼市硬数据与舆情抓取脚本 (scraper.py)
-专为个人研究设计：无需自己开电脑，由 GitHub 免费云端服务器每日定时运行并更新 market_data.json
-"""
-
-import datetime
-import json
-import re
-import urllib.request
-from bs4 import BeautifulSoup
-
-USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
-)
-
-# 预设基准快照（当个别网站处于维护或触发Cloudflare质询时，自动保留上一次有效硬数据，确保网页永不报错）
-DEFAULT_SNAPSHOT = {
-    "updated_at": datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).strftime("%Y-%m-%d %H:%M:%S HKT"),
-    "sync_mode": "GitHub Actions Cloud Auto-Sync",
-    "kpis": {
-        "ccl_small_medium": {"value": 161.11, "wow": "+0.64%", "url": "https://hk.centanet.com/info/en/index"},
-        "ccl_large": {"value": 161.68, "wow": "+0.94%", "url": "https://hk.centanet.com/info/en/index"},
-        "midland_index": {"value": 148.90, "wow": "+0.1%", "mom": "-0.1%", "listings": 33030, "url": "https://www.midland.com.hk/en/market-insight"},
-        "hse28_listings": {"value": 38633, "estates": 11560, "eri_note": "ERI 破 122 创历史新高", "url": "https://www.28hse.com/en/buy/apartment"},
-        "official_status": {"rvd_url": "https://www.rvd.gov.hk/en/publications/property_market_statistics.html", "landreg_url": "https://www.landreg.gov.hk/en/monthly/monthly.htm"}
-    },
-    "ccl_breakdown": [
-        {"category": "港岛区 (HK Island)", "index": 164.90, "wow": "—", "mom": "+0.34%", "signal": "蓝筹屋苑抗跌，豪宅及西半山租务强劲"},
-        {"category": "九龙区 (Kowloon)", "index": 162.44, "wow": "—", "mom": "+1.79%", "signal": "长沙湾/油塘/启德一手交投带动二手气氛"},
-        {"category": "新界东 (NT East)", "index": 173.38, "wow": "+0.78%", "mom": "+0.43%", "signal": "沙田/大埔刚需盘稳步回升，内地生租务支撑"},
-        {"category": "新界西 (NT West)", "index": 144.60, "wow": "+0.39%", "mom": "+0.68%", "signal": "荃湾/屯门/元朗上车盘吸引收租及用家"},
-        {"category": "大型单位 (Large Units)", "index": 161.68, "wow": "+0.94%", "mom": "—", "signal": "换楼客与高才通家庭客源支撑中大户型"},
-        {"category": "中小型单位 (Small/Medium)", "index": 161.11, "wow": "+0.64%", "mom": "—", "signal": "细价楼止跌回稳，租金回报率走高封堵跌幅"}
-    ],
-    "district_prices": [
-        {"name": "中西区 (Central &amp; Western)", "region": "hk", "price": 22569, "url": "https://www.midland.com.hk/en/market-insight"},
-        {"name": "湾仔 (Wan Chai)", "region": "hk", "price": 20566, "url": "https://www.midland.com.hk/en/market-insight"},
-        {"name": "油尖旺 (Yau Tsim Mong)", "region": "kln", "price": 16861, "url": "https://www.midland.com.hk/en/market-insight"},
-        {"name": "九龙城 (Kowloon City/启德)", "region": "kln", "price": 15457, "url": "https://www.midland.com.hk/en/market-insight"},
-        {"name": "东区 (Eastern/太古城)", "region": "hk", "price": 14939, "url": "https://www.midland.com.hk/en/market-insight"},
-        {"name": "黄大仙 (Wong Tai Sin)", "region": "kln", "price": 13447, "url": "https://www.midland.com.hk/en/market-insight"},
-        {"name": "观塘 (Kwun Tong)", "region": "kln", "price": 12234, "url": "https://www.midland.com.hk/en/market-insight"},
-        {"name": "荃湾 (Tsuen Wan)", "region": "nt", "price": 12093, "url": "https://www.midland.com.hk/en/market-insight"},
-        {"name": "北区 (North)", "region": "nt", "price": 10440, "url": "https://www.midland.com.hk/en/market-insight"}
-    ],
-    "new_launches": [
-        {"name": "Sierra Sea 第2C(2)期", "region": "新界", "address": "大埔海映路8号 (Tai Po 8 Hoi Ying Road)", "priceRange": "$12,958 - $16,029", "totalUnits": 522, "soldUnits": 0, "onSaleUnits": 198, "status": "即将开售 (Coming Soon)", "badge": "badge-accent", "url": "https://www.28hse.com/en/"},
-        {"name": "One Victoria Cove 第2期", "region": "九龙", "address": "红磡庇利街1号 (Hung Hom 1 Bailey Street)", "priceRange": "$19,437 - $24,298", "totalUnits": 384, "soldUnits": 18, "onSaleUnits": 62, "status": "已推售 (Launched)", "badge": "badge-bull", "url": "https://www.28hse.com/en/"},
-        {"name": "The Atlas I (擎海 I)", "region": "九龙", "address": "油塘东源街23号 (Yau Tong 23 Tung Yuen Street)", "priceRange": "$13,012 - $16,171", "totalUnits": 617, "soldUnits": 214, "onSaleUnits": 244, "status": "招标/热销中 (Tendering)", "badge": "badge-bull", "url": "https://www.28hse.com/en/"},
-        {"name": "State Residence (皇都)", "region": "港岛", "address": "北角熙和街1号 (North Point 1 Hei Wo Street)", "priceRange": "$18,849 - $50,000", "totalUnits": 194, "soldUnits": 189, "onSaleUnits": 5, "status": "尾盘招标 (仅余5伙)", "badge": "badge-purple", "url": "https://www.28hse.com/en/"},
-        {"name": "The Sterling 第2期", "region": "九龙", "address": "长沙湾发祥街西8号 (Cheung Sha Wan)", "priceRange": "$16,930 - $26,629", "totalUnits": 407, "soldUnits": 337, "onSaleUnits": 33, "status": "热销82% (Tendering)", "badge": "badge-bull", "url": "https://www.28hse.com/en/"}
-    ],
-    "social_posts": [
-        {
-            "source": "LIHKG",
-            "sourceName": "连登讨论区 · 房屋台",
-            "stance": "neutral",
-            "stanceLabel": "筑底修复派",
-            "date": "持续热议",
-            "title": "【老楼讲楼】香港楼市反弹分析：今波反弹係真嘅，但属「筑底反弹+政策利好叠加」嘅修复行情",
-            "aiSummary": "AI 提炼：作者指出当前成交回暖并非传统狂牛起步，而是撤辣、减息预期与高租金回报率共同封住了下跌空间；建议自住用家挑选铁路沿线抗跌屋苑。",
-            "keywords": ["CCL", "筑底反弹", "撤辣", "刚需"],
-            "url": "https://lihkg.com/thread/4102914/page/1"
-        },
-        {
-            "source": "LIHKG",
-            "sourceName": "连登讨论区 · 房屋台",
-            "stance": "bear",
-            "stanceLabel": "二手蚀让警示",
-            "date": "最新实录",
-            "title": "奥运站业主持货15年埋单蚀285万沽两房｜「深水炸弹」擎海I提价1%加推194伙一房最平418万",
-            "aiSummary": "AI 提炼：油塘 The Atlas I（擎海I）一房折实仅418万起（均呎$14,688），直接分流市区上车客；反观部分二手老牌屋苑如奥运站两房出现持货15年蚀让个案。",
-            "keywords": ["奥运站", "The Atlas I", "油塘", "蚀让"],
-            "url": "https://lihkg.com/category/37"
-        },
-        {
-            "source": "Discuss",
-            "sourceName": "香港讨论区 · 地产站 (Fid=110)",
-            "stance": "neutral",
-            "stanceLabel": "负担能力与供求",
-            "date": "精华讨论",
-            "title": "香港楼价连续16年全球最难负担：80年代入息中位数可买4呎，现在入息中位数只可以买1呎",
-            "aiSummary": "AI 提炼：香讨网友围绕长期购买力展开激辩，高才通及专才家庭带来新增租务刚需，新界东/西细价屋苑成交依然活跃。",
-            "keywords": ["入息中位数", "沙田第一城", "新界西", "CCL"],
-            "url": "https://www.discuss.com.hk/viewthread.php?tid=32237317"
-        },
-        {
-            "source": "Xiaohongshu",
-            "sourceName": "小红书 · 港漂置业与租房洞察 (联动28Hse数据)",
-            "stance": "bull",
-            "stanceLabel": "专才/学生租买潮",
-            "date": "热点汇总",
-            "title": "内地生与专才租务推升 Eva 租金指数破 122 点创新高｜北角皇都、长沙湾 The Sterling 成看房热门",
-            "aiSummary": "AI 提炼：结合 28Hse 市场报告与社交平台看房笔记，由于租金连创新高，不少满3-7年专才转向「转租为买」。",
-            "keywords": ["Sierra Sea", "The Sterling", "皇都", "专才买房"],
-            "url": "https://www.28hse.com/en/"
-        }
-    ]
-}
-
-
-def fetch_html(url: str, timeout: int = 15) -&gt; str:
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept-Language": "zh-HK,zh;q=0.9,en;q=0.8"})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read().decode("utf-8", errors="ignore")
-
-
-def try_update_28hse(snapshot: dict) -&gt; None:
-    """抓取 28Hse 最新在售盘源总数"""
-    try:
-        html = fetch_html("https://www.28hse.com/en/buy/apartment")
-        m = re.search(r"Total\s+([0-9,]+)\s+results", html, re.IGNORECASE)
-        if m:
-            count = int(m.group(1).replace(",", ""))
-            snapshot["kpis"]["hse28_listings"]["value"] = count
-            print(f"[OK] 28Hse 在售盘源更新为: {count}")
-    except Exception as exc:
-        print(f"[WARN] 28Hse 抓取跳过，保留上次有效值: {exc}")
-
-
-def try_update_midland(snapshot: dict) -&gt; None:
-    """抓取 美联物业最新楼价指数"""
-    try:
-        html = fetch_html("https://www.midland.com.hk/en/list/buy")
-        m = re.search(r"Midland Property Price Index\s*([0-9.]+)", html, re.IGNORECASE)
-        if m:
-            idx_val = float(m.group(1))
-            snapshot["kpis"]["midland_index"]["value"] = idx_val
-            print(f"[OK] 美联楼价指数更新为: {idx_val}")
-    except Exception as exc:
-        print(f"[WARN] 美联指数抓取跳过，保留上次有效值: {exc}")
-
-
-def try_update_discuss_forum(snapshot: dict) -&gt; None:
-    """抓取 香港讨论区地产版最新帖文标题并做简易情绪分类"""
-    try:
-        html = fetch_html("https://www.discuss.com.hk/forumdisplay.php?fid=110")
-        soup = BeautifulSoup(html, "html.parser")
-        threads = []
-        for a_tag in soup.select("span[id^='thread_'] a, a.tsubject")[:5]:
-            title = a_tag.get_text(strip=True)
-            href = a_tag.get("href", "")
-            if len(title) &gt;= 6:
-                full_url = href if href.startswith("http") else f"https://www.discuss.com.hk/{href.lstrip('/')}"
-                stance = "bear" if any(w in title for w in ["跌", "蚀", "劈", "惨", "负资产"]) else (
-                    "bull" if any(w in title for w in ["升", "抢", "破顶", "回暖", "供平过租"]) else "neutral"
-                )
-                stance_label = "看跌/劈价讨论" if stance == "bear" else ("看涨/回暖信号" if stance == "bull" else "社区实时热帖")
-                threads.append({
-                    "source": "Discuss",
-                    "sourceName": "香港讨论区 · 地产版实时抓取",
-                    "stance": stance,
-                    "stanceLabel": stance_label,
-                    "date": datetime.date.today().isoformat(),
-                    "title": title,
-                    "aiSummary": "云端定时爬虫自动采集自香港讨论区地产版最新主题帖，点击右上方可直达原帖查看楼市网友回复。",
-                    "keywords": ["香讨实时", "香港楼市"],
-                    "url": full_url
-                })
-        if threads:
-            snapshot["social_posts"] = threads + snapshot["social_posts"][:4]
-            print(f"[OK] 成功抓取 {len(threads)} 条香港讨论区最新楼市帖文")
-    except Exception as exc:
-        print(f"[WARN] 论坛实时抓取跳过，保留精选基准帖: {exc}")
-
-
-def main():
-    snapshot = DEFAULT_SNAPSHOT.copy()
-    snapshot["updated_at"] = datetime.datetime.now(
-        datetime.timezone(datetime.timedelta(hours=8))
-    ).strftime("%Y-%m-%d %H:%M:%S HKT")
-
-    try_update_28hse(snapshot)
-    try_update_midland(snapshot)
-    try_update_discuss_forum(snapshot)
-
-    with open("market_data.json", "w", encoding="utf-8") as f:
-        json.dump(snapshot, f, ensure_ascii=False, indent=2)
-    print(f"[DONE] 已生成最新 market_data.json ({snapshot['updated_at']})")
-
-
-if __name__ == "__main__":
-    main()
-</pre>
-        </div>
-      </div>
     </section>
+
   </main>
 
   <footer class="footer-note">
-    HK PropPulse 个人研究原型看板 · 所有内置硬数据与新盘/论坛案例均基于 2026年10月香港差饷物业估价署 (RVD)、土地注册处、中原地产 (CCL)、美联物业、28Hse 及连登/香讨真实公开数据构建
+    HK PropPulse v3.0 个人研究终端 · 涵盖全港18区细分尺价 (美联/中原CCL)、Fact-Checked 真实租盘 (28Hse/美联) 与市区唐楼投资寻宝专库
   </footer>
 
   <script>
-    // 1. Real Verified District Price per Sq Ft Data (Midland Market Insight Oct 2026)
-    const districtData = [
-      { name: "中西区 (Central & Western)", region: "hk", price: 22569, url: "https://www.midland.com.hk/en/market-insight" },
-      { name: "湾仔 (Wan Chai)", region: "hk", price: 20566, url: "https://www.midland.com.hk/en/market-insight" },
-      { name: "油尖旺 (Yau Tsim Mong)", region: "kln", price: 16861, url: "https://www.midland.com.hk/en/market-insight" },
-      { name: "九龙城 (Kowloon City/启德)", region: "kln", price: 15457, url: "https://www.midland.com.hk/en/market-insight" },
-      { name: "东区 (Eastern/太古城)", region: "hk", price: 14939, url: "https://www.midland.com.hk/en/market-insight" },
-      { name: "黄大仙 (Wong Tai Sin)", region: "kln", price: 13447, url: "https://www.midland.com.hk/en/market-insight" },
-      { name: "观塘 (Kwun Tong)", region: "kln", price: 12234, url: "https://www.midland.com.hk/en/market-insight" },
-      { name: "荃湾 (Tsuen Wan)", region: "nt", price: 12093, url: "https://www.midland.com.hk/en/market-insight" },
-      { name: "北区 (North)", region: "nt", price: 10440, url: "https://www.midland.com.hk/en/market-insight" }
-    ];
-
-    // 2. Real Verified 2026 New Property Launches (28Hse Oct 2026)
-    const newLaunches = [
-      {
-        name: "Sierra Sea 第2C(2)期",
-        region: "新界",
-        address: "大埔海映路8号 (Tai Po 8 Hoi Ying Road)",
-        priceRange: "$12,958 - $16,029",
-        totalUnits: 522,
-        soldUnits: 0,
-        onSaleUnits: 198,
-        status: "即将开售 (Coming Soon)",
-        badge: "badge-accent",
-        url: "https://www.28hse.com/en/"
-      },
-      {
-        name: "One Victoria Cove 第2期",
-        region: "九龙",
-        address: "红磡庇利街1号 (Hung Hom 1 Bailey Street)",
-        priceRange: "$19,437 - $24,298",
-        totalUnits: 384,
-        soldUnits: 18,
-        onSaleUnits: 62,
-        status: "已推售 (Launched)",
-        badge: "badge-bull",
-        url: "https://www.28hse.com/en/"
-      },
-      {
-        name: "The Atlas I (擎海 I)",
-        region: "九龙",
-        address: "油塘东源街23号 (Yau Tong 23 Tung Yuen Street)",
-        priceRange: "$13,012 - $16,171",
-        totalUnits: 617,
-        soldUnits: 214,
-        onSaleUnits: 244,
-        status: "招标/热销中 (Tendering)",
-        badge: "badge-bull",
-        url: "https://www.28hse.com/en/"
-      },
-      {
-        name: "State Residence (皇都)",
-        region: "港岛",
-        address: "北角熙和街1号 (North Point 1 Hei Wo Street)",
-        priceRange: "$18,849 - $50,000",
-        totalUnits: 194,
-        soldUnits: 189,
-        onSaleUnits: 5,
-        status: "尾盘招标 (仅余5伙)",
-        badge: "badge-purple",
-        url: "https://www.28hse.com/en/"
-      },
-      {
-        name: "The Sterling 第2期",
-        region: "九龙",
-        address: "长沙湾发祥街西8号 (Cheung Sha Wan)",
-        priceRange: "$16,930 - $26,629",
-        totalUnits: 407,
-        soldUnits: 337,
-        onSaleUnits: 33,
-        status: "热销82% (Tendering)",
-        badge: "badge-bull",
-        url: "https://www.28hse.com/en/"
-      },
-      {
-        name: "33 Clear Water Bay 第1期",
-        region: "九龙",
-        address: "牛池湾清水湾道33号 (Ngau Chi Wan)",
-        priceRange: "招标待定",
-        totalUnits: 361,
-        soldUnits: 0,
-        onSaleUnits: 73,
-        status: "即将招标 (Tender Soon)",
-        badge: "badge-neutral",
-        url: "https://www.28hse.com/en/"
-      },
-      {
-        name: "Mount Hebe",
-        region: "新界",
-        address: "西贡蚝涌响钟路8号 (Sai Kung)",
-        priceRange: "$26,731 (成交均呎)",
-        totalUnits: 51,
-        soldUnits: 12,
-        onSaleUnits: 39,
-        status: "低密度招标 (Tendering)",
-        badge: "badge-neutral",
-        url: "https://www.28hse.com/en/"
-      }
-    ];
-
-    // 3. Real Forum & Social Media Discussions
-    const socialPosts = [
-      {
-        source: "LIHKG",
-        sourceName: "连登讨论区 · 房屋台",
-        stance: "neutral",
-        stanceLabel: "筑底修复派",
-        date: "2026-05 / 持续热议",
-        title: "【老楼讲楼】香港楼市反弹分析：今波反弹係真嘅，但属「筑底反弹+政策利好叠加」嘅修复行情",
-        aiSummary: "AI 提炼：作者指出当前成交回暖并非传统狂牛起步，而是撤辣、减息预期与高租金回报率共同封住了下跌空间；建议自住用家挑选铁路沿线抗跌屋苑，忌盲目高追溢价新盘。",
-        keywords: ["CCL", "筑底反弹", "撤辣", "刚需"],
-        url: "https://lihkg.com/thread/4102914/page/1"
-      },
-      {
-        source: "LIHKG",
-        sourceName: "连登讨论区 · 房屋台",
-        stance: "bear",
-        stanceLabel: "二手蚀让警示",
-        date: "2026-10",
-        title: "奥运站业主持货15年埋单蚀285万沽两房｜「深水炸弹」擎海I提价1%加推194伙一房最平418万",
-        aiSummary: "AI 提炼：油塘 The Atlas I（擎海I）一房折实仅418万起（均呎$14,688），直接分流市区上车客；反观部分二手老牌屋苑如奥运站两房出现持货15年仍账面蚀让个案，显示一手低开对二手换楼链造成挤压。",
-        keywords: ["奥运站", "The Atlas I", "油塘", "蚀让"],
-        url: "https://lihkg.com/category/37"
-      },
-      {
-        source: "LIHKG",
-        sourceName: "连登讨论区 · 房屋台",
-        stance: "bull",
-        stanceLabel: "低位入市心态",
-        date: "2026-05 / 置业分享",
-        title: "识得係呢几年楼市低位买楼嘅人士，入黎分享下入市原因？西半山上月470宗租赁月租一年升6%",
-        aiSummary: "AI 提炼：多位已上车网友表示最大动力是「交租帮人供楼太肉赤」及「首期人工达标后锁定自住需求」；同时西半山单月录470宗租务、租金按年升6%，印证核心区「供平过租」重现。",
-        keywords: ["西半山", "供平过租", "上车", "租金"],
-        url: "https://lihkg.com/thread/4112126/page/1"
-      },
-      {
-        source: "Discuss",
-        sourceName: "香港讨论区 · 地产站 (Fid=110)",
-        stance: "neutral",
-        stanceLabel: "负担能力与供求",
-        date: "2026-06 / 精华帖",
-        title: "香港楼价连续16年全球最难负担：80年代入息中位数可买4呎，现在入息中位数只可以买1呎",
-        aiSummary: "AI 提炼：香讨网友围绕长期购买力展开激辩，看淡者认为本地薪金增幅追不上尺价，看稳者则指出高才通及专才家庭带来新增购买力与租务刚需，新界东/西细价屋苑成交依然活跃。",
-        keywords: ["入息中位数", "沙田第一城", "新界西", "CCL"],
-        url: "https://www.discuss.com.hk/viewthread.php?tid=32237317"
-      },
-      {
-        source: "HKET",
-        sourceName: "HKET 地产站 · 网络热话",
-        stance: "neutral",
-        stanceLabel: "户型与屋苑测评",
-        date: "社区热议",
-        title: "买楼连大平台是好是坏惹热议（元朗309呎连844呎平台325万成交）｜租住淘大花园抑或沙田第一城？",
-        aiSummary: "AI 提炼：针对特色平台户，过来人提醒低层大平台极易积存楼上高空掷物及烟头垃圾，除非养宠否则实用性低；而在淘大vs第一城对比中，淘大胜在餐饮戏院密集，第一城胜在社区规划与铁路通勤。",
-        keywords: ["淘大花园", "沙田第一城", "元朗", "特色平台户"],
-        url: "https://ps.hket.com/article/3440636/"
-      },
-      {
-        source: "Xiaohongshu",
-        sourceName: "小红书 · 港漂置业与租房洞察 (联动28Hse数据)",
-        stance: "bull",
-        stanceLabel: "专才/学生租买潮",
-        date: "2026-10 热点汇总",
-        title: "内地生与专才租务推升 Eva 租金指数破 122 点创新高｜北角皇都、长沙湾 The Sterling 成看房热门",
-        aiSummary: "AI 提炼：结合 28Hse 市场报告与社交平台看房笔记，港漂群体高度关注铁路上盖及新会所楼盘（如长沙湾 The Sterling、大埔 Sierra Sea 及沙田/奥运站），由于租金连创新高，不少满3-7年专才转向「转租为买」。",
-        keywords: ["Sierra Sea", "The Sterling", "皇都", "专才买房"],
-        url: "https://www.28hse.com/en/"
-      }
-    ];
-
-    let watchlist = ["Sierra Sea", "沙田第一城", "奥运站", "西半山", "CCL", "供平过租"];
+    const districtData = [{"name": "南区 (Southern)", "region": "hk", "regionLabel": "港岛区", "price": 23825, "rentPsf": "48 - 65", "estYield": "3.2% - 3.9%", "subareas": "黄竹坑站 (港岛南岸 $26,627/呎)、薄扶林 (贝沙湾 $28,588/呎)、鸭脷洲 (海怡半岛 $16,216/呎、南湾)", "highlight": "铁路由金钟直达黄竹坑，Blue Coast 等新盘带动专才租务与换楼交投", "url": "https://www.midland.com.hk/en/market-insight"}, {"name": "中西区 (Central & Western)", "region": "hk", "regionLabel": "港岛区", "price": 22553, "rentPsf": "60 - 78", "estYield": "3.6% - 4.4%", "subareas": "西半山、中上环 (聚贤居)、西营盘 (缙城峰)、坚尼地城", "highlight": "金融专才与港大教职员/学生核心租务区，细单位尺租高达 $70+/呎", "url": "https://www.midland.com.hk/en/list/rent/Hong-Kong-Island-Central-Sheung-Wan-D-130ND10004"}, {"name": "湾仔区 (Wan Chai)", "region": "hk", "regionLabel": "港岛区", "price": 20590, "rentPsf": "55 - 72", "estYield": "3.5% - 4.3%", "subareas": "湾仔 (囍汇 $26,541/呎)、铜锣湾、跑马地、大坑", "highlight": "商业核心区单身贵族及外企租客密集，旧式单幢与唐楼兼具收租及并购潜力", "url": "https://www.midland.com.hk/en/market-insight"}, {"name": "东区 (Eastern)", "region": "hk", "regionLabel": "港岛区", "price": 14950, "rentPsf": "42 - 58", "estYield": "3.6% - 4.2%", "subareas": "鲗鱼涌 (太古城 $18,177/呎、康怡 $15,202/呎)、北角 (皇都)、西湾河 (嘉亨湾 $23,351/呎)、柴湾 (杏花邨 $14,585/呎)", "highlight": "港岛蓝筹中产大屋苑集中地，太古坊商业区支撑稳健租盘需求", "url": "https://www.midland.com.hk/en/market-insight"}, {"name": "油尖旺区 (Yau Tsim Mong)", "region": "kln", "regionLabel": "九龙区", "price": 16860, "rentPsf": "45 - 65", "estYield": "3.8% - 7.5% (唐楼套房)", "subareas": "九龙站、奥运站 (维港湾/帝柏海湾)、尖沙咀 (港景峰)、佐敦、油麻地、旺角、太子、大角咀", "highlight": "高铁与西九文化区辐射奥运/九龙站豪宅；旺角/太子/油麻地为全港唐楼改装收租与市建局重建最密集区", "url": "https://www.28hse.com/en/rent/a2/dg30"}, {"name": "九龙城区 (Kowloon City)", "region": "kln", "regionLabel": "九龙区", "price": 15489, "rentPsf": "43 - 58", "estYield": "3.7% - 5.2%", "subareas": "启德新区 (377个在租盘)、红磡/黄埔花园 ($14,581/呎)、何文田、九龙塘、土瓜湾、马头角", "highlight": "启德体育园及新盘群供应充沛；红磡近理工大学内地生抢租，九龙城/土瓜湾享41名校网及市建局大型重建红利", "url": "https://www.midland.com.hk/en/list/rent/Kai-Tak-D-130ND20001"}, {"name": "深水埗区 (Sham Shui Po)", "region": "kln", "regionLabel": "九龙区", "price": 13873, "rentPsf": "40 - 60", "estYield": "4.0% - 8.0% (唐楼套房)", "subareas": "南昌站 (汇玺 $25,119/呎)、长沙湾 (The Sterling)、荔枝角 (美孚新邨 $11,771/呎)、深水埗、石硖尾", "highlight": "一区两极：南昌/长沙湾新晋半新盘尺价逾1.6万-2.5万，而深水埗旧楼/唐楼近30日成交均呎仅 $8,037/呎（最低$4,402/呎），高息寻宝首选", "url": "https://www.midland.com.hk/en/district/Kowloon-Sham-Shui-Po-130ND20025"}, {"name": "黄大仙区 (Wong Tai Sin)", "region": "kln", "regionLabel": "九龙区", "price": 13447, "rentPsf": "38 - 46", "estYield": "3.8% - 4.4%", "subareas": "钻石山 (龙蟠苑/星河明居)、新蒲岗 (誉·港湾)、黄大仙、乐富、牛池湾 (清水湾道33号新盘)", "highlight": "钻石山屯马线与观塘线双铁交汇，龙蟠苑等自由市场居屋及细码私楼租务回报扎实", "url": "https://www.28hse.com/en/rent/apartment/property-4013088"}, {"name": "观塘区 (Kwun Tong)", "region": "kln", "regionLabel": "九龙区", "price": 12234, "rentPsf": "38 - 49", "estYield": "3.9% - 4.5%", "subareas": "九龙湾 (淘大花园 $13,058/呎、德福花园)、茶果岭 (丽港城 $12,492/呎)、观塘 (凯滙)、油塘 (The Atlas I)、蓝田", "highlight": "九龙东 CBD2 办公群支撑九龙湾/观塘庞大上班族租盘，淘大花园尺租高达 $46.7/呎，油塘新盘低开吸客", "url": "https://www.28hse.com/en/rent/apartment/property-3967477"}, {"name": "西贡及将军澳区 (Sai Kung & TKO)", "region": "nte", "regionLabel": "新界东", "price": 14890, "rentPsf": "38 - 48", "estYield": "3.5% - 4.1%", "subareas": "将军澳市中心 (天晋 $18,327/呎、新都城/君傲湾)、日出康城 ($13,830/呎，月成交60宗)、坑口、宝琳、调景岭、西贡低密度住宅 ($17,609/呎)", "highlight": "跨湾大桥与将蓝隧道贯通后通勤港岛东及九龙东极快，康城与天晋租售交投量稳居全港前列", "url": "https://www.28hse.com/rent/a3/dg41"}, {"name": "沙田区 (Sha Tin)", "region": "nte", "regionLabel": "新界东", "price": 15061, "rentPsf": "42 - 55", "estYield": "3.8% - 4.6%", "subareas": "沙田市中心、第一城/石门 (沙田第一城 $13,249/呎)、大围 (柏傲庄 $25,341/呎、金狮花园)、火炭、马鞍山 (迎海 $15,934/呎)", "highlight": "东铁线与屯马线枢纽，中文大学及浸会大学等高校学生合租刚需极强，第一城与金狮花园常年供不应求", "url": "https://www.28hse.com/rent/a3/dg44/c4080"}, {"name": "大埔区 (Tai Po)", "region": "nte", "regionLabel": "新界东", "price": 11946, "rentPsf": "34 - 45", "estYield": "3.6% - 4.3%", "subareas": "大埔市中心 (大埔中心/大埔花园)、太和、白石角 (海日湾/云滙/Silicon Hill)、西沙十四乡 (Sierra Sea $15,440/呎)", "highlight": "香港科学园创科人员与中文大学学生双重租客支撑白石角及大埔墟，西沙大型新盘 Sierra Sea 焦点推售", "url": "https://www.midland.com.hk/en/list/rent/New-Territories-Tai-Po-Mid-Levels-D-130ND30038"}, {"name": "北区 (North)", "region": "nte", "regionLabel": "新界东", "price": 10391, "rentPsf": "31 - 39", "estYield": "3.7% - 4.4%", "subareas": "上水 (上水中心/龙丰花园)、粉岭 (牵晴间/花都广场/粉岭名都)、古洞北新发展区、沙头角", "highlight": "北部都会区与罗湖/落马洲口岸跨境通勤第一站，尺价仅约1万出头，受跨境家庭及教大/中大北上学生追捧", "url": "https://www.midland.com.hk/en/market-insight"}, {"name": "葵青区 (Kwai Tsing)", "region": "ntw", "regionLabel": "新界西", "price": 12143, "rentPsf": "38 - 52", "estYield": "3.8% - 4.5%", "subareas": "青衣 (盈翠半岛、灏景湾、翠怡花园)、葵芳 (新都会广场/葵芳阁)、葵兴、荔景", "highlight": "青衣站兼具东涌线与机场快线优势，盈翠半岛两房尺租达 $47-$52/呎，直逼市区一线屋苑", "url": "https://www.28hse.com/en/rent/apartment/property-4035784"}, {"name": "荃湾区 (Tsuen Wan)", "region": "ntw", "regionLabel": "新界西", "price": 12127, "rentPsf": "37 - 48", "estYield": "3.7% - 4.3%", "subareas": "荃湾西站 (海之恋/全·城汇/柏傲湾)、荃湾市中心 (愉景新城/绿杨新邨/荃新天地)、大窝口、深井/青龙头", "highlight": "天空之城天桥网络连结各大商场及双铁路线（荃湾线+屯马线），生活配套极其成熟，自住与收租流动性俱佳", "url": "https://www.midland.com.hk/en/list/branch/New-Territories-Sham-Tseng-Tsing-Lung-Tau-D-130ND30006"}, {"name": "离岛区 (Islands)", "region": "ntw", "regionLabel": "新界西及离岛", "price": 10811, "rentPsf": "32 - 42", "estYield": "3.8% - 4.5%", "subareas": "东涌 (映湾园 $10,324/呎、蓝天海岸、东堤湾畔)、愉景湾 ($10,077/呎，月成交34宗)、马湾珀丽湾、梅窝/长洲", "highlight": "香港国际机场及航天城庞大航空/物流从业员刚需租盘池，映湾园及愉景湾尺价仅1万余元，租务极为稳健", "url": "https://www.midland.com.hk/en/"}, {"name": "元朗区 (Yuen Long)", "region": "ntw", "regionLabel": "新界西", "price": 10485, "rentPsf": "28 - 42", "estYield": "3.6% - 4.5%", "subareas": "元朗站 (YOHO Town $14,586/呎、Grand YOHO)、锦田北 (PARK YOHO $12,002/呎)、天水围 (嘉湖山庄 $8,573/呎、YOHO WEST $13,901/呎)、洪水桥", "highlight": "嘉湖山庄以 $8,573/呎 成为全港大型屋苑低水标杆（月成交27宗），元朗市中心单幢盘 272呎月租 $7,800 起", "url": "https://www.midland.com.hk/en/"}, {"name": "屯门区 (Tuen Mun)", "region": "ntw", "regionLabel": "新界西", "price": 10438, "rentPsf": "31 - 43", "estYield": "3.7% - 4.6%", "subareas": "屯门市中心 (珑门/屯门市广场，1,569个放售盘)、兆康 (NOVO LAND $14,121/呎、叠茵庭 $9,565/呎)、屯门码头、青山公路扫管笏", "highlight": "屯赤隧道直通机场及港珠澳大桥口岸，加上岭南大学扩招带动兆康/NOVO LAND 租盘，上车与收租门槛极亲民", "url": "https://www.midland.com.hk/en/list/buy/Tuen-Mun-Town-Centre-D-130ND30013"}];
+    const rentalListings = [{"id": "28Hse #3971709", "region": "港岛", "district": "中西区 · 西营盘", "estate": "缙城峰 (Island Crest) 1座高层F室", "layout": "1房 (高层海景/市景)", "area": 374, "monthlyRent": 26800, "rentPsf": 71.7, "estYield": "3.9%", "tenantProfile": "中环投行/律所专才、香港大学教职员及研究生", "factCheckNote": "西营盘港铁站上盖（市建局与嘉里合作重建标杆），管理费约 $2.25/呎", "url": "https://www.28hse.com/en/rent/apartment/property-3971709"}, {"id": "28Hse #4043762", "region": "港岛", "district": "南区 · 黄竹坑", "estate": "港岛南岸 3期 Blue Coast 2B座高层", "layout": "2房 (连露台及商场上盖)", "area": 454, "monthlyRent": 29600, "rentPsf": 65.2, "estYield": "3.6%", "tenantProfile": "金钟/中环跨国企业高管、南区国际学校陪读家庭", "factCheckNote": "黄竹坑站 The Southside 商场直连，同屋苑33个两房在租盘月租介乎 $26,800 - $43,000", "url": "https://www.28hse.com/en/rent/apartment/property-4043762"}, {"id": "28Hse #4046213", "region": "港岛", "district": "南区 · 鸭脷洲", "estate": "南湾 (Larvotto) 1座低层B室 / 7座高层C室", "layout": "豪宅海景大平层", "area": 1795, "monthlyRent": 57000, "rentPsf": 52.0, "estYield": "3.4%", "tenantProfile": "家族办公室高管、外籍及内地富裕家庭", "factCheckNote": "28Hse 实录近期租出个案：1,795呎以 $57,000 租出，784呎高层以 @$51/呎 租出", "url": "https://www.28hse.com/en/rent/apartment/property-4046213"}, {"id": "28Hse #3967477", "region": "九龙", "district": "观塘区 · 九龙湾", "estate": "淘大花园 (Amoy Gardens) G座中层4室", "layout": "2房 (东南向全装修)", "area": 375, "monthlyRent": 17500, "rentPsf": 46.7, "estYield": "4.3%", "tenantProfile": "九龙湾/观塘 CBD2 上班族、年轻情侣及浸大/城大学生", "factCheckNote": "按淘大花园最新成交均呎 $13,058/呎（市值约490万）计算，表面租金回报率高达 4.29%；全屋苑38个在租盘叫租 $13,200 - $18,800", "url": "https://www.28hse.com/en/rent/apartment/property-3967477"}, {"id": "28Hse #4013088", "region": "九龙", "district": "黄大仙区 · 钻石山", "estate": "龙蟠苑 (Lung Poon Court) A座高层", "layout": "2房 (已补地价自由市场)", "area": 383, "monthlyRent": 16300, "rentPsf": 42.6, "estYield": "4.4%", "tenantProfile": "九龙东及沙田通勤上班族、小家庭", "factCheckNote": "持有出租准证及已补地价，步行 2 分钟即达钻石山双铁转乘站（屯马线+观塘线）及荷里活广场", "url": "https://www.28hse.com/en/rent/apartment/property-4013088"}, {"id": "Midland #KaiTak", "region": "九龙", "district": "九龙城区 · 启德", "estate": "HENLEY PARK / 嘉汇 / 尚·珒溋 (启德租盘群)", "layout": "开放式至2房半 (全新会所)", "area": 250, "monthlyRent": 15500, "rentPsf": 62.0, "estYield": "3.8%", "tenantProfile": "高才通/优才抵港专才、AIRSIDE 商圈白领", "factCheckNote": "美联实录启德区共 377 个活跃租盘，28Hse 录得 HENLEY PARK 250呎精品户及 KT Marina 2.5房放租", "url": "https://www.midland.com.hk/en/list/rent/Kai-Tak-D-130ND20001"}, {"id": "28Hse #4014766", "region": "新界东", "district": "西贡区 · 将军澳", "estate": "天晋 (The Wings) 2座高层E室", "layout": "2房 (港铁站及PopCorn直连)", "area": 538, "monthlyRent": 25000, "rentPsf": 46.5, "estYield": "3.6%", "tenantProfile": "港岛东(鲗鱼涌)及九龙东中产家庭、科大教职员", "factCheckNote": "新鸿基将军澳站顶标杆，同屋苑在租 1房 $18,500-$20,500/月，2房(24伙) $20,000-$28,600/月", "url": "https://www.28hse.com/en/rent/apartment/property-4014766"}, {"id": "28Hse #4010652", "region": "新界东", "district": "沙田区 · 大围", "estate": "金狮花园 (Golden Lion Garden) 2期B座高层", "layout": "2房 (学生合租热门)", "area": 335, "monthlyRent": 16000, "rentPsf": 47.8, "estYield": "4.6%", "tenantProfile": "香港中文大学、城市大学、浸会大学内地研究生及本地年轻用家", "factCheckNote": "大围站生活圈高回报细价屋苑，全屋苑开放式月租 $12,000-$14,500，两房(17伙)月租 $12,500-$16,000", "url": "https://www.28hse.com/en/rent/apartment/property-4010652"}, {"id": "28Hse #c4080", "region": "新界东", "district": "沙田区 · 第一城", "estate": "沙田第一城 (City One Shatin) 标准两房", "layout": "2房 (实用284-327呎经典则)", "area": 304, "monthlyRent": 14800, "rentPsf": 48.7, "estYield": "4.4%", "tenantProfile": "中大研究生合租、沙田/九龙通勤族", "factCheckNote": "按沙田第一城最新均呎 $13,249/呎（总价约402万）测算，表面回报率达 4.41%，步程4分钟达第一城港铁站", "url": "https://www.28hse.com/rent/a3/dg44/c4080"}, {"id": "28Hse #4035784", "region": "新界西", "district": "葵青区 · 青衣", "estate": "盈翠半岛 (Villa Esplanada) 3期9座高层C室", "layout": "2房 (东北开扬景、青衣城上盖)", "area": 498, "monthlyRent": 23500, "rentPsf": 47.2, "estYield": "3.9%", "tenantProfile": "中环/九龙站金融从业员（东涌线直达）、国泰及机场管理层", "factCheckNote": "青衣机场快线站上盖，同屋苑 11座高层E室 (499呎) 叫租 HK$26,000 (@$52.1/呎)，全屋苑28个两房租盘叫租 $22,500-$35,000", "url": "https://www.28hse.com/en/rent/apartment/property-4035784"}, {"id": "28Hse #Page608", "region": "新界西", "district": "元朗区 · 元朗市中心", "estate": "兴福楼 (Yuen Long Hing Fook Building)", "layout": "1-2房 (单幢实用上车租盘)", "area": 272, "monthlyRent": 7800, "rentPsf": 28.7, "estYield": "4.5%", "tenantProfile": "新界西本地上班族、跨境通勤客", "factCheckNote": "步行约10分钟至元朗/朗屏港铁站，月租仅七千余元，体现新界西单幢旧楼极强的基层租务承接力", "url": "https://www.28hse.com/en/rent/apartment/page-608"}, {"id": "28Hse #Page1639", "region": "新界西", "district": "屯门区 · 兆康", "estate": "叠茵庭 (Parkland Villas) 中层可养宠两房", "layout": "2房 (近兆康站及岭南大学)", "area": 381, "monthlyRent": 12800, "rentPsf": 33.6, "estYield": "4.2%", "tenantProfile": "岭南大学教职员及硕博学生、深圳湾口岸通勤客", "factCheckNote": "对照美联最新录得叠茵庭成交呎价 $9,565/呎（约364万），租金回报率逾 4.2%，且屋苑附设会所泳池", "url": "https://www.28hse.com/en/rent/a26855/dg/page-1639"}];
+    const tongLauListings = [{"id": "28Hse 旺角套房王", "district": "油尖旺区 · 旺角东站旁", "title": "旺角唐楼 5/F (已间4个独立套房，交吉急售)", "area": 624, "priceWan": 300, "psf": 4808, "layout": "4套房 4独立卫浴 (向东南)", "estMonthlyRent": 21600, "estGrossYield": "8.64%", "uraZone": "毗邻旺角东站及市建局油旺地区研究范围", "strategy": "【高现金流套房收租】现成4间独立卫浴套房，免却数十万装修间隔费；按旺角东单间套房月租 $5,200-$5,600 计，月收逾2.1万，表面回报率逾 8.5%", "badge": "badge-bull", "url": "https://www.28hse.com/buy/a2/dg110/c5448"}, {"id": "28Hse 深水埗收租盘", "district": "深水埗区 · 深水埗核心", "title": "深水埗唐楼中高层 (4房4浴室，尺价仅五千余元)", "area": 532, "priceWan": 280, "psf": 5263, "layout": "4房 4浴室 (基本装修)", "estMonthlyRent": 18800, "estGrossYield": "8.06%", "uraZone": "深水埗旧区更新及私人财团并购活跃带（强拍门槛已降至65%-70%）", "strategy": "【高息收租+博强拍双线】深水埗全区唐楼成交均呎约 $8,037/呎，本盘仅 @$5,263/呎 显著低水；4套房格局收租即可覆盖供款并产生强劲正现金流", "badge": "badge-bull", "url": "https://www.28hse.com/buy/apartment/housetype-tong_lau"}, {"id": "28Hse #1132 太子连平台", "district": "油尖旺区 · 太子站旁", "title": "太子市区唐楼连特色平台 (业主标明具收购价值)", "area": 420, "priceWan": 308, "psf": 5905, "layout": "开放式/两房连平台 (近地铁站)", "estMonthlyRent": 14500, "estGrossYield": "5.65%", "uraZone": "太子地铁站步程圈，属60年代以上相连街区旧楼群", "strategy": "【博收购重建+精品改装】低层连平台单位深受年轻租客及宠物户欢迎，且地处油旺高地积比街区，适合「边收租边等发展商/市建局并购」", "badge": "badge-accent", "url": "https://www.28hse.com/buy/a2/dg29/c5067"}, {"id": "28Hse 九龙城41校网", "district": "九龙城区 · 九龙城/土瓜湾", "title": "九龙城唐楼连天台 (3房3浴雅装，银行估足价)", "area": 514, "priceWan": 390, "psf": 7588, "layout": "3房 3浴室 + 连天台 (雅致装修)", "estMonthlyRent": 19500, "estGrossYield": "6.00%", "uraZone": "九龙城41顶尖名校网 + 市建局衙前围道/土瓜湾大规模重建辐射圈", "strategy": "【名校网家庭租客+银行足额按揭】唐楼最怕银行估不足价，此盘明确「银行估足价」且带天台及3套卫浴，无论租予陪读家庭或分租均极抢手", "badge": "badge-purple", "url": "https://www.28hse.com/buy/apartment/a2/dg116/c8332"}, {"id": "28Hse #4034979 朗豪坊旁", "district": "油尖旺区 · 旺角朗豪坊旁", "title": "新填地街近亚皆老街 唐楼 3/F (4房1厅黄金低层)", "area": 550, "priceWan": 338, "psf": 6145, "layout": "3楼黄金楼层 · 4房1厅纯住宅有街闸", "estMonthlyRent": 19000, "estGrossYield": "6.75%", "uraZone": "紧贴朗豪坊及亚皆老街核心商业带，地皮合并商业价值极高", "strategy": "【3楼免爬高梯+核心地段】投资唐楼首选 1/F–3/F 低楼层（租客抗拒度低、市建局及发展商底价更高），且有大厦铁闸治安良好", "badge": "badge-accent", "url": "https://www.28hse.com/buy/apartment/property-4034979"}, {"id": "28Hse #3968194 超低门槛", "district": "油尖旺区 · 旺角广东道", "title": "旺角广东道近奶路臣街细码唐楼 (百余万入场)", "area": 240, "priceWan": 144, "psf": 6000, "layout": "240呎细码实用格局 (近朗豪坊)", "estMonthlyRent": 8800, "estGrossYield": "7.33%", "uraZone": "旺角核心街区，仅 $100 印花税门槛", "strategy": "【小资金Full Pay收租试验田】总价仅约144万（享受400万以下 $100 印花税优惠），无需背负沉重按揭即可在市区核心段获得逾7厘净现金流", "badge": "badge-neutral", "url": "https://www.28hse.com/buy/apartment/property-3968194"}];
+    const newLaunches = [{"name": "Sierra Sea 第2C(2)期", "region": "新界东", "address": "大埔海映路8号 (Tai Po 8 Hoi Ying Road)", "priceRange": "$12,958 - $16,029", "totalUnits": 522, "soldUnits": 0, "onSaleUnits": 198, "status": "即将开售 (Coming Soon)", "badge": "badge-accent", "url": "https://www.28hse.com/en/"}, {"name": "One Victoria Cove 第2期", "region": "九龙", "address": "红磡庇利街1号 (Hung Hom 1 Bailey Street)", "priceRange": "$19,437 - $24,298", "totalUnits": 384, "soldUnits": 18, "onSaleUnits": 62, "status": "已推售 (Launched)", "badge": "badge-bull", "url": "https://www.28hse.com/en/"}, {"name": "The Atlas I (擎海 I)", "region": "九龙", "address": "油塘东源街23号 (Yau Tong 23 Tung Yuen Street)", "priceRange": "$13,012 - $16,171", "totalUnits": 617, "soldUnits": 214, "onSaleUnits": 244, "status": "招标/热销中 (Tendering)", "badge": "badge-bull", "url": "https://www.28hse.com/en/"}, {"name": "State Residence (皇都)", "region": "港岛", "address": "北角熙和街1号 (North Point 1 Hei Wo Street)", "priceRange": "$18,849 - $50,000", "totalUnits": 194, "soldUnits": 189, "onSaleUnits": 5, "status": "尾盘招标 (仅余5伙)", "badge": "badge-purple", "url": "https://www.28hse.com/en/"}, {"name": "The Sterling 第2期", "region": "九龙", "address": "长沙湾发祥街西8号 (Cheung Sha Wan)", "priceRange": "$16,930 - $26,629", "totalUnits": 407, "soldUnits": 337, "onSaleUnits": 33, "status": "热销82% (Tendering)", "badge": "badge-bull", "url": "https://www.28hse.com/en/"}, {"name": "33 Clear Water Bay 第1期", "region": "九龙", "address": "牛池湾清水湾道33号 (Ngau Chi Wan)", "priceRange": "招标待定", "totalUnits": 361, "soldUnits": 0, "onSaleUnits": 73, "status": "即将招标 (Tender Soon)", "badge": "badge-neutral", "url": "https://www.28hse.com/en/"}, {"name": "Mount Hebe", "region": "新界东", "address": "西贡蚝涌响钟路8号 (Sai Kung)", "priceRange": "$26,731 (成交均呎)", "totalUnits": 51, "soldUnits": 12, "onSaleUnits": 39, "status": "低密度招标 (Tendering)", "badge": "badge-neutral", "url": "https://www.28hse.com/en/"}];
+    const socialPosts = [{"source": "LIHKG", "sourceName": "连登讨论区 · 房屋台", "stance": "neutral", "stanceLabel": "筑底修复派", "date": "2026-05 / 持续热议", "title": "【老楼讲楼】香港楼市反弹分析：今波反弹係真嘅，但属「筑底反弹+政策利好叠加」嘅修复行情", "aiSummary": "AI 提炼：作者指出当前成交回暖并非传统狂牛起步，而是撤辣、减息预期与高租金回报率共同封住了下跌空间；建议自住用家挑选铁路沿线抗跌屋苑。", "keywords": ["CCL", "筑底反弹", "撤辣", "刚需"], "url": "https://lihkg.com/thread/4102914/page/1"}, {"source": "LIHKG", "sourceName": "连登讨论区 · 房屋台", "stance": "bear", "stanceLabel": "二手蚀让警示", "date": "2026-10", "title": "奥运站业主持货15年埋单蚀285万沽两房｜「深水炸弹」擎海I提价1%加推194伙一房最平418万", "aiSummary": "AI 提炼：油塘 The Atlas I（擎海I）一房折实仅418万起（均呎$14,688），直接分流市区上车客；反观部分二手老牌屋苑如奥运站两房出现持货15年仍账面蚀让个案。", "keywords": ["奥运站", "The Atlas I", "油塘", "蚀让"], "url": "https://lihkg.com/category/37"}, {"source": "TongLau", "sourceName": "旧楼并购与强拍专题 · Owl Square / 28Hse 深度拆解", "stance": "bull", "stanceLabel": "唐楼双轨策略", "date": "2026-07 / 2026-10", "title": "强拍门槛降至65%–70%后买旧楼「等收购」仍有利可图吗？精明投资者转向「高息改装收租 + 博重建」双线部署", "aiSummary": "AI 提炼：2024年底落实强拍门槛下调至65%–70%，但受高息及市建局财赤影响，单纯「落钉」博短期收购风险上升；当前最稳健策略是在深水埗、旺角、九龙城及西营盘购入尺价 $4,800–$6,500 的低层唐楼，先靠 6%–8% 套房租金维持正现金流，再长线博取同区7年楼龄赔偿或财团合并。", "keywords": ["唐楼", "强拍门槛", "市建局", "深水埗"], "url": "https://blog.owlsquarecoliving.com/%E8%88%8A%E6%A8%93%E6%94%B6%E8%B3%BC/"}, {"source": "Discuss", "sourceName": "香港讨论区 · 地产站 (Fid=110)", "stance": "neutral", "stanceLabel": "负担能力与供求", "date": "2026-06 / 精华帖", "title": "香港楼价连续16年全球最难负担：80年代入息中位数可买4呎，现在入息中位数只可以买1呎", "aiSummary": "AI 提炼：香讨网友围绕长期购买力展开激辩，高才通及专才家庭带来新增购买力与租务刚需，新界东/西细价屋苑成交依然活跃。", "keywords": ["入息中位数", "沙田第一城", "新界西", "CCL"], "url": "https://www.discuss.com.hk/viewthread.php?tid=32237317"}, {"source": "HKET", "sourceName": "HKET 地产站 · 网络热话", "stance": "neutral", "stanceLabel": "户型与屋苑测评", "date": "社区热议", "title": "买楼连大平台是好是坏惹热议（元朗309呎连844呎平台325万成交）｜租住淘大花园抑或沙田第一城？", "aiSummary": "AI 提炼：针对特色平台户，过来人提醒低层大平台易积存高空掷物垃圾；而在淘大vs第一城对比中，淘大胜在餐饮戏院密集（尺租$46.7），第一城胜在社区规划与中大生合租需求（尺租$48.7）。", "keywords": ["淘大花园", "沙田第一城", "元朗", "特色平台户"], "url": "https://ps.hket.com/article/3440636/"}, {"source": "Xiaohongshu", "sourceName": "小红书 · 港漂置业与租房洞察 (联动28Hse数据)", "stance": "bull", "stanceLabel": "专才/学生租买潮", "date": "2026-10 热点汇总", "title": "内地生与专才租务推升 Eva 租金指数破 122 点创新高｜大围金狮/沙田第一城/西营盘缙城峰成抢租王", "aiSummary": "AI 提炼：结合 28Hse 市场报告与社交平台看房笔记，由于租金连创新高，不少满3-7年专才及留港毕业生由合租转向买细价楼或租住市区翻新唐楼 Studio。", "keywords": ["Sierra Sea", "The Sterling", "金狮花园", "专才买房"], "url": "https://www.28hse.com/en/"}];
+    let watchlist = ["唐楼", "强拍门槛", "沙田第一城", "淘大花园", "Sierra Sea", "奥运站", "CCL"];
 
     function renderDistrictView(regionFilter, btnEl) {
       if (btnEl) {
@@ -1679,7 +818,7 @@ if __name__ == "__main__":
         ? districtData
         : districtData.filter(d => d.region === regionFilter);
 
-      const maxPrice = 24000;
+      const maxPrice = 24500;
       container.innerHTML = filtered.map(d => {
         const pct = Math.min(100, Math.round((d.price / maxPrice) * 100));
         return `
@@ -1692,11 +831,131 @@ if __name__ == "__main__":
       }).join("");
     }
 
+    function renderDistrictTable() {
+      const q = (document.getElementById("distSearchInput")?.value || "").trim().toLowerCase();
+      const tbody = document.getElementById("districtDetailTableBody");
+      const filtered = districtData.filter(d =>
+        !q || d.name.toLowerCase().includes(q) || d.regionLabel.toLowerCase().includes(q) ||
+        d.subareas.toLowerCase().includes(q) || d.highlight.toLowerCase().includes(q)
+      );
+      tbody.innerHTML = filtered.map(d => `
+        <tr>
+          <td><span class="badge badge-accent">${d.regionLabel}</span></td>
+          <td><strong>${d.name}</strong></td>
+          <td class="num" style="font-weight:700;color:var(--accent);">HK$ ${d.price.toLocaleString()}/呎</td>
+          <td class="num">HK$ ${d.rentPsf}/呎</td>
+          <td class="num" style="color:var(--bull);font-weight:700;">${d.estYield}</td>
+          <td>${d.subareas}</td>
+          <td style="color:var(--text-secondary);">${d.highlight}</td>
+          <td><a href="${d.url}" target="_blank" rel="noopener">核验 ↗</a></td>
+        </tr>
+      `).join("");
+    }
+
+    function renderRentalTable() {
+      const q = (document.getElementById("rentalSearchInput")?.value || "").trim().toLowerCase();
+      const reg = document.getElementById("rentalRegionFilter")?.value || "all";
+      const tbody = document.getElementById("rentalTableBody");
+      const filtered = rentalListings.filter(r => {
+        const matchReg = reg === "all" || r.region === reg;
+        const matchQ = !q || r.estate.toLowerCase().includes(q) || r.district.toLowerCase().includes(q) ||
+          r.tenantProfile.toLowerCase().includes(q) || r.factCheckNote.toLowerCase().includes(q);
+        return matchReg && matchQ;
+      });
+      tbody.innerHTML = filtered.map(r => `
+        <tr>
+          <td><span class="badge badge-neutral">${r.id}</span></td>
+          <td><strong>${r.district}</strong></td>
+          <td><strong><a href="${r.url}" target="_blank" rel="noopener">${r.estate}</a></strong></td>
+          <td>${r.layout}</td>
+          <td class="num">${r.area} 呎</td>
+          <td class="num" style="font-weight:800;color:var(--bull);">HK$ ${r.monthlyRent.toLocaleString()}</td>
+          <td class="num" style="color:var(--accent);font-weight:700;">@${r.rentPsf}/呎</td>
+          <td class="num" style="font-weight:700;">${r.estYield}</td>
+          <td style="font-size:0.77rem;color:var(--text-secondary);">
+            <div><strong>主力租客：</strong>${r.tenantProfile}</div>
+            <div><strong>核验细节：</strong>${r.factCheckNote}</div>
+          </td>
+          <td><a href="${r.url}" target="_blank" rel="noopener" style="font-weight:700;">真实盘源 ↗</a></td>
+        </tr>
+      `).join("");
+    }
+
+    function renderTongLauTable() {
+      const f = document.getElementById("tongLauFilter")?.value || "all";
+      const tbody = document.getElementById("tongLauTableBody");
+      const filtered = tongLauListings.filter(t => {
+        if (f === "all") return true;
+        if (f === "套房") return parseFloat(t.estGrossYield) >= 7.0;
+        if (f === "收购") return t.strategy.includes("收购") || t.strategy.includes("强拍") || t.uraZone.includes("重建");
+        if (f === "校网") return t.title.includes("校网") || t.priceWan <= 200;
+        return true;
+      });
+      tbody.innerHTML = filtered.map(t => `
+        <tr>
+          <td><strong>${t.district}</strong><br/><span style="font-size:0.72rem;color:var(--text-secondary);">${t.id}</span></td>
+          <td><strong><a href="${t.url}" target="_blank" rel="noopener">${t.title}</a></strong><br/><span style="font-size:0.74rem;color:var(--text-secondary);">${t.layout}</span></td>
+          <td class="num">${t.area} 呎</td>
+          <td class="num" style="font-weight:800;color:var(--accent);">${t.priceWan} 万</td>
+          <td class="num">@HK$${t.psf.toLocaleString()}/呎</td>
+          <td class="num" style="color:var(--bull);font-weight:700;">HK$ ${t.estMonthlyRent.toLocaleString()}</td>
+          <td class="num"><span class="badge ${t.badge}">${t.estGrossYield}</span></td>
+          <td style="font-size:0.76rem;color:var(--text-secondary);">
+            <div><strong>重建定位：</strong>${t.uraZone}</div>
+            <div>${t.strategy}</div>
+          </td>
+          <td><a href="${t.url}" target="_blank" rel="noopener" style="font-weight:700;">28Hse实盘 ↗</a></td>
+        </tr>
+      `).join("");
+    }
+
+    function updateTongLauCalc() {
+      const priceWan = parseFloat(document.getElementById("tlRngPrice").value);
+      const area = parseFloat(document.getElementById("tlRngArea").value);
+      const renoWan = parseFloat(document.getElementById("tlRngReno").value);
+      const rooms = parseInt(document.getElementById("tlRngRooms").value, 10);
+      const roomRent = parseFloat(document.getElementById("tlRngRoomRent").value);
+      const zoneType = document.getElementById("tlZoneType").value;
+
+      const psf = Math.round((priceWan * 10000) / area);
+      document.getElementById("tlLblPrice").textContent = `${priceWan} 万`;
+      document.getElementById("tlLblArea").textContent = `${area} 呎 (买入尺价 HK$${psf.toLocaleString()}/呎)`;
+      document.getElementById("tlLblReno").textContent = `${renoWan} 万`;
+      document.getElementById("tlLblRooms").textContent = `${rooms} 间套房`;
+      document.getElementById("tlLblRoomRent").textContent = `HK$ ${roomRent.toLocaleString()} /间`;
+
+      // Stamp duty + legal/agency approx 2.5% for 300-450w (or $100 under 300w + 1% agency)
+      const stampAndFeeWan = priceWan <= 300 ? (priceWan * 0.012) : (priceWan * 0.032);
+      const totalCostWan = priceWan + renoWan + stampAndFeeWan;
+
+      const monthlyGross = rooms * roomRent;
+      const annualGrossWan = (monthlyGross * 12) / 10000;
+      // Deduct 8% for rates, vacancy allowance & maintenance
+      const annualNetWan = annualGrossWan * 0.92;
+      const netYield = (annualNetWan / totalCostWan) * 100;
+      const paybackYears = annualNetWan > 0 ? (totalCostWan / annualNetWan) : 99;
+
+      let score = 60;
+      if (psf <= 5500) score += 15;
+      else if (psf <= 7000) score += 8;
+      if (netYield >= 7.0) score += 12;
+      else if (netYield >= 5.5) score += 6;
+      if (zoneType === "70_desig") score += 13;
+      else if (zoneType === "50_desig") score += 8;
+
+      score = Math.min(98, score);
+      const thresholdTxt = zoneType === "70_desig" ? "65%强拍门槛·高优级" : (zoneType === "50_desig" ? "70%强拍门槛·潜力级" : "80%门槛·纯收租级");
+
+      document.getElementById("tlResTotalCost").textContent = `HK$ ${totalCostWan.toFixed(1)} 万`;
+      document.getElementById("tlResAnnualRent").textContent = `HK$ ${monthlyGross.toLocaleString()}/月 (年收 ${annualGrossWan.toFixed(2)} 万)`;
+      document.getElementById("tlResNetYield").textContent = `${netYield.toFixed(2)}% (约 ${paybackYears.toFixed(1)} 年回本)`;
+      document.getElementById("tlResScore").textContent = `★ ${score}/100 (${thresholdTxt})`;
+    }
+
     function renderNewLaunches() {
       const region = document.getElementById("launchRegionFilter").value;
       const tbody = document.getElementById("newLaunchesBody");
       const filtered = region === "all" ? newLaunches : newLaunches.filter(i => i.region === region);
-
       tbody.innerHTML = filtered.map(item => {
         const pct = item.totalUnits > 0 ? Math.round((item.soldUnits / item.totalUnits) * 100) : 0;
         return `
@@ -1706,10 +965,7 @@ if __name__ == "__main__":
             <td class="num" style="font-weight:700;color:var(--accent);">${item.priceRange}</td>
             <td class="num">${item.totalUnits} 伙</td>
             <td class="num">已售 <strong>${item.soldUnits}</strong> / 在售 ${item.onSaleUnits}</td>
-            <td>
-              <div class="progress-mini"><span style="width:${pct}%"></span></div>
-              <span style="font-size:0.75rem;color:var(--text-secondary);">${pct}%</span>
-            </td>
+            <td><div class="progress-mini"><span style="width:${pct}%"></span></div><span style="font-size:0.75rem;color:var(--text-secondary);">${pct}%</span></td>
             <td><span class="badge ${item.badge}">${item.status}</span></td>
           </tr>
         `;
@@ -1733,7 +989,6 @@ if __name__ == "__main__":
       document.getElementById("lblRate").textContent = `${rate.toFixed(3)}%`;
 
       const grossYield = ((rent * 12) / priceHKD) * 100;
-      // Estimate management fee ($4.8/sqft) + rates (5% of rent)
       const annualExpenses = (area * 4.8 * 12) + (rent * 12 * 0.05);
       const netYield = (((rent * 12) - annualExpenses) / priceHKD) * 100;
 
@@ -1741,7 +996,6 @@ if __name__ == "__main__":
       const monthlyRate = (rate / 100) / 12;
       const nMonths = 30 * 12;
       const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, nMonths)) / (Math.pow(1 + monthlyRate, nMonths) - 1);
-
       const cashflow = rent - monthlyPayment;
 
       document.getElementById("resGrossYield").textContent = `${grossYield.toFixed(2)}%`;
@@ -1759,9 +1013,9 @@ if __name__ == "__main__":
     }
 
     function renderSocialFeed() {
-      const q = document.getElementById("feedSearchInput").value.trim().toLowerCase();
-      const src = document.getElementById("feedSourceFilter").value;
-      const stance = document.getElementById("feedStanceFilter").value;
+      const q = (document.getElementById("feedSearchInput")?.value || "").trim().toLowerCase();
+      const src = document.getElementById("feedSourceFilter")?.value || "all";
+      const stance = document.getElementById("feedStanceFilter")?.value || "all";
       const container = document.getElementById("socialFeedContainer");
 
       const filtered = socialPosts.filter(p => {
@@ -1771,20 +1025,13 @@ if __name__ == "__main__":
         return matchQ && matchSrc && matchStance;
       });
 
-      if (filtered.length === 0) {
-        container.innerHTML = `<div style="padding:1.5rem;text-align:center;color:var(--text-secondary);">未找到匹配的社区帖文，请尝试清空搜索词或切换渠道过滤条件。</div>`;
-        return;
-      }
-
       container.innerHTML = filtered.map(p => {
         const badgeClass = p.stance === "bull" ? "badge-bull" : (p.stance === "bear" ? "badge-bear" : "badge-neutral");
         const tagsHtml = p.keywords.map(k => `<span class="badge badge-accent" style="margin-right:4px;cursor:pointer;" onclick="filterByKeyword('${k}')">#${k}</span>`).join("");
         return `
           <div class="feed-item">
             <div class="feed-meta">
-              <div>
-                <strong>${p.sourceName}</strong> · <span>${p.date}</span>
-              </div>
+              <div><strong>${p.sourceName}</strong> · <span>${p.date}</span></div>
               <div style="display:flex;gap:0.4rem;align-items:center;">
                 <span class="badge ${badgeClass}">${p.stanceLabel}</span>
                 <a href="${p.url}" target="_blank" rel="noopener" style="font-weight:700;">查看原帖 ↗</a>
@@ -1837,74 +1084,33 @@ if __name__ == "__main__":
 
     function toggleTheme() {
       const html = document.documentElement;
-      const current = html.getAttribute("data-theme");
-      const next = current === "dark" ? "light" : "dark";
+      const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
       html.setAttribute("data-theme", next);
-      document.getElementById("themeBtn").textContent = next === "dark" ? "☀ 浅色模式" : "🌙 深色模式";
+      document.getElementById("themeBtn").textContent = next === "dark" ? "☀ 浅色" : "🌙 深色";
     }
 
-    function copyPythonScript() {
-      const code = document.getElementById("pythonCodeBlock").innerText;
-      navigator.clipboard.writeText(code).then(() => {
-        alert("已复制 Python 定时采集脚本到剪贴板！");
-      });
-    }
-
-    function exportResearchCSV() {
-      let csv = "类别,名称,区域,核心数值/呎价,备注状态,来源链接\n";
-      districtData.forEach(d => {
-        csv += `分区平均实用呎价,"${d.name}",${d.region},HK$${d.price}/sqft,2026年10月美联统计,${d.url}\n`;
-      });
-      newLaunches.forEach(n => {
-        csv += `一手新盘,"${n.name}",${n.region},"${n.priceRange}",已售${n.soldUnits}/${n.totalUnits}伙 (${n.status}),${n.url}\n`;
-      });
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "hk_property_research_202610.csv";
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-
-    // --- GitHub Cloud Auto-Fetch & Beginner Download Helpers ---
     async function fetchCloudData(isManual = false) {
       const statusEl = document.getElementById("syncStatusText");
       try {
-        if (isManual && statusEl) statusEl.textContent = "正在从云端 market_data.json 同步最新数据...";
         const resp = await fetch("./market_data.json?t=" + Date.now(), { cache: "no-store" });
-        if (!resp.ok) throw new Error("本地预览模式 (未检测到同目录 market_data.json)");
+        if (!resp.ok) throw new Error("Local preview");
         const data = await resp.json();
-
-        if (Array.isArray(data.district_prices) && data.district_prices.length > 0) {
-          districtData.length = 0;
-          data.district_prices.forEach(d => districtData.push(d));
-          renderDistrictView("all");
+        if (Array.isArray(data.district_prices) && data.district_prices.length) {
+          districtData.length = 0; data.district_prices.forEach(d => districtData.push(d));
+          renderDistrictView("all"); renderDistrictTable();
         }
-        if (Array.isArray(data.new_launches) && data.new_launches.length > 0) {
-          newLaunches.length = 0;
-          data.new_launches.forEach(n => newLaunches.push(n));
-          renderNewLaunches();
+        if (Array.isArray(data.rental_listings) && data.rental_listings.length) {
+          rentalListings.length = 0; data.rental_listings.forEach(r => rentalListings.push(r));
+          renderRentalTable();
         }
-        if (Array.isArray(data.social_posts) && data.social_posts.length > 0) {
-          socialPosts.length = 0;
-          data.social_posts.forEach(p => socialPosts.push(p));
-          renderSocialFeed();
+        if (Array.isArray(data.tong_lau_listings) && data.tong_lau_listings.length) {
+          tongLauListings.length = 0; data.tong_lau_listings.forEach(t => tongLauListings.push(t));
+          renderTongLauTable();
         }
-        if (statusEl) {
-          statusEl.textContent = `✅ 已同步云端最新数据 (最后抓取时间: ${data.updated_at || "刚刚"})`;
-        }
-        if (isManual) {
-          alert("已成功从 market_data.json 同步最新楼市数据！");
-        }
-      } catch (err) {
-        if (statusEl) {
-          statusEl.textContent = "当前为本地内置快照模式 (上传至 GitHub Pages 后将每日自动读取云端 market_data.json)";
-        }
-        if (isManual) {
-          alert("当前处于本地单文件预览模式。当你按照第 4 页步骤将文件上传至 GitHub 后，此按钮会直接拉取云端每日自动抓取的 market_data.json！");
-        }
+        if (statusEl) statusEl.textContent = `✅ 已同步云端 market_data.json (${data.updated_at || "最新"})`;
+        if (isManual) alert("已成功同步云端最新 18区、真实租盘及唐楼数据！");
+      } catch (e) {
+        if (isManual) alert("当前为本地单文件预览模式（已加载内置完整 18区+核验租盘+唐楼数据）。上传至 GitHub 后将每日自动同步！");
       }
     }
 
@@ -1912,44 +1118,46 @@ if __name__ == "__main__":
       const blob = new Blob([content], { type: mimeType });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.click();
+      a.href = url; a.download = filename; a.click();
       URL.revokeObjectURL(url);
     }
 
-    function downloadScraperPy() {
-      const code = document.getElementById("pythonCodeBlock").innerText;
-      downloadFile("scraper.py", code, "text/x-python;charset=utf-8;");
-    }
-
     function downloadInitialJson() {
-      const initialSnapshot = {
+      const snap = {
         updated_at: new Date().toISOString(),
-        sync_mode: "GitHub Actions Cloud Auto-Sync",
         district_prices: districtData,
+        rental_listings: rentalListings,
+        tong_lau_listings: tongLauListings,
         new_launches: newLaunches,
         social_posts: socialPosts
       };
-      downloadFile("market_data.json", JSON.stringify(initialSnapshot, null, 2), "application/json;charset=utf-8;");
+      downloadFile("market_data.json", JSON.stringify(snap, null, 2), "application/json;charset=utf-8;");
     }
 
-    function copyWorkflowYaml() {
-      const yaml = document.getElementById("workflowYamlBox").innerText;
-      navigator.clipboard.writeText(yaml).then(() => {
-        alert("已复制 .github/workflows/update_data.yml 配置内容！现在可以在 GitHub 网页新建文件并粘贴。");
+    function exportResearchCSV() {
+      let csv = "模块,区域/分类,名称/屋苑,核心尺价/月租,回报率/状态,详情说明,核验链接\n";
+      districtData.forEach(d => {
+        csv += `18区尺价,"${d.regionLabel}","${d.name}",HK$${d.price}/呎,"${d.estYield}","${d.subareas}",${d.url}\n`;
       });
+      rentalListings.forEach(r => {
+        csv += `真实租盘,"${r.district}","${r.estate} (${r.area}呎)",月租HK$${r.monthlyRent} (@$${r.rentPsf}/呎),"${r.estYield}","${r.factCheckNote}",${r.url}\n`;
+      });
+      tongLauListings.forEach(t => {
+        csv += `市区唐楼,"${t.district}","${t.title} (${t.area}呎)",售${t.priceWan}万 (@$${t.psf}/呎),"预估${t.estGrossYield}","${t.strategy}",${t.url}\n`;
+      });
+      downloadFile("hk_property_18districts_rentals_tonglau_202610.csv", "\uFEFF" + csv, "text/csv;charset=utf-8;");
     }
 
-    // 页面打开时自动尝试拉取同目录下的云端 market_data.json
-    fetchCloudData(false);
-
-    // Initialize views on load
     renderDistrictView("all");
+    renderDistrictTable();
+    renderRentalTable();
+    renderTongLauTable();
+    updateTongLauCalc();
     renderNewLaunches();
     updateCalculator();
     renderSocialFeed();
     renderWatchlist();
+    fetchCloudData(false);
   </script>
 </body>
 </html>
