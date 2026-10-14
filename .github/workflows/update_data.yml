@@ -1,0 +1,36 @@
+name: Auto Update HK Property Data
+
+on:
+  schedule:
+    # 每天香港时间早上 09:00 和晚上 18:00 自动运行 (UTC 01:00 和 10:00)
+    - cron: '0 1,10 * * *'
+  workflow_dispatch: # 允许你在 GitHub 网页上随时点击按钮手动立即更新
+
+permissions:
+  contents: write
+
+jobs:
+  scrape-and-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. 检出仓库代码
+        uses: actions/checkout@v4
+
+      - name: 2. 安装 Python 环境
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 3. 安装解析库 BeautifulSoup4
+        run: pip install beautifulsoup4 lxml
+
+      - name: 4. 运行香港楼市爬虫更新 market_data.json
+        run: python scraper.py
+
+      - name: 5. 自动保存最新数据到网站
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "HK PropPulse AutoBot"
+          git add market_data.json
+          git diff --staged --quiet || git commit -m "Auto-update HK property market data"
+          git push
