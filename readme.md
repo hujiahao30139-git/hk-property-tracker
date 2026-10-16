@@ -1,36 +1,41 @@
-## HK PropPulse v6.0 · 全港实盘海量库 + 四大中介真实笋盘严选与近1月宏观预测终端
+## HK PropPulse v7.0 · 盘源搜罗 · 笋盘雷达 · 财经新闻 · 走势预测 · 全网舆情
 
-专为个人楼市投资研究打造的零成本自动化数据看板，聚合 **中原地产 (Centaline)**、**美联物业 (Midland)**、**28Hse 香港屋网**、**House730** 等平台公开在售/在租盘源，并内置**近1个月宏观财经新闻分析与 3个月/半年/1年楼价预测模型**。支持部署在 **Google Sites（协作平台）** 或 **GitHub Pages**。
+个人香港楼市研究看板。GitHub Actions 每天自动运行一条数据管线，结果写入 `market_data.json`，`index.html` 读取后展示。可部署在 GitHub Pages 或嵌入 Google Sites（方法见看板第 4 页）。
 
-### 0. v6.0 新增：Playwright 每日自动抓取 + 实盘海量库
+### 1. 管线六个阶段
 
-| 文件 | 作用 |
-|---|---|
-| `scraper.py` | Playwright 真实 Chromium 翻页抓取；被动拦截页面自身的 JSON 接口响应，拿不到时用 DOM 卡片文字兜底；去重、价格历史、减价识别、14 天未出现自动下架 |
-| `seed_listings.json` | 湾仔 / 铜锣湾 / 红磡 / 黄埔 首批 133 个经网页核对的盘源（118 买 + 15 租），每次运行都会合并 |
-| `.github/workflows/scrape.yml` | 每天 09:00 HKT 自动运行并提交 `market_data.json` |
-| `requirements.txt` | `playwright` |
+| 阶段 | 做什么 | 数据来源 |
+|---|---|---|
+| `listings` 盘源 | Playwright 翻页抓取，去重、价格历史、减价识别、14 天未出现自动下架 | 中原、28Hse、美联、利嘉阁；`seed_listings.json` 种子盘 |
+| `deals` 笋盘 | 每个买盘打 0–100 分并分 S/A/B 级，附理由与风险提示 | 盘源库 |
+| `indicators` 宏观 | 1M / 隔夜 HIBOR、银行体系结余、差估署售价/租金指数、H 按实际利率、实盘回报、减价盘占比 | 金管局开放 API、差估署 data.gov.hk、`inbox/indicators_manual.json` |
+| `news` 新闻 | 近 30 天楼市/财经新闻：去重、9 类自动分类、情绪研判、新闻情绪指数 | Google News RSS、政府新闻公报、RTHK 财经 |
+| `social` 舆情 | 网民帖文/评论的情绪、话题、平台对比、周趋势、感知剖析；热帖解剖室 | 亲子王国、宅谷地产论坛、YouTube（需 API key）、Telegram 公开频道、手动导入 |
+| `forecast` 预测 | 3 个月 / 半年 / 1 年多因子模型，给基准/乐观/悲观区间、上涨概率与因子贡献 | 以上全部 |
 
-**首次部署三步：**
-1. 把以上文件连同 `index.html`、`market_data.json` 推到仓库根目录。
-2. 在 Actions 页手动运行一次 *Daily HK listings scrape*，`mode` 填 `discover`，下载 `discover-debug` 产物，确认各平台的 JSON 接口 URL 是否被捕获；如平台改版，只需修改 `scraper.py` 顶部的 `TARGETS` / `JSON_HINTS`。
-3. 之后每天自动运行（`mode` 留空 = normal）。本地预览可用 `python scraper.py --offline` 只重算种子数据。
+每个阶段独立容错：某个来源失败只记录错误，保留上次数据，看板不会被清空。运行状态写在 `pipeline_status`。
 
-**前端「全港实盘海量库」：** 焦点四区快捷标签、多关键词搜索（空格分隔，AND 匹配）、平台 / 大区 / 行政区 / 标签 / 价格 / 面积筛选、7 种排序、20/50/100 每页分页、导出当前筛选结果 CSV、一键带入按揭测算仪。点击「18 区估值表」任一行会同步过滤海量库。
+### 2. 关于小红书、Facebook 群组、WhatsApp/微信群
+这些平台需要登录，条款也禁止自动抓取（Facebook 已停止向第三方开放群组内容 API），所以**不做自动抓取**。改用手动导入：
+- 在看板「全网舆情」页的**手动导入框**粘贴内容，浏览器内即时分析，可下载 CSV；
+- 或把 CSV / TXT 放进 `inbox/social/`（格式见该文件夹 README），每天自动纳入统计。
 
-**口径：** 估算月租优先用同盘/连租约实租 → 同屋苑租盘中位尺租 → 同片区按楼龄（≥40 年 / <40 年）分档的租盘中位尺租；旧楼缺同档样本时不估算。印花税按第 2 标准税率计算（≤400 万 $100，含边际缓冲区）。
+系统只保存 ≤120 字摘录，自动去掉 @用户名、电话、邮箱，不保存作者名。
 
-**注意：** 仅作个人研究、低频抓取；scraper 会先检查 robots.txt，不做任何反爬绕过。GitHub Actions 的海外 IP 可能被部分平台限流或拦截，届时该平台保留上次数据。
+### 3. 部署
+1. 把整个文件夹推到仓库根目录（含 `proppulse/`、`inbox/`、`.github/workflows/scrape.yml`）。
+2. 可选 Secrets：`YT_API_KEY`（YouTube 评论）、`OPENAI_API_KEY`（+ 可选 `OPENAI_BASE_URL`、`OPENAI_MODEL`，用于 AI 归纳大众感知）。
+3. Actions → *HK PropPulse daily pipeline* → Run workflow，`mode` 填 `discover` 先跑一次，下载 `discover-debug` 检查 `summary.json`、`listings_summary.json`、`social_items.json`。
+4. 之后每天 09:00 全量运行、18:00 轻量更新新闻/舆情/预测。
 
-### 1. 在 Google Sites（协作平台）实现相同效果的两种方法
+本地：`python scraper.py --offline`（不联网重算）；`python scraper.py --stages news,social,forecast`（只跑部分阶段）。
 
-#### 方法 A：整页嵌入 HTML 代码（无需配置 GitHub Pages 也能独立运行，30秒完成）
-- 在画布（Canvas）中打开 index.html 预览，切换到 **「4. 🚀 Google Sites / GitHub 部署」** 板块，点击 **「📋 一键复制完整 HTML 代码」**。
-- 打开 sites.google.com 并新建一个空白网站。
-- 在右侧工具栏点击 **「页面 (Pages)」→ 将鼠标移到底部「+」号 → 点击「整页嵌入 (Full page embed)」**，命名为「香港楼市研究终端」。
-- 点击页面中央的 **「添加嵌入内容 (Add embed)」→ 切换到「嵌入代码 (Embed code)」**，将刚刚复制的 index.html 完整代码粘贴进去，点击 **「下一步 (Next)」→「插入 (Insert)」**。
-- 点击右上角 **「发布 (Publish)」**（可在右上角共享设置中设为**仅自己可见 Restricted**，保护个人私密研究）。
+### 4. 调参
+所有网址、权重、关键词都在 `proppulse/config.py`：盘源目标、笋盘权重、新闻 RSS 与关键词、论坛来源（LIHKG / 香港讨论区默认关闭）、Telegram 频道、YouTube 关键词、预测因子权重。情绪词典在 `proppulse/lexicon.py`。
 
-#### 方法 B：在 Google Sites 中同时实现「每日后台自动抓取更新」
-- **方式 1（Google Sites + GitHub 自动数据源）**：保留你的 GitHub 仓库每天自动运行 scraper.py 更新 market\_data.json，然后在 Google Sites 网页的 **「4. 🚀 Google Sites / GitHub 部署」** 板块中，将你的 GitHub Raw 数据地址（格式为 https://raw.githubusercontent.com/你的用户名/仓库名/main/market\_data.json）填入 **「跨平台远程数据源 URL 配置」** 并点击保存。
-- **方式 2（Google Sites 按网址嵌入）**：在 Google Sites 选择 **「嵌入 → 按网址 (By URL)」** 填入你的 GitHub Pages 网址。
+### 5. 方法与限制
+- **笋盘分** = 35% 较中位实尺折让 + 25% 表面回报 + 10% 楼龄 + 10% 已减价 + 10% 印花税档 + 5% 新上架 + 5% 实租佐证。可比中位数优先同屋苑，其次同片区同楼龄档；楼龄未知时取较低档（保守）。折让无法核实的盘最多 B 级。
+- **情绪分析**是词典法（粤语 + 书面语 + 英文，含否定词反转），透明但不懂反讽；样本 < 30 条时会提示。
+- **预测模型**是规则透明的多因子打分，**未经历史回测**；数据缺失或可信度低的因子会降权，并放宽区间。旧版人工研判保留在每张预测卡的「人工研判对照」里。
+- 只抓公开页面，先检查 robots.txt，被禁止即跳过；遇验证码/拦截页即跳过，不做任何绕过。Reddit 的 robots.txt 禁止一般爬虫，所以默认会被跳过。
+- 仅供个人研究，不构成投资建议。
