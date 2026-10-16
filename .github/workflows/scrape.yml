@@ -1,25 +1,34 @@
-name: Daily HK listings scrape (Playwright)
+name: HK PropPulse daily pipeline
 
 on:
   schedule:
-    - cron: "0 1 * * *"      # 每天 09:00 HKT
+    - cron: "0 1 * * *"      # 每天 09:00 HKT：盘源 + 笋盘 + 指标 + 新闻 + 舆情 + 预测
+    - cron: "0 10 * * *"     # 每天 18:00 HKT：只更新新闻 / 舆情 / 预测（轻量）
   workflow_dispatch:
     inputs:
       mode:
-        description: "normal / discover"
+        description: "normal / discover / offline"
         default: "normal"
+      stages:
+        description: "留空=全部；或 listings,deals,indicators,news,social,forecast"
+        default: ""
 
 permissions:
   contents: write
 
 concurrency:
-  group: scrape
+  group: proppulse
   cancel-in-progress: false
 
 jobs:
-  scrape:
+  run:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 75
+    env:
+      YT_API_KEY: ${{ secrets.YT_API_KEY }}            # 可选：YouTube 评论
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}    # 可选：AI 舆情归纳
+      OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL }}
+      OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -33,13 +42,16 @@ jobs:
           pip install -r requirements.txt
           python -m playwright install --with-deps chromium
 
-      - name: Run scraper
+      - name: Run pipeline
         run: |
-          if [ "${{ github.event.inputs.mode }}" = "discover" ]; then
-            python scraper.py --discover
-          else
-            python scraper.py --max-pages 6
-          fi
+          MODE="${{ github.event.inputs.mode }}"
+          STAGES="${{ github.event.inputs.stages }}"
+          if [ "${{ github.event.schedule }}" = "0 10 * * *" ]; then STAGES="indicators,news,social,forecast"; fi
+          ARGS=""
+          [ -n "$STAGES" ] && ARGS="--stages $STAGES"
+          [ "$MODE" = "discover" ] && ARGS="$ARGS --discover"
+          [ "$MODE" = "offline" ] && ARGS="$ARGS --offline"
+          python scraper.py $ARGS
 
       - name: Upload discover samples
         if: ${{ github.event.inputs.mode == 'discover' }}
@@ -54,5 +66,5 @@ jobs:
           git config user.name  "proppulse-bot"
           git config user.email "proppulse-bot@users.noreply.github.com"
           git add market_data.json
-          git diff --cached --quiet || git commit -m "data: daily listings $(TZ=Asia/Hong_Kong date +'%Y-%m-%d %H:%M')"
+          git diff --cached --quiet || git commit -m "data: $(TZ=Asia/Hong_Kong date +'%Y-%m-%d %H:%M') pipeline"
           git push
