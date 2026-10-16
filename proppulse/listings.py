@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-盘源抓取（Playwright 真实 Chromium）+ 合并 + 指标计算。
-提取顺序：页面内嵌 SSR 状态 → 页面自身发出的 XHR/fetch JSON → DOM 卡片文字兜底。
-不做任何反爬绕过；遇验证码/拦截页即跳过该目标。
+盘源抓取（Playwright 真实 Chromium）+ 合并 + 指标计算。  v7.1
+
+提取顺序：
+  1) 中原专用解析：页面自身发出的 /findproperty/api/Post/Search JSON 以及 __NUXT__ 内嵌数据
+     （第一次 discover 证实：第 2 页起列表由该接口返回，字段含 bigEstateName / nSize / salePrice / refNo 等）
+  2) 通用 JSON 启发式解析（其他平台）
+  3) DOM 卡片文字兜底（屋苑名从详情页链接解析，卡片文字只有宣传语）
+不做任何反爬绕过；遇验证码/拦截页即跳过该目标；robots.txt 不允许的目标直接跳过。
 """
 from __future__ import annotations
 
@@ -22,6 +27,7 @@ from .common import (DEBUG_DIR, HKT, SEED_FILE, days_ago, load_json, log, num, r
 JSON_HINTS = ("api", "search", "list", "property", "stock", "post", "graphql")
 JSON_EXCLUDE = ("newproperty", "captcha", "getmtrlines", "schoolnet", "university", "gethmaplaces",
                 "banner", "bookmark", "comparisoncart", "popularagent", "hottags", "estateandhmabrief",
+                "homevideo", "resolvesearchtolabel", "calculatehash", "logging",
                 "googleapis", "appier", "facebook", "doubleclick", "google-analytics")
 BLOCK_MARKERS = ("verify you are human", "access denied", "請完成驗證", "请完成验证", "cf-challenge", "captcha-container")
 
@@ -46,11 +52,20 @@ AREA_MAP = [
     (("沙田", "大圍", "大围", "火炭", "馬鞍山", "马鞍山"), "沙田", "沙田区", "新界东"),
     (("將軍澳", "将军澳", "康城", "坑口", "寶琳", "宝琳", "調景嶺", "调景岭", "西貢", "西贡"), "西贡及将军澳", "西贡及将军澳", "新界东"),
     (("大埔", "太和", "白石角"), "大埔", "大埔区", "新界东"), (("粉嶺", "粉岭", "上水"), "北区", "北区", "新界东"),
-    (("荃灣", "荃湾", "大窩口", "大窝口", "深井"), "荃湾", "荃湾区", "新界西"),
+    (("荃灣", "荃湾", "大窩口", "大窝口", "深井", "麗城", "丽城"), "荃湾", "荃湾区", "新界西"),
     (("葵涌", "葵芳", "青衣", "荔景"), "葵青", "葵青区", "新界西"),
     (("屯門", "屯门"), "屯门", "屯门区", "新界西"), (("元朗", "天水圍", "天水围", "洪水橋", "洪水桥", "錦田", "锦田"), "元朗", "元朗区", "新界西"),
-    (("東涌", "东涌", "愉景灣", "愉景湾", "馬灣", "马湾", "長洲", "长洲"), "离岛", "离岛区", "新界西"),
+    (("東涌", "东涌", "愉景灣", "愉景湾", "馬灣", "马湾", "長洲", "长洲", "離島", "离岛"), "离岛", "离岛区", "新界西"),
 ]
+# 中原「db」字段（繁体行政区名）→ 简体行政区 + 大区
+DB_MAP = {
+    "中西區": ("中西区", "港岛"), "灣仔區": ("湾仔区", "港岛"), "東區": ("东区", "港岛"), "南區": ("南区", "港岛"),
+    "油尖旺區": ("油尖旺区", "九龙"), "深水埗區": ("深水埗区", "九龙"), "九龍城區": ("九龙城区", "九龙"),
+    "黃大仙區": ("黄大仙区", "九龙"), "觀塘區": ("观塘区", "九龙"), "荃灣區": ("荃湾区", "新界西"),
+    "葵青區": ("葵青区", "新界西"), "屯門區": ("屯门区", "新界西"), "元朗區": ("元朗区", "新界西"),
+    "離島區": ("离岛区", "新界西"), "北區": ("北区", "新界东"), "大埔區": ("大埔区", "新界东"),
+    "沙田區": ("沙田区", "新界东"), "西貢區": ("西贡及将军澳", "新界东"),
+}
 
 
 def detect_area(text: str):
@@ -61,7 +76,10 @@ def detect_area(text: str):
 
 
 def listing_key(d: dict) -> str:
-    raw = "|".join(str(d.get(k, "")) for k in ("source", "type", "estate", "building", "floor", "unit", "area"))
+    if d.get("ref"):
+        raw = f"{d.get('source')}|{d.get('type')}|{d['ref']}"
+    else:
+        raw = "|".join(str(d.get(k, "")) for k in ("source", "type", "estate", "building", "floor", "unit", "area", "priceWan", "rentAsk", "url"))
     return hashlib.md5(raw.encode("utf-8")).hexdigest()[:12]
 
 
@@ -72,18 +90,99 @@ def slugify(url: str) -> str:
     return re.sub(r"\W+", "_", site + "_" + urllib.parse.unquote(p.path)).strip("_")[:80]
 
 
-# ------------------------------------------------------------------ 解析
+# ------------------------------------------------------------------ 中原专用解析
+def _show(x) -> bool:
+    return isinstance(x, dict) and bool(x.get("show"))
+
+
+def _centaline_items(obj, depth=0):
+    if depth > 10:
+        return
+    if isinstance(obj, dict):
+        if "refNo" in obj and ("nSize" in obj or "areaInfo" in obj):
+            yield obj
+            return
+        for v in obj.values():
+            yield from _centaline_items(v, depth + 1)
+    elif isinstance(obj, list):
+        for v in obj:
+            yield from _centaline_items(v, depth + 1)
+
+
+def parse_centaline(payload, target: dict) -> list[dict]:
+    out = []
+    for it in _centaline_items(payload):
+        ai, pi, ph = it.get("areaInfo") or {}, it.get("priceInfo") or {}, it.get("priceHistoryInfo") or {}
+        area = num(it.get("nSize")) or num(ai.get("nSize"))
+        price = num(it.get("salePrice")) or (num(pi.get("price")) if isinstance(pi.get("price"), (int, float)) else None)
+        rent = num(it.get("rentPrice")) or (num(pi.get("rent")) if isinstance(pi.get("rent"), (int, float)) else None)
+        if not area or area < 80 or area > 6000:
+            continue
+        if target["type"] == "sale" and not price:
+            continue
+        if target["type"] == "rent" and not rent:
+            continue
+        orig = num(ph.get("price")) if isinstance(ph.get("price"), (int, float)) else None
+        orig_rent = num(it.get("rentPriceOriginal")) or (num(ph.get("rent")) if isinstance(ph.get("rent"), (int, float)) else None)
+        big, est, bld = (it.get("bigEstateName") or "").strip(), (it.get("estateName") or "").strip(), (it.get("buildingName") or "").strip()
+        estate = big or est or bld
+        building = " ".join(x for x in ((est if big else ""), bld if bld != estate else "") if x)
+        beds = it.get("bedroomCount")
+        rooms = ("开放式" if beds == 0 else f"{beds}房") if isinstance(beds, int) else ""
+        if rooms and it.get("suite"):
+            rooms += f"({it['suite']}套)"
+        dl = it.get("displayLabel") or {}
+        tags = []
+        if it.get("withLease"):
+            tags.append("连租约")
+        if _show(dl.get("foreclosure")):
+            tags.append("银主盘")
+        if _show(dl.get("hasKey")):
+            tags.append("锁匙盘")
+        if _show(dl.get("soleAgent")):
+            tags.append("独家")
+        if _show(dl.get("petFriendly")):
+            tags.append("可养宠")
+        if it.get("isDiscountPost"):
+            tags.append("中原董事推介")
+        if it.get("hos_flag"):
+            tags.append("居屋")
+        if it.get("prh_flag"):
+            tags.append("公屋")
+        for ch in str(it.get("characteristics") or "").split():
+            if ch in ("露台", "平台", "天台", "花園", "连租约", "連租約"):
+                tags.append({"花園": "花园", "連租約": "连租约"}.get(ch, ch))
+        db = it.get("db") or ""
+        district, region = DB_MAP.get(db, (None, None))
+        hma = it.get("hma") or it.get("districtName") or ""
+        sub = detect_area(f"{hma} {it.get('webScope') or ''}")[0] or hma or None
+        mtr = ((it.get("nearbyFacilities") or {}).get("mtrLabels") or [])
+        out.append({
+            "type": target["type"], "ref": it.get("refNo"), "estate": estate, "building": building,
+            "floor": it.get("yAxis") or "", "unit": it.get("xAxis") or "", "rooms": rooms, "area": round(area),
+            "priceWan": round(price / 10_000, 1) if price and target["type"] == "sale" else None,
+            "originalPriceWan": round(orig / 10_000, 1) if orig and price and orig > price else None,
+            "rentAsk": round(rent) if rent else None,
+            "originalRent": round(orig_rent) if orig_rent and rent and orig_rent > rent else None,
+            "ageYears": num(it.get("buildingAge")), "url": it.get("detailUrl") or target["url"],
+            "subArea": sub, "district": district, "region": region, "hma": hma,
+            "mtr": f"{mtr[0].get('name')}站 {mtr[0].get('walkMinutesInText', '')}".strip() if mtr and isinstance(mtr[0], dict) else "",
+            "listedOn": str(it.get("publishDate") or "")[:10], "tags": tags, "areaText": f"{hma} {db}",
+        })
+    return out
+
+
+# ------------------------------------------------------------------ 通用解析
 ALIASES = {
-    "estate": ("estateName", "estate_name", "buildingName", "bigEstateName", "displayName", "estateNameC",
-               "buildingNameC", "title", "name", "estate"),
+    "estate": ("estateName", "estate_name", "buildingName", "bigEstateName", "displayName", "title", "name", "estate"),
     "building": ("phaseName", "blockName", "block", "tower", "building"),
-    "floor": ("floor", "floorName", "floorLevel", "floorDesc", "floorC"),
-    "unit": ("flat", "unit", "flatName", "room"),
-    "area": ("saleableArea", "netArea", "nArea", "netSize", "saleable_area", "areaSaleable", "sArea", "nfa", "area"),
+    "floor": ("floor", "floorName", "floorLevel", "floorDesc", "yAxis"),
+    "unit": ("flat", "unit", "flatName", "room", "xAxis"),
+    "area": ("saleableArea", "netArea", "nArea", "nSize", "netSize", "saleable_area", "areaSaleable", "sArea", "nfa", "area"),
     "price": ("salePrice", "sellPrice", "price", "askingPrice", "listPrice", "sell", "sellingPrice"),
     "rent": ("rentPrice", "rent", "leasePrice", "askingRent", "rentalPrice"),
-    "rooms": ("bedroom", "bedrooms", "roomCount", "room_num", "rooms"),
-    "url": ("url", "link", "detailUrl", "shareUrl", "href"),
+    "rooms": ("bedroom", "bedrooms", "bedroomCount", "roomCount", "room_num", "rooms"),
+    "url": ("detailUrl", "url", "link", "shareUrl", "href"),
     "district": ("districtName", "district", "region", "areaName", "hmaName", "scopeName"),
     "age": ("buildingAge", "age", "opAge"),
 }
@@ -115,6 +214,8 @@ def _walk_lists(obj, depth=0):
 
 
 def parse_json_payload(payload, target: dict) -> list[dict]:
+    if target["source"] == "Centaline":
+        return parse_centaline(payload, target)
     out = []
     for arr in _walk_lists(payload):
         keys = set().union(*(x.keys() for x in arr[:5]))
@@ -181,6 +282,15 @@ JS_EMBEDDED = r"""
 """
 
 
+def estate_from_href(href: str) -> str:
+    """中原详情链接 /findproperty/detail/<屋苑-期-座>_<编号> → 屋苑名。"""
+    m = re.search(r"/detail/([^/?#]+)", href or "")
+    if not m:
+        return ""
+    slug = urllib.parse.unquote(m.group(1)).rsplit("_", 1)[0]
+    return slug.replace("-", " ").strip()
+
+
 def parse_card_text(text: str, href: str, target: dict) -> dict | None:
     t = " ".join(text.split())
     m_area = RE_AREA.search(t)
@@ -200,15 +310,21 @@ def parse_card_text(text: str, href: str, target: dict) -> dict | None:
         return None
     if target["type"] == "rent" and not rent:
         return None
-    head = t
-    for noise in NOISE:
-        head = head.replace(noise, " ")
-    head = " ".join(head.split())
-    estate = re.split(r"\s(?=\d+期|\S{1,3}座|極高層|高層|中層|低層|\d房|開放式|實用|\d+年樓齡)|[|｜]", head)[0].strip()[:40]
+    estate = estate_from_href(href)
+    if not estate:
+        head = t
+        for noise in NOISE:
+            head = head.replace(noise, " ")
+        head = " ".join(head.split())
+        estate = re.split(r"\s(?=\d+期|\S{1,3}座|極高層|高層|中層|低層|\d房|開放式|實用|\d+年樓齡)|[|｜]", head)[0].strip()[:40]
+    ref = None
+    m_ref = re.search(r"_([A-Z]{2,4}\d{2,4})(?:\?|$)", href or "")
+    if m_ref:
+        ref = m_ref.group(1)
     m_rooms, m_floor, m_age, m_unit = RE_ROOMS.search(t), RE_FLOOR.search(t), RE_AGE.search(t), RE_UNIT.search(t)
     tags = [k for k in ("獨家", "鎖匙盤", "筍盤", "連租約", "露台", "平台", "天台", "減價", "業主盤", "銀主", "唐樓") if k in t]
     return {
-        "type": target["type"], "estate": estate or "未命名", "building": "", "unit": m_unit.group(0) if m_unit else "",
+        "type": target["type"], "ref": ref, "estate": estate or "未命名", "building": "", "unit": m_unit.group(0) if m_unit else "",
         "floor": m_floor.group(1) if m_floor else "", "rooms": m_rooms.group(0) if m_rooms else "",
         "area": round(area), "priceWan": price if target["type"] == "sale" else None,
         "originalPriceWan": orig if orig and price and orig > price else None,
@@ -235,22 +351,28 @@ async def settle(page, ms=15000):
         await page.wait_for_timeout(2500)
 
 
+NEXT_SELECTORS = (".el-pagination button.btn-next", ".el-pagination .btn-next", "button.btn-next", "a[rel=next]",
+                  "li.next a", "button[aria-label*=Next]", "button:has-text('下一頁')", "a:has-text('下一頁')", "text=Next")
+
+
 async def goto_next(page) -> bool:
-    for sel in ("a[rel=next]", "button[aria-label*=Next]", "li.next a", ".btn-next", "button.btn-next",
-                ".el-pagination .btn-next", "text=下一頁", "text=下一页", "text=Next"):
+    """只点击分页区的「下一页」，点击后确认网址没有跳去别的页面。"""
+    start_url = page.url.split("?")[0]
+    for sel in NEXT_SELECTORS:
         try:
             loc = page.locator(sel).first
             if await loc.count() and await loc.is_visible() and await loc.is_enabled():
                 await loc.scroll_into_view_if_needed(timeout=5000)
                 await loc.click(timeout=5000)
                 await settle(page)
+                if page.url.split("?")[0] != start_url and "/list/" not in page.url:
+                    await page.go_back()
+                    await settle(page)
+                    return False
                 return True
         except Exception:
             continue
-    before = await page.evaluate("document.body.scrollHeight")
-    await page.mouse.wheel(0, 6000)
-    await page.wait_for_timeout(2500)
-    return (await page.evaluate("document.body.scrollHeight")) > before
+    return False
 
 
 async def scrape_target(ctx, target: dict, max_pages: int, discover: bool, summary: list) -> list[dict]:
@@ -288,6 +410,9 @@ async def scrape_target(ctx, target: dict, max_pages: int, discover: bool, summa
             if n == 1 or target.get("page_param"):
                 resp = await page.goto(page_url(target, n), wait_until="domcontentloaded", timeout=45000)
                 pdiag["http"] = resp.status if resp else None
+                if resp and resp.status >= 400:
+                    pdiag["error"] = f"HTTP {resp.status}"
+                    break
                 await settle(page)
             elif not await goto_next(page):
                 pdiag["note"] = "no next page"
@@ -302,7 +427,7 @@ async def scrape_target(ctx, target: dict, max_pages: int, discover: bool, summa
             log("listings", f"BLOCK {target['source']} p{n} 出现验证/拦截页，跳过")
             break
 
-        embedded = await page.evaluate(JS_EMBEDDED)
+        embedded = await page.evaluate(JS_EMBEDDED) if n == 1 else []   # 内嵌数据只代表首屏
         cards = await page.evaluate(JS_CARDS)
         b_xhr, b_ssr, b_dom = [], [], []
         for _, payload in captured:
@@ -318,15 +443,8 @@ async def scrape_target(ctx, target: dict, max_pages: int, discover: bool, summa
                       "dom_cards": len(cards), "dom_parsed": len(b_dom)})
         if discover:
             DEBUG_DIR.mkdir(exist_ok=True)
-            (DEBUG_DIR / f"listing_{slug}_p{n}.html").write_text(await page.content(), encoding="utf-8")
-            for i, (k, p) in enumerate(embedded[:3]):
-                (DEBUG_DIR / f"listing_{slug}_p{n}_embedded{i}.json").write_text(
-                    json.dumps(p, ensure_ascii=False)[:400000], encoding="utf-8")
-            for i, (u, p) in enumerate(captured[:10]):
-                (DEBUG_DIR / f"listing_{slug}_p{n}_xhr{i}.json").write_text(
-                    json.dumps({"url": u, "body": p}, ensure_ascii=False)[:200000], encoding="utf-8")
-            (DEBUG_DIR / f"listing_{slug}_p{n}_cards.json").write_text(json.dumps(
-                {"cards": cards[:5], "parsed": (b_xhr or b_ssr or b_dom)[:5]}, ensure_ascii=False, indent=1), encoding="utf-8")
+            (DEBUG_DIR / f"listing_{slug}_p{n}_parsed.json").write_text(json.dumps(
+                {"xhr": b_xhr[:5], "ssr": b_ssr[:5], "dom": b_dom[:5]}, ensure_ascii=False, indent=1), encoding="utf-8")
         captured.clear()
 
         batch = b_xhr or b_ssr or b_dom
@@ -349,7 +467,9 @@ async def scrape_target(ctx, target: dict, max_pages: int, discover: bool, summa
     diag["status"] = "ok" if results else "empty"
     diag["total"] = len(results)
     for rec in results:
-        if target.get("sub_area"):
+        if rec.get("district") and rec.get("subArea"):
+            pass                      # 结构化数据自带片区/行政区（中原 hma/db），最准确
+        elif target.get("sub_area"):   # 焦点区目标：用目标设定的片区
             rec["subArea"], rec["district"], rec["region"] = target["sub_area"], target["district"], target["region"]
         else:
             rec["subArea"], rec["district"], rec["region"] = detect_area(rec.get("areaText", "") + rec.get("estate", ""))
@@ -368,10 +488,12 @@ async def _scrape_all(max_pages: int, discover: bool, only: str | None):
         browser = await p.chromium.launch(**launch)
         ctx = await browser.new_context(locale="zh-HK", timezone_id="Asia/Hong_Kong", viewport={"width": 1366, "height": 900})
         for t in C.LISTING_TARGETS:
+            if t.get("enabled") is False:
+                continue
             if only and t["source"].lower() != only.lower():
                 continue
             try:
-                r = await scrape_target(ctx, t, max_pages, discover, summary)
+                r = await scrape_target(ctx, t, t.get("max_pages", max_pages), discover, summary)
                 recs += r
                 if r:
                     ok.add(t["source"])
@@ -385,6 +507,10 @@ async def _scrape_all(max_pages: int, discover: bool, only: str | None):
 def merge(old: list[dict], fresh: list[dict], ok_sources: set[str]) -> list[dict]:
     by_id = {d["id"]: d for d in old}
     td = today()
+    # 旧版（v7.0）DOM 解析出的错误屋苑名（宣传语）一律清除，由本次结构化数据替换
+    if ok_sources:
+        by_id = {k: v for k, v in by_id.items()
+                 if v.get("origin") == "seed_web_verified" or v.get("ref") or v.get("source") not in ok_sources}
     for rec in fresh:
         rec.setdefault("id", f"{rec['source'][:4].upper()}-{listing_key(rec)}")
         prev = by_id.get(rec["id"])
@@ -393,12 +519,12 @@ def merge(old: list[dict], fresh: list[dict], ok_sources: set[str]) -> list[dict
             if rec.get("priceWan") and prev.get("priceWan") and rec["priceWan"] != prev["priceWan"]:
                 hist.append({"date": td, "from": prev["priceWan"], "to": rec["priceWan"]})
                 if rec["priceWan"] < prev["priceWan"]:
-                    rec["originalPriceWan"] = max(prev.get("originalPriceWan") or 0, prev["priceWan"])
+                    rec["originalPriceWan"] = max(prev.get("originalPriceWan") or 0, prev["priceWan"], rec.get("originalPriceWan") or 0)
             rec["priceHistory"] = hist[-10:]
             rec["firstSeen"] = prev.get("firstSeen", td)
             rec["originalPriceWan"] = rec.get("originalPriceWan") or prev.get("originalPriceWan")
         else:
-            rec["firstSeen"] = td
+            rec["firstSeen"] = rec.get("listedOn") or td
         rec["lastSeen"] = td
         by_id[rec["id"]] = {**(prev or {}), **{k: v for k, v in rec.items() if v not in (None, "")}}
     cutoff = days_ago(C.LISTING_STALE_DAYS).strftime("%Y-%m-%d")
@@ -441,7 +567,7 @@ def enrich(listings: list[dict]) -> list[dict]:
         d["stampDutyHKD"] = stamp_duty_hkd(price_hkd)
         rp, basis = None, ""
         if d.get("rentAsk"):
-            rp, basis = d["rentAsk"] / d["area"], "实盘租金（同盘/连租约）"
+            rp, basis = d["rentAsk"] / d["area"], "实盘租金（同盘放租/连租约）"
         else:
             xs = rent_psf["estate"].get(d.get("estate"))
             if xs:
@@ -484,7 +610,7 @@ def enrich(listings: list[dict]) -> list[dict]:
             else:
                 cands = [(statistics.median(v), v, bb) for bb in ("old", "new")
                          if len(v := sale_psf["sub"].get((d.get("subArea"), bb), [])) >= 3] if not b else []
-                if cands:   # 楼龄未知 → 取新/旧两档中较低的中位数（保守，避免夸大折让）
+                if cands:
                     _, ref, bb = min(cands, key=lambda x: x[0])
                     ref_label = "同片区" + bl[bb] + "(楼龄未知取保守档)"
                 else:

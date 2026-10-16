@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-社区舆情：只抓公开、无需登录即可浏览的页面 / 官方 API；不保存用户名，引用 ≤90 字。
-  自动：Discuz 论坛（亲子王国等）、宅谷地产论坛、Reddit 公开 JSON、Telegram 公开频道预览、YouTube Data API（需 YT_API_KEY）
-  手动：inbox/social/*.csv|*.txt —— 用于小红书、Facebook 群组、WhatsApp/微信群等需要登录或禁止抓取的平台
+社区舆情（v7.1）：只抓公开、无需登录即可浏览的页面 / 官方 API；不保存用户名，引用 ≤90 字。
+  自动：宅谷地产论坛、亲子王国（Discuz）、Telegram 公开频道预览、YouTube Data API（需 YT_API_KEY）
+  手动：inbox/social/*.csv|*.txt —— 小红书、Facebook 群组、WhatsApp/微信群等需要登录或禁止抓取的平台
+
+v7.1 修正（根据第一次 discover）：
+  * 去掉「忘記密碼」等非帖子链接
+  * 回复数不再误读标题里的数字（如「茶餐廳手記（#1132）」被当成 1132 回复）
+  * 只有标题与楼市相关的论坛帖才计入舆情指数（宅谷论坛有大量时事/生活帖）
 """
 from __future__ import annotations
 
@@ -14,11 +19,10 @@ import os
 import re
 import urllib.parse
 from collections import Counter, defaultdict
-from pathlib import Path
 
 from . import config as C
 from .common import DEBUG_DIR, INBOX_DIR, days_ago, http_get, log, now_hkt, num, parse_date, short, strip_html
-from .lexicon import STANCE_LABEL, TOPICS, analyse, sanitize_quote
+from .lexicon import STANCE_LABEL, TOPICS, analyse, sanitize_quote, to_trad
 
 PLATFORM_LABEL = {
     "BabyKingdom": "亲子王国", "PropertyHK": "宅谷地产论坛", "Reddit": "Reddit", "Telegram": "Telegram 公开频道",
@@ -26,6 +30,15 @@ PLATFORM_LABEL = {
     "Facebook": "Facebook（手动导入）", "WhatsApp": "WhatsApp 群（手动导入）", "WeChat": "微信群（手动导入）",
     "Manual": "其他手动导入", "Curated": "人工整理样本",
 }
+_REL = [to_trad(k).lower() for k in getattr(C, "SOCIAL_RELEVANCE", [])]
+_SKIP = getattr(C, "SOCIAL_SKIP_URL", [])
+
+
+def is_relevant(title: str) -> bool:
+    if not _REL:
+        return True
+    t = to_trad(title or "").lower()
+    return any(k in t for k in _REL)
 
 
 def _item(platform, channel, title, text, date, replies=0, likes=0, url="", kind="post", quotes=None):
@@ -58,31 +71,37 @@ def fetch_discuz(src: dict) -> list[dict]:
 
 def fetch_generic_table(src: dict) -> list[dict]:
     from bs4 import BeautifulSoup
-    out = []
+    out, seen = [], set()
     for p in range(1, src.get("pages", 1) + 1):
         url = src["url"] if p == 1 else src["url"] + ("&" if "?" in src["url"] else "?") + f"{src.get('page_param', 'page')}={p}"
         soup = BeautifulSoup(http_get(url), "html.parser")
         for tr in soup.select("tr"):
             a = next((x for x in tr.select("a[href]") if len(x.get_text(strip=True)) >= 4
-                      and re.search(r"thread|tid=|topic|forum_|forum\.php\?.*id", x.get("href", ""))), None)
+                      and re.search(r"thread|tid=|topic|forum_content|forum\.php\?.*id", x.get("href", ""))
+                      and not any(s in x.get("href", "") for s in _SKIP)), None)
             if not a:
                 continue
-            txt = tr.get_text(" ", strip=True)
-            dates = [parse_date(m) for m in re.findall(r"20\d{2}-\d{2}-\d{2}", txt)]
+            href = urllib.parse.urljoin(url, a["href"])
+            if href in seen:
+                continue
+            seen.add(href)
+            title = a.get_text(strip=True)
+            cells = [td.get_text(" ", strip=True) for td in tr.select("td")]
+            rest = " ".join(c for c in cells if title not in c)          # 去掉标题所在格，避免误读标题里的数字
+            dates = [parse_date(m) for m in re.findall(r"20\d{2}-\d{2}-\d{2}", rest)]
             d = max([x for x in dates if x], default=None)
-            ints = [int(x.replace(",", "")) for x in re.findall(r"(?<![\d-])\d{1,3}(?:,\d{3})+(?![\d-])|(?<![\d:-])\d{1,6}(?![\d:-])", txt)]
-            ints = [i for i in ints if i < 10_000_000]
+            ints = [int(x.replace(",", "")) for x in
+                    re.findall(r"(?<![\d:-])\d{1,3}(?:,\d{3})+(?![\d:-])|(?<![\d:-])\d{1,7}(?![\d:-])", re.sub(r"20\d{2}-\d{2}-\d{2}(\s+\d{2}:\d{2})?", " ", rest))]
             replies = ints[-2] if len(ints) >= 2 else 0
             views = ints[-1] if ints else 0
-            out.append(_item(src["platform"], src["name"], a.get_text(strip=True), "", d, replies, views / 50,
-                             urllib.parse.urljoin(url, a["href"])))
+            out.append(_item(src["platform"], src["name"], title, "", d, replies, views / 50, href))
     return out
 
 
 def fetch_reddit(src: dict) -> list[dict]:
+    import datetime as dt
     data = http_get(src["url"], as_json=True)
     out = []
-    import datetime as dt
     for ch in data.get("data", {}).get("children", []):
         p = ch.get("data", {})
         d = dt.datetime.fromtimestamp(p.get("created_utc", 0), tz=now_hkt().tzinfo)
@@ -381,15 +400,16 @@ def run(snapshot: dict, *, offline: bool, discover: bool = False) -> dict:
                   "playwright_titles": fetch_playwright_titles}[src["kind"]]
             try:
                 got = fn(src)
-                items += got
-                counts[src["name"]] = len(got)
-                log("social", f"{src['name']}: {len(got)}")
+                rel = [g for g in got if is_relevant(g["title"])]
+                items += rel
+                counts[src["name"]] = f"{len(rel)}/{len(got)}（楼市相关/全部）"
+                log("social", f"{src['name']}: 楼市相关 {len(rel)} / 全部 {len(got)}")
             except Exception as exc:
                 errors.append(f"{src['name']}: {str(exc)[:150]}")
                 log("social", f"WARN {src['name']}: {exc}")
         for ch in C.TELEGRAM_PUBLIC_CHANNELS:
             try:
-                got = fetch_telegram(ch)
+                got = [g for g in fetch_telegram(ch) if is_relevant(g["text"])]
                 items += got
                 counts[f"Telegram @{ch}"] = len(got)
             except Exception as exc:
@@ -415,7 +435,7 @@ def run(snapshot: dict, *, offline: bool, discover: bool = False) -> dict:
     agg["llmSummary"] = llm_summary(agg, items) if agg.get("n") else None
     agg.update({"window": f"{cutoff} – {now_hkt():%Y-%m-%d}", "counts": counts, "errors": errors,
                 "notes": "小红书、Facebook 群组、WhatsApp/微信群需登录且平台条款禁止自动抓取，请把内容导出/复制到 inbox/social "
-                         "或在看板「手动导入」框粘贴；系统只保存≤120 字摘录，不保存用户名。"})
+                         "或在看板「手动导入」框粘贴；系统只保存≤120 字摘录，不保存用户名。论坛帖只计入标题与楼市相关者。"})
     snapshot["sentiment_summary"] = agg
     snapshot["deep_sentiment_threads"] = build_threads(items, snapshot)
     return {"items": len(items), "index": agg.get("index"), "errors": len(errors)}
