@@ -1,0 +1,7 @@
+{
+ "_说明": "抓取失败时的后备值，也可手动补充其他指标。值请填最新公开数据，并写上来源与日期。",
+ "hibor1m": {"value": 2.75, "date": "2026-10-14", "chg30d": null, "source": "金管局开放 API 2026-10-14 快照"},
+ "hiborON": {"value": 2.25, "date": "2026-10-14", "source": "金管局开放 API 2026-10-14 快照"},
+ "rvdPrice": {"value": 320.5, "month": "2026-08", "yoy": 11.0, "mom": null, "chg3m": null, "source": "差估署私人住宅售价指数（临时数字，经 hongkongdatavisual.com 转载）"},
+ "ccl": {"value": 161.20, "date": "2026-10", "source": "中原城市领先指数 CCL（v5 看板人工录入）"}
+}
