@@ -1,0 +1,58 @@
+name: Daily HK listings scrape (Playwright)
+
+on:
+  schedule:
+    - cron: "0 1 * * *"      # 每天 09:00 HKT
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "normal / discover"
+        default: "normal"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install deps + Chromium
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Run scraper
+        run: |
+          if [ "${{ github.event.inputs.mode }}" = "discover" ]; then
+            python scraper.py --discover
+          else
+            python scraper.py --max-pages 6
+          fi
+
+      - name: Upload discover samples
+        if: ${{ github.event.inputs.mode == 'discover' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: discover-debug
+          path: debug/
+
+      - name: Commit market_data.json
+        if: ${{ github.event.inputs.mode != 'discover' }}
+        run: |
+          git config user.name  "proppulse-bot"
+          git config user.email "proppulse-bot@users.noreply.github.com"
+          git add market_data.json
+          git diff --cached --quiet || git commit -m "data: daily listings $(TZ=Asia/Hong_Kong date +'%Y-%m-%d %H:%M')"
+          git push
