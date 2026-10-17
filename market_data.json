@@ -1,5 +1,5 @@
 {
- "updated_at": "2026-10-17 09:31:09 HKT",
+ "updated_at": "2026-10-17 18:23:19 HKT",
  "forecast_model": {
   "generated": "2026-10-17",
   "factors": {
@@ -29,15 +29,15 @@
    },
    "news": {
     "label": "新闻情绪",
-    "value": 0.152,
-    "detail": "新闻情绪指数 +6（43 条）",
+    "value": 0.145,
+    "detail": "新闻情绪指数 +6（40 条）",
     "quality": 1.0
    },
    "social": {
     "label": "网民情绪",
-    "value": -0.003,
-    "detail": "网民情绪指数 -0（35 条）",
-    "quality": 0.58
+    "value": 0.04,
+    "detail": "网民情绪指数 +2（38 条）",
+    "quality": 0.63
    }
   },
   "coverageNote": "因子覆盖率 = 有数据的因子权重之和；覆盖率越低，区间越宽。这是规则透明的打分模型，未经历史回测，仅作方向参考，不构成投资建议。"
@@ -457,22 +457,22 @@
   }
  },
  "news_meta": {
-  "index": 6.1,
-  "n": 43,
+  "index": 5.8,
+  "n": 40,
   "byCategory": {
-   "内地政策与北水": 11,
-   "二手成交与楼价": 10,
-   "香港利率与按揭": 10,
+   "二手成交与楼价": 13,
+   "内地政策与北水": 10,
+   "香港利率与按揭": 7,
    "土地供应与新盘": 4,
-   "香港经济与就业": 4,
    "美联储与环球息口": 2,
+   "香港经济与就业": 2,
    "租赁市场": 1,
    "施政与房屋政策": 1
   },
   "byStance": {
-   "neutral": 23,
-   "bear": 7,
-   "bull": 13
+   "neutral": 22,
+   "bear": 6,
+   "bull": 12
   },
   "window": "2026-09-17 – 2026-10-17",
   "errors": [
@@ -521,22 +521,22 @@
   ]
  },
  "sentiment_summary": {
-  "index": -0.1,
-  "n": 35,
+  "index": 1.6,
+  "n": 38,
   "dist": {
-   "bull": 20,
-   "bear": 17,
-   "neutral": 63
+   "bull": 18,
+   "bear": 16,
+   "neutral": 66
   },
   "sources": [
    {
     "platform": "PropertyHK",
     "label": "宅谷地产论坛",
-    "n": 20,
-    "index": -2.2,
-    "bull": 15,
-    "bear": 15,
-    "neutral": 70
+    "n": 23,
+    "index": -0.4,
+    "bull": 13,
+    "bear": 13,
+    "neutral": 74
    },
    {
     "platform": "Curated",
@@ -552,49 +552,49 @@
    {
     "key": "price",
     "label": "楼价走势",
-    "n": 21,
-    "share": 60,
-    "index": 5.3,
-    "bull": 29,
-    "bear": 14,
-    "neutral": 57
+    "n": 23,
+    "share": 61,
+    "index": 5.0,
+    "bull": 26,
+    "bear": 13,
+    "neutral": 61
    },
    {
     "key": "rent",
     "label": "租金与收租",
     "n": 9,
-    "share": 26,
-    "index": 13.0,
+    "share": 24,
+    "index": 22.9,
     "bull": 44,
     "bear": 11,
     "neutral": 44
    },
    {
+    "key": "rates",
+    "label": "利率与按揭",
+    "n": 6,
+    "share": 16,
+    "index": 5.4,
+    "bull": 17,
+    "bear": 17,
+    "neutral": 67
+   },
+   {
     "key": "mainland",
     "label": "内地买家与人才",
     "n": 6,
-    "share": 17,
-    "index": -2.2,
+    "share": 16,
+    "index": -3.6,
     "bull": 0,
     "bear": 17,
     "neutral": 83
-   },
-   {
-    "key": "rates",
-    "label": "利率与按揭",
-    "n": 5,
-    "share": 14,
-    "index": 6.0,
-    "bull": 20,
-    "bear": 20,
-    "neutral": 60
    },
    {
     "key": "supply",
     "label": "新盘与供应",
     "n": 4,
     "share": 11,
-    "index": -43.8,
+    "index": -40.5,
     "bull": 0,
     "bear": 75,
     "neutral": 25
@@ -603,7 +603,7 @@
     "key": "economy",
     "label": "经济与就业",
     "n": 2,
-    "share": 6,
+    "share": 5,
     "index": 0.0,
     "bull": 0,
     "bear": 0,
@@ -613,7 +613,7 @@
     "key": "distress",
     "label": "负资产与银主",
     "n": 2,
-    "share": 6,
+    "share": 5,
     "index": -56.2,
     "bull": 0,
     "bear": 100,
@@ -623,7 +623,7 @@
     "key": "firstbuyer",
     "label": "上车与首置",
     "n": 2,
-    "share": 6,
+    "share": 5,
     "index": 100.0,
     "bull": 100,
     "bear": 0,
@@ -653,7 +653,7 @@
    },
    {
     "week": "2026-W40",
-    "index": -12.1,
+    "index": -5.0,
     "n": 4
    },
    {
@@ -663,8 +663,8 @@
    },
    {
     "week": "2026-W42",
-    "index": 6.9,
-    "n": 22
+    "index": 6.2,
+    "n": 25
    }
   ],
   "topTerms": [
@@ -861,20 +861,6 @@
     {
      "platform": "PropertyHK",
      "channel": "宅谷 property.hk · 地产论坛",
-     "title": "新盤減價戰勢不可擋",
-     "text": "",
-     "date": "2026-10-04",
-     "replies": 5,
-     "url": "https://www.property.hk/forum_content.php?id=150586",
-     "stance": "bear",
-     "score": -0.5,
-     "hits": [
-      "減價"
-     ]
-    },
-    {
-     "platform": "PropertyHK",
-     "channel": "宅谷 property.hk · 地产论坛",
      "title": "一手盤勢劈價",
      "text": "",
      "date": "2026-10-05",
@@ -884,6 +870,20 @@
      "score": -0.5,
      "hits": [
       "劈價"
+     ]
+    },
+    {
+     "platform": "PropertyHK",
+     "channel": "宅谷 property.hk · 地产论坛",
+     "title": "新盤減價戰勢不可擋",
+     "text": "",
+     "date": "2026-10-04",
+     "replies": 0,
+     "url": "https://www.property.hk/forum_content.php?id=150586",
+     "stance": "bear",
+     "score": -0.5,
+     "hits": [
+      "減價"
      ]
     },
     {
@@ -934,16 +934,15 @@
    ]
   },
   "insights": [
-   "整体网民情绪指数 -0（中性偏淡），基于近 30 天 35 条帖文/评论，按回复与点赞加权。",
-   "讨论最多的是「楼价走势」（占 60%）；最悲观的话题是「新盘与供应」（-44，看淡占 75%），最乐观的是「租金与收租」（+13）。",
-   "网民与媒体情绪大致同步（网民 -0 vs 新闻 +6）。",
-   "官方售价指数按年 +11.0%，但网民仍偏淡：实际价格回升未转化为大众信心，感知落后于数据。",
-   "1 个月 HIBOR 近 30 天回落（-0.24 厘），网民对利率话题的情绪 +6。"
+   "整体网民情绪指数 +2（中性偏淡），基于近 30 天 38 条帖文/评论，按回复与点赞加权。",
+   "讨论最多的是「楼价走势」（占 61%）；最悲观的话题是「新盘与供应」（-40，看淡占 75%），最乐观的是「租金与收租」（+23）。",
+   "网民与媒体情绪大致同步（网民 +2 vs 新闻 +6）。",
+   "1 个月 HIBOR 近 30 天回落（-0.24 厘），网民对利率话题的情绪 +5。"
   ],
   "llmSummary": null,
   "window": "2026-09-17 – 2026-10-17",
   "counts": {
-   "宅谷 property.hk · 地产论坛": "28/120（楼市相关/全部）",
+   "宅谷 property.hk · 地产论坛": "31/120（楼市相关/全部）",
    "手动导入": 0,
    "人工整理样本": 15
   },
@@ -3410,41 +3409,22 @@
   },
   {
    "date": "2026-10-17",
-   "score3m": 0.409,
-   "score1y": 0.4,
-   "news": 6.1,
-   "social": -0.1,
+   "score3m": 0.408,
+   "score1y": 0.399,
+   "news": 5.8,
+   "social": 1.6,
    "hibor1m": 2.7078,
    "rvd": 320.5,
    "listings": 390
   }
  ],
  "pipeline_status": {
-  "run": "2026-10-17 09:31 HKT",
+  "run": "2026-10-17 18:23 HKT",
   "offline": false,
   "stages": {
-   "listings": {
-    "ok": true,
-    "secs": 186.6,
-    "count": 390,
-    "fresh": 275,
-    "okSources": [
-     "Centaline"
-    ]
-   },
-   "deals": {
-    "ok": true,
-    "secs": 0.0,
-    "scored": 267,
-    "tiers": {
-     "S": 6,
-     "A": 15,
-     "B": 18
-    }
-   },
    "indicators": {
     "ok": true,
-    "secs": 25.0,
+    "secs": 19.0,
     "keys": [
      "hibor1m",
      "hiborON",
@@ -3459,26 +3439,26 @@
    },
    "news": {
     "ok": true,
-    "secs": 6.3,
-    "fresh": 38,
-    "total": 43,
-    "index": 6.1,
+    "secs": 11.5,
+    "fresh": 35,
+    "total": 40,
+    "index": 5.8,
     "errors": 8
    },
    "social": {
     "ok": true,
-    "secs": 3.9,
-    "items": 35,
-    "index": -0.1,
+    "secs": 4.0,
+    "items": 38,
+    "index": 1.6,
     "errors": 2
    },
    "forecast": {
     "ok": true,
     "secs": 0.0,
     "scores": {
-     "3m": 0.409,
+     "3m": 0.408,
      "6m": 0.397,
-     "1y": 0.4
+     "1y": 0.399
     },
     "factors": [
      "momentum",
@@ -18274,6 +18254,58 @@
  "recent_1m_news": [
   {
    "date": "2026-10-17",
+   "category": "hk_market",
+   "categoryLabel": "二手成交与楼价",
+   "title": "​昂船洲火警特別通知",
+   "source": "政府新闻公报",
+   "impact": "neutral",
+   "impactLabel": "中性 / 观望",
+   "sentiment": 0.0,
+   "topics": [
+    "rates"
+   ],
+   "summary": "電台及電視台當值宣布員注意，請盡快播出以下信息，並適時重播： 消防處今日（十月十七日）上午九時五十二分接獲報告，指昂船洲有一艘已泊岸船隻發生火警。消防人員正進行滅火行動。 如市民受到隨風飄散的煙霧和異味影響，請盡量留在室內及關閉門窗，並保…",
+   "macroLinkage": "【自动研判】反映即时成交与价格动量，是 3 个月走势最直接的信号。",
+   "url": "https://www.info.gov.hk/gia/general/202610/17/P2026101700279.htm",
+   "feed": "政府新闻公报",
+   "origin": "rss"
+  },
+  {
+   "date": "2026-10-17",
+   "category": "hk_market",
+   "categoryLabel": "二手成交与楼价",
+   "title": "醫院管理局重陽節翌日假期家庭醫學門診服務安排",
+   "source": "政府新闻公报",
+   "impact": "bear",
+   "impactLabel": "偏淡 / 看跌",
+   "sentiment": -0.792,
+   "topics": [],
+   "summary": "下稿代醫院管理局發出： 醫院管理局（醫管局）發言人今日（十月十七日）公布，重陽節翌日假期（十月十九日）將有15間家庭醫學診所提供公眾假期家庭醫學門診服務（詳見下表）。求診人士可透過電話預約系統、醫健通流動應用程式或「HA Go」流動應用程…",
+   "macroLinkage": "【自动研判】反映即时成交与价格动量，是 3 个月走势最直接的信号。 命中词：風險、風險。",
+   "url": "https://www.info.gov.hk/gia/general/202610/17/P2026101600419.htm",
+   "feed": "政府新闻公报",
+   "origin": "rss"
+  },
+  {
+   "date": "2026-10-17",
+   "category": "hk_market",
+   "categoryLabel": "二手成交与楼价",
+   "title": "消防處：確保APEC財長會順利開展　執行特別安全部署加強巡查",
+   "source": "RTHK 财经",
+   "impact": "neutral",
+   "impactLabel": "中性 / 观望",
+   "sentiment": 0.0,
+   "topics": [
+    "price"
+   ],
+   "summary": "2026年亞太經合組織財政部長會議下星期二至三在香港舉行。消防處表示，為確保會議順利開展，已全方位執行各項特別安全部署，嚴陣以待，主動築牢安全防線，持續加強日常安全檢查及排查各類風險隱患，全力維護社會安全穩定。 消防處在社交專頁說，近期已…",
+   "macroLinkage": "【自动研判】反映即时成交与价格动量，是 3 个月走势最直接的信号。 命中词：穩定、風險。",
+   "url": "https://news.rthk.hk/rthk/ch/component/k2/1874298-20261017.htm",
+   "feed": "RTHK 财经",
+   "origin": "rss"
+  },
+  {
+   "date": "2026-10-17",
    "category": "us_fed",
    "categoryLabel": "美联储与环球息口",
    "title": "美元指數失守102　瑞士法郎兩日累升逾1%",
@@ -18559,64 +18591,6 @@
    "summary": "內地第3季經濟數據將於下周一出爐，外電綜合多家機構預測，第3季國內生產總值(GDP)增長預測中值為4.4%，增速較第2季略為加快0.1個百分點。 大新金融集團首席經濟及策略師溫嘉煒表示，內地持續呈現「雙速經濟」，即是外貿表現持續強勁，但內…",
    "macroLinkage": "【自动研判】直接决定供款与「供平过租」门槛，是近期买家入市意愿的最强杠杆。 命中词：反彈、加息。",
    "url": "https://news.rthk.hk/rthk/ch/component/k2/1874231-20261016.htm",
-   "feed": "RTHK 财经",
-   "origin": "rss"
-  },
-  {
-   "date": "2026-10-16",
-   "category": "hk_mortgage",
-   "categoryLabel": "香港利率与按揭",
-   "title": "本港二手樓價按周跌逾0.7%　創逾2個月新低",
-   "source": "RTHK 财经",
-   "impact": "bear",
-   "impactLabel": "偏淡 / 看跌",
-   "sentiment": -0.6,
-   "topics": [
-    "rates",
-    "price",
-    "supply"
-   ],
-   "summary": "反映本港二手樓價走勢的中原城市領先指數（CCL）最新報160.05，按周跌0.71%，創逾2個月新低。今年以來CCL累計升11.06%。 大型屋苑領先指數按周跌0.88%，中小型單位和大型單位則分別跌0.74%和0.58%。 四區樓價普遍…",
-   "macroLinkage": "【自动研判】直接决定供款与「供平过租」门槛，是近期买家入市意愿的最强杠杆。 命中词：優惠、跌、觀望、加息。",
-   "url": "https://news.rthk.hk/rthk/ch/component/k2/1874218-20261016.htm",
-   "feed": "RTHK 财经",
-   "origin": "rss"
-  },
-  {
-   "date": "2026-10-16",
-   "category": "hk_economy",
-   "categoryLabel": "香港经济与就业",
-   "title": "恒指高收124點　本周變動不大",
-   "source": "RTHK 财经",
-   "impact": "neutral",
-   "impactLabel": "中性 / 观望",
-   "sentiment": 0.0,
-   "topics": [
-    "price",
-    "economy"
-   ],
-   "summary": "港股升幅收窄，恒生指數曾高見24392點，升330點，午後升幅一度縮窄至25點，收市報24186點，升124點，升幅0.5%，主板成交額1782億元。 科技指數升約1.2%，報4108點。ATMXJ個別發展，阿里巴巴升逾2%，小米跌近2%…",
-   "macroLinkage": "【自动研判】就业与收入决定供款能力，是 1 年期楼价的底层基本面。 命中词：反彈、上升、升幅、升幅。",
-   "url": "https://news.rthk.hk/rthk/ch/component/k2/1874205-20261016.htm",
-   "feed": "RTHK 财经",
-   "origin": "rss"
-  },
-  {
-   "date": "2026-10-16",
-   "category": "hk_economy",
-   "categoryLabel": "香港经济与就业",
-   "title": "滬深股市收市個別發展　三大指數連跌4星期",
-   "source": "RTHK 财经",
-   "impact": "bear",
-   "impactLabel": "偏淡 / 看跌",
-   "sentiment": -0.667,
-   "topics": [
-    "price",
-    "economy"
-   ],
-   "summary": "滬深股市收市個別發展，三大指數連跌4星期。軍工裝備、汽車零部件、白酒、房地產等股份上升，遊戲、CRO、AI視頻、電池等股份下跌。 上證綜合指數收市報3716點，升8點，升幅0.24%。本周累計下跌近2.6%。 深證成份指數報11802點，…",
-   "macroLinkage": "【自动研判】就业与收入决定供款能力，是 1 年期楼价的底层基本面。 命中词：上升、升幅、下跌、下跌。",
-   "url": "https://news.rthk.hk/rthk/ch/component/k2/1874199-20261016.htm",
    "feed": "RTHK 财经",
    "origin": "rss"
   },
@@ -18982,63 +18956,6 @@
    "origin": "rss"
   },
   {
-   "date": "2026-10-14",
-   "category": "hk_mortgage",
-   "categoryLabel": "香港利率与按揭",
-   "title": "三年期港元特區政府機構債券將於十月二十一日透過重開進行投標",
-   "source": "政府新闻公报",
-   "impact": "neutral",
-   "impactLabel": "中性 / 观望",
-   "sentiment": 0.0,
-   "topics": [
-    "rates",
-    "policy"
-   ],
-   "summary": "下稿代香港金融管理局發出︰ 香港金融管理局（金管局）以香港特別行政區政府（特區政府）代表身分於今日（十月十四日）公布，重開在基礎建設債券計劃下推出的五年期港元特區政府機構債券（債券）（發行編號05GB2912001），作三年期債券供投標。…",
-   "macroLinkage": "【自动研判】直接决定供款与「供平过租」门槛，是近期买家入市意愿的最强杠杆。",
-   "url": "https://www.info.gov.hk/gia/general/202610/14/P2026101400546.htm",
-   "feed": "政府新闻公报",
-   "origin": "rss"
-  },
-  {
-   "date": "2026-10-14",
-   "category": "hk_mortgage",
-   "categoryLabel": "香港利率与按揭",
-   "title": "10年期港元特區政府機構債券將於十月二十一日透過重開進行投標",
-   "source": "政府新闻公报",
-   "impact": "neutral",
-   "impactLabel": "中性 / 观望",
-   "sentiment": 0.0,
-   "topics": [
-    "rates",
-    "policy"
-   ],
-   "summary": "下稿代香港金融管理局發出︰ 香港金融管理局（金管局）以香港特別行政區政府（特區政府）代表身分於今日（十月十四日）公布，重開在基礎建設債券計劃下推出的10年期港元特區政府機構債券（債券）（發行編號10GB3507001），作10年期債券供投…",
-   "macroLinkage": "【自动研判】直接决定供款与「供平过租」门槛，是近期买家入市意愿的最强杠杆。",
-   "url": "https://www.info.gov.hk/gia/general/202610/14/P2026101400565.htm",
-   "feed": "政府新闻公报",
-   "origin": "rss"
-  },
-  {
-   "date": "2026-10-14",
-   "category": "mainland_policy",
-   "categoryLabel": "内地政策与北水",
-   "title": "香港歷史博物館展覽回顧香港達德學院育才之路（附圖）",
-   "source": "政府新闻公报",
-   "impact": "bull",
-   "impactLabel": "偏好 / 看涨",
-   "sentiment": 0.792,
-   "topics": [
-    "mainland",
-    "economy"
-   ],
-   "summary": "康樂及文化事務署（康文署）和廣州市文化廣電旅遊局（廣州市文物局）合作，今日（十月十四日）起至明年二月十五日於香港歷史博物館推出「國家發展成就系列：文化新民&mdash;&mdash;香港達德學院育才之路」展覽，呈現這所學院的辦學面貌，以及…",
-   "macroLinkage": "【自动研判】内地买家与专才是近年新增需求主力，影响中小型单位与租务需求。 命中词：人才、人才。",
-   "url": "https://www.info.gov.hk/gia/general/202610/14/P2026101400247.htm",
-   "feed": "政府新闻公报",
-   "origin": "rss"
-  },
-  {
    "date": "2026-10-11 / 10-15",
    "category": "hk_market",
    "categoryLabel": "本地一二手交投实况",
@@ -19086,20 +19003,20 @@
    "key": "3m",
    "horizon": "未来 3 个月（基准 2026-10-17）",
    "theme": "模型判断：温和上行（综合分 +0.41）",
-   "cclBase": "322.5（+0.6%） 至 329.0（+2.7%）",
-   "cclBull": "332.3（+3.7%）",
+   "cclBase": "322.5（+0.6%） 至 329.0（+2.6%）",
+   "cclBull": "332.2（+3.7%）",
    "cclBear": "319.2（-0.4%）",
    "rentForecast": "+0.1% 至 +1.5%（缺租金指数，按楼价推算）",
    "keyDrivers": "▲ 价格动量：差估署售价指数按年 +11.0%（2026-08，缺 3 个月数据）（贡献 +0.17）；▲ 利率：1M HIBOR 2.71%（30 天 -0.24）（贡献 +0.09）；▲ 供应/减价压力：减价盘占比 6.4%（267 盘）（贡献 +0.06）；▲ 供平过租：实盘回报中位数 3.64% vs 按揭 3.25%（267 盘）（贡献 +0.04）",
    "actionStrategy": "【未来 3 个月操作建议】趋势偏好：优先锁定低息按揭、主攻折让 ≥8% 且供平过租的 S/A 级盘，避免追反价盘。（当前实盘库 S 级 6 盘、A 级 15 盘）",
    "probUp": 69,
-   "score": 0.409,
+   "score": 0.408,
    "coverage": 0.79,
    "baseLabel": "差估署售价指数（2026-08 = 320.5）",
    "contrib": [
     {
      "factor": "价格动量",
-     "value": 0.175
+     "value": 0.174
     },
     {
      "factor": "利率",
@@ -19107,7 +19024,7 @@
     },
     {
      "factor": "供应/减价压力",
-     "value": 0.065
+     "value": 0.064
     },
     {
      "factor": "供平过租",
@@ -19115,11 +19032,11 @@
     },
     {
      "factor": "新闻情绪",
-     "value": 0.039
+     "value": 0.037
     },
     {
      "factor": "网民情绪",
-     "value": -0.0
+     "value": 0.003
     }
    ],
    "analystView": {
@@ -19138,8 +19055,8 @@
    "horizon": "未来半年（基准 2026-10-17）",
    "theme": "模型判断：温和上行（综合分 +0.40）",
    "cclBase": "323.6（+1.0%） 至 335.2（+4.6%）",
-   "cclBull": "341.1（+6.4%）",
-   "cclBear": "317.8（-0.9%）",
+   "cclBull": "341.0（+6.4%）",
+   "cclBear": "317.8（-0.8%）",
    "rentForecast": "+0.2% 至 +2.6%（缺租金指数，按楼价推算）",
    "keyDrivers": "▲ 价格动量：差估署售价指数按年 +11.0%（2026-08，缺 3 个月数据）（贡献 +0.11）；▲ 利率：1M HIBOR 2.71%（30 天 -0.24）（贡献 +0.10）；▲ 供应/减价压力：减价盘占比 6.4%（267 盘）（贡献 +0.09）；▲ 供平过租：实盘回报中位数 3.64% vs 按揭 3.25%（267 盘）（贡献 +0.06）",
    "actionStrategy": "【未来半年操作建议】趋势偏好：优先锁定低息按揭、主攻折让 ≥8% 且供平过租的 S/A 级盘，避免追反价盘。（当前实盘库 S 级 6 盘、A 级 15 盘）",
@@ -19150,15 +19067,15 @@
    "contrib": [
     {
      "factor": "价格动量",
-     "value": 0.111
+     "value": 0.11
     },
     {
      "factor": "利率",
-     "value": 0.103
+     "value": 0.102
     },
     {
      "factor": "供应/减价压力",
-     "value": 0.093
+     "value": 0.092
     },
     {
      "factor": "供平过租",
@@ -19166,11 +19083,11 @@
     },
     {
      "factor": "新闻情绪",
-     "value": 0.028
+     "value": 0.026
     },
     {
      "factor": "网民情绪",
-     "value": -0.0
+     "value": 0.003
     }
    ],
    "analystView": {
@@ -19195,7 +19112,7 @@
    "keyDrivers": "▲ 供应/减价压力：减价盘占比 6.4%（267 盘）（贡献 +0.12）；▲ 利率：1M HIBOR 2.71%（30 天 -0.24）（贡献 +0.12）；▲ 供平过租：实盘回报中位数 3.64% vs 按揭 3.25%（267 盘）（贡献 +0.10）；▲ 价格动量：差估署售价指数按年 +11.0%（2026-08，缺 3 个月数据）（贡献 +0.05）",
    "actionStrategy": "【未来 1 年操作建议】趋势偏好：优先锁定低息按揭、主攻折让 ≥8% 且供平过租的 S/A 级盘，避免追反价盘。（当前实盘库 S 级 6 盘、A 级 15 盘）",
    "probUp": 67,
-   "score": 0.4,
+   "score": 0.399,
    "coverage": 0.88,
    "baseLabel": "差估署售价指数（2026-08 = 320.5）",
    "contrib": [
@@ -19205,11 +19122,11 @@
     },
     {
      "factor": "利率",
-     "value": 0.116
+     "value": 0.115
     },
     {
      "factor": "供平过租",
-     "value": 0.099
+     "value": 0.098
     },
     {
      "factor": "价格动量",
@@ -19217,11 +19134,11 @@
     },
     {
      "factor": "新闻情绪",
-     "value": 0.017
+     "value": 0.016
     },
     {
      "factor": "网民情绪",
-     "value": -0.0
+     "value": 0.001
     }
    ],
    "analystView": {
@@ -19423,8 +19340,8 @@
    "id": "AUTO-ff713395dd",
    "origin": "auto",
    "source": "PropertyHK",
-   "channel": "宅谷 property.hk · 地产论坛 · 11057 回复 · 2026-10-16",
-   "date": "2026-10-16",
+   "channel": "宅谷 property.hk · 地产论坛 · 11058 回复 · 2026-10-17",
+   "date": "2026-10-17",
    "stance": "neutral",
    "stanceBadge": "中性 / 观望（+0.00）",
    "title": "個人理財 之“物業投資（1）”",
@@ -19434,37 +19351,18 @@
    "expertFactCheck": "【自动分析】话题：未归类；情绪命中词：无明显情绪词。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
   },
   {
-   "id": "AUTO-6c75939c44",
+   "id": "AUTO-a0d84cdf74",
    "origin": "auto",
    "source": "PropertyHK",
-   "channel": "宅谷 property.hk · 地产论坛 · 7291 回复 · 2026-10-01",
-   "date": "2026-10-01",
+   "channel": "宅谷 property.hk · 地产论坛 · 4234 回复 · 2026-10-17",
+   "date": "2026-10-17",
    "stance": "neutral",
    "stanceBadge": "中性 / 观望（+0.00）",
-   "title": "茶餐廳手記（#1124）香港人很快要同內地人新加坡人租樓",
-   "url": "https://www.property.hk/forum_content.php?id=150689",
-   "topicTags": [
-    "租金与收租",
-    "内地买家与人才"
-   ],
+   "title": "沒有投資物業的物業投資者",
+   "url": "https://www.property.hk/forum_content.php?id=151166",
+   "topicTags": [],
    "comments": [],
-   "expertFactCheck": "【自动分析】话题：租金与收租、内地买家与人才；情绪命中词：无明显情绪词。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
-  },
-  {
-   "id": "AUTO-dbf2d3ec29",
-   "origin": "auto",
-   "source": "PropertyHK",
-   "channel": "宅谷 property.hk · 地产论坛 · 6054 回复 · 2026-10-16",
-   "date": "2026-10-16",
-   "stance": "neutral",
-   "stanceBadge": "中性 / 观望（+0.00）",
-   "title": "茶餐廳手記（#1132）一間公司在執笠之前願付不合理租金",
-   "url": "https://www.property.hk/forum_content.php?id=151114",
-   "topicTags": [
-    "租金与收租"
-   ],
-   "comments": [],
-   "expertFactCheck": "【自动分析】话题：租金与收租；情绪命中词：无明显情绪词。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
+   "expertFactCheck": "【自动分析】话题：未归类；情绪命中词：无明显情绪词。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
   },
   {
    "id": "AUTO-282cab261d",
@@ -19527,22 +19425,6 @@
    ],
    "comments": [],
    "expertFactCheck": "【自动分析】话题：楼价走势；情绪命中词：无明显情绪词。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
-  },
-  {
-   "id": "AUTO-bb996b0920",
-   "origin": "auto",
-   "source": "PropertyHK",
-   "channel": "宅谷 property.hk · 地产论坛 · 5 回复 · 2026-10-04",
-   "date": "2026-10-04",
-   "stance": "bear",
-   "stanceBadge": "偏淡 / 看跌（-0.50）",
-   "title": "新盤減價戰勢不可擋",
-   "url": "https://www.property.hk/forum_content.php?id=150586",
-   "topicTags": [
-    "新盘与供应"
-   ],
-   "comments": [],
-   "expertFactCheck": "【自动分析】话题：新盘与供应；情绪命中词：減價。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
   },
   {
    "id": "AUTO-7127183d75",
@@ -19624,6 +19506,23 @@
    "expertFactCheck": "【自动分析】话题：利率与按揭、楼价走势；情绪命中词：上升、加息。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
   },
   {
+   "id": "AUTO-6c75939c44",
+   "origin": "auto",
+   "source": "PropertyHK",
+   "channel": "宅谷 property.hk · 地产论坛 · 0 回复 · 2026-10-01",
+   "date": "2026-10-01",
+   "stance": "neutral",
+   "stanceBadge": "中性 / 观望（+0.00）",
+   "title": "茶餐廳手記（#1124）香港人很快要同內地人新加坡人租樓",
+   "url": "https://www.property.hk/forum_content.php?id=150689",
+   "topicTags": [
+    "租金与收租",
+    "内地买家与人才"
+   ],
+   "comments": [],
+   "expertFactCheck": "【自动分析】话题：租金与收租、内地买家与人才；情绪命中词：无明显情绪词。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
+  },
+  {
    "id": "AUTO-3e4aacddd1",
    "origin": "auto",
    "source": "PropertyHK",
@@ -19655,6 +19554,22 @@
    ],
    "comments": [],
    "expertFactCheck": "【自动分析】话题：楼价走势、经济与就业；情绪命中词：无明显情绪词。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
+  },
+  {
+   "id": "AUTO-dbf2d3ec29",
+   "origin": "auto",
+   "source": "PropertyHK",
+   "channel": "宅谷 property.hk · 地产论坛 · 1 回复 · 2026-10-17",
+   "date": "2026-10-17",
+   "stance": "neutral",
+   "stanceBadge": "中性 / 观望（+0.00）",
+   "title": "茶餐廳手記（#1132）一間公司在執笠之前願付不合理租金",
+   "url": "https://www.property.hk/forum_content.php?id=151114",
+   "topicTags": [
+    "租金与收租"
+   ],
+   "comments": [],
+   "expertFactCheck": "【自动分析】话题：租金与收租；情绪命中词：无明显情绪词。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
   },
   {
    "id": "AUTO-e93c409af7",
@@ -19718,6 +19633,55 @@
    ],
    "comments": [],
    "expertFactCheck": "【自动分析】话题：楼价走势；情绪命中词：无明显情绪词。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
+  },
+  {
+   "id": "AUTO-b4a7cc9c11",
+   "origin": "auto",
+   "source": "PropertyHK",
+   "channel": "宅谷 property.hk · 地产论坛 · 0 回复 · 2026-10-17",
+   "date": "2026-10-17",
+   "stance": "neutral",
+   "stanceBadge": "中性 / 观望（+0.00）",
+   "title": "皇崗口岸將加快樓市調整",
+   "url": "https://www.property.hk/forum_content.php?id=151162",
+   "topicTags": [
+    "楼价走势"
+   ],
+   "comments": [],
+   "expertFactCheck": "【自动分析】话题：楼价走势；情绪命中词：无明显情绪词。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
+  },
+  {
+   "id": "AUTO-8ac4131a7c",
+   "origin": "auto",
+   "source": "PropertyHK",
+   "channel": "宅谷 property.hk · 地产论坛 · 0 回复 · 2026-10-17",
+   "date": "2026-10-17",
+   "stance": "neutral",
+   "stanceBadge": "中性 / 观望（+0.00）",
+   "title": "Huanggang Port Accelerates Property Market Adjustment",
+   "url": "https://www.property.hk/forum_content.php?id=151164",
+   "topicTags": [
+    "利率与按揭",
+    "楼价走势"
+   ],
+   "comments": [],
+   "expertFactCheck": "【自动分析】话题：利率与按揭、楼价走势；情绪命中词：无明显情绪词。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
+  },
+  {
+   "id": "AUTO-bb996b0920",
+   "origin": "auto",
+   "source": "PropertyHK",
+   "channel": "宅谷 property.hk · 地产论坛 · 0 回复 · 2026-10-04",
+   "date": "2026-10-04",
+   "stance": "bear",
+   "stanceBadge": "偏淡 / 看跌（-0.50）",
+   "title": "新盤減價戰勢不可擋",
+   "url": "https://www.property.hk/forum_content.php?id=150586",
+   "topicTags": [
+    "新盘与供应"
+   ],
+   "comments": [],
+   "expertFactCheck": "【自动分析】话题：新盘与供应；情绪命中词：減價。仅基于标题/摘录的词典判断，请点开原帖核实语境。"
   },
   {
    "id": "AUTO-2db57aac46",
