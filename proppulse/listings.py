@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-盘源抓取（Playwright 真实 Chromium）+ 合并 + 指标计算。  v7.1
+盘源抓取（Playwright 真实 Chromium）+ 合并 + 指标计算。  v7.3
 
 提取顺序：
   1) 中原专用解析：页面自身发出的 /findproperty/api/Post/Search JSON 以及 __NUXT__ 内嵌数据
-     （第一次 discover 证实：第 2 页起列表由该接口返回，字段含 bigEstateName / nSize / salePrice / refNo 等）
   2) 通用 JSON 启发式解析（其他平台）
-  3) DOM 卡片文字兜底（屋苑名从详情页链接解析，卡片文字只有宣传语）
+  3) DOM 卡片文字兜底（屋苑名从详情页链接解析）
 不做任何反爬绕过；遇验证码/拦截页即跳过该目标；robots.txt 不允许的目标直接跳过。
+
+v7.3 修正（2026-10-20 discover）：
+  * 中原首页内嵌数据没有行政区字段，旧版对全港目标会用文字识别覆盖掉片区，识别不到（如兆康、掃管笏）就变成空白
+    → 现在保留中原自带的片区名，并扩充片区→行政区对照表
 """
 from __future__ import annotations
 
@@ -37,27 +40,28 @@ SOURCE_NAMES = {
     "HomeDash": "HomeDash 家速", "BuyHouse": "buyhouse.hk 聚合", "Agency": "地区代理",
 }
 
+# (关键词…) → (片区, 行政区, 大区)。中原「hma」片区名多数可在此找到。
 AREA_MAP = [
     (("黃埔", "黄埔"), "黄埔", "九龙城区", "九龙"), (("紅磡", "红磡"), "红磡", "九龙城区", "九龙"),
-    (("灣仔", "湾仔", "金鐘", "金钟"), "湾仔", "湾仔区", "港岛"), (("銅鑼灣", "铜锣湾", "天后", "大坑"), "铜锣湾", "湾仔区", "港岛"),
-    (("跑馬地", "跑马地"), "跑马地", "湾仔区", "港岛"),
-    (("中環", "中环", "上環", "上环", "西營盤", "西营盘", "堅尼地城", "坚尼地城", "半山"), "中西区", "中西区", "港岛"),
-    (("北角", "鰂魚涌", "鲗鱼涌", "太古", "西灣河", "西湾河", "筲箕灣", "筲箕湾", "柴灣", "柴湾", "杏花邨"), "东区", "东区", "港岛"),
-    (("香港仔", "鴨脷洲", "鸭脷洲", "黃竹坑", "黄竹坑", "薄扶林", "赤柱", "淺水灣", "浅水湾"), "南区", "南区", "港岛"),
-    (("旺角", "油麻地", "佐敦", "尖沙咀", "太子", "大角咀", "奧運", "奥运", "九龍站", "九龙站"), "油尖旺", "油尖旺区", "九龙"),
-    (("深水埗", "長沙灣", "长沙湾", "荔枝角", "美孚", "石硤尾", "石硖尾", "南昌"), "深水埗", "深水埗区", "九龙"),
-    (("九龍城", "九龙城", "土瓜灣", "土瓜湾", "何文田", "啟德", "启德", "九龍塘", "九龙塘"), "九龙城", "九龙城区", "九龙"),
-    (("黃大仙", "黄大仙", "新蒲崗", "新蒲岗", "鑽石山", "钻石山", "樂富", "乐富", "牛池灣", "牛池湾"), "黄大仙", "黄大仙区", "九龙"),
-    (("觀塘", "观塘", "九龍灣", "九龙湾", "牛頭角", "牛头角", "藍田", "蓝田", "油塘"), "观塘", "观塘区", "九龙"),
-    (("沙田", "大圍", "大围", "火炭", "馬鞍山", "马鞍山"), "沙田", "沙田区", "新界东"),
-    (("將軍澳", "将军澳", "康城", "坑口", "寶琳", "宝琳", "調景嶺", "调景岭", "西貢", "西贡"), "西贡及将军澳", "西贡及将军澳", "新界东"),
-    (("大埔", "太和", "白石角"), "大埔", "大埔区", "新界东"), (("粉嶺", "粉岭", "上水"), "北区", "北区", "新界东"),
-    (("荃灣", "荃湾", "大窩口", "大窝口", "深井", "麗城", "丽城"), "荃湾", "荃湾区", "新界西"),
+    (("灣仔", "湾仔", "金鐘", "金钟", "會展"), "湾仔", "湾仔区", "港岛"), (("銅鑼灣", "铜锣湾", "天后", "大坑"), "铜锣湾", "湾仔区", "港岛"),
+    (("跑馬地", "跑马地", "司徒拔道"), "跑马地", "湾仔区", "港岛"),
+    (("中環", "中环", "上環", "上环", "西營盤", "西营盘", "堅尼地城", "坚尼地城", "半山", "山頂", "西半山", "中半山", "石塘咀"), "中西区", "中西区", "港岛"),
+    (("北角", "鰂魚涌", "鲗鱼涌", "太古", "西灣河", "西湾河", "筲箕灣", "筲箕湾", "柴灣", "柴湾", "杏花邨", "小西灣", "炮台山", "康怡", "東半山"), "东区", "东区", "港岛"),
+    (("香港仔", "鴨脷洲", "鸭脷洲", "黃竹坑", "黄竹坑", "薄扶林", "赤柱", "淺水灣", "浅水湾", "海怡", "數碼港", "壽臣山"), "南区", "南区", "港岛"),
+    (("旺角", "油麻地", "佐敦", "尖沙咀", "太子", "大角咀", "奧運", "奥运", "九龍站", "九龙站", "柯士甸", "西九龍"), "油尖旺", "油尖旺区", "九龙"),
+    (("深水埗", "長沙灣", "长沙湾", "荔枝角", "美孚", "石硤尾", "石硖尾", "南昌", "又一村", "荔景山"), "深水埗", "深水埗区", "九龙"),
+    (("九龍城", "九龙城", "土瓜灣", "土瓜湾", "何文田", "啟德", "启德", "九龍塘", "九龙塘", "宋皇臺", "京士柏"), "九龙城", "九龙城区", "九龙"),
+    (("黃大仙", "黄大仙", "新蒲崗", "新蒲岗", "鑽石山", "钻石山", "樂富", "乐富", "牛池灣", "牛池湾", "慈雲山", "橫頭磡"), "黄大仙", "黄大仙区", "九龙"),
+    (("觀塘", "观塘", "九龍灣", "九龙湾", "牛頭角", "牛头角", "藍田", "蓝田", "油塘", "秀茂坪", "安達臣"), "观塘", "观塘区", "九龙"),
+    (("沙田", "大圍", "大围", "火炭", "馬鞍山", "马鞍山", "白石", "烏溪沙", "九肚山", "小瀝源", "石門"), "沙田", "沙田区", "新界东"),
+    (("將軍澳", "将军澳", "康城", "坑口", "寶琳", "宝琳", "調景嶺", "调景岭", "西貢", "西贡", "清水灣", "清水湾"), "西贡及将军澳", "西贡及将军澳", "新界东"),
+    (("大埔", "太和", "白石角", "科學園", "林村"), "大埔", "大埔区", "新界东"), (("粉嶺", "粉岭", "上水", "古洞", "北區"), "北区", "北区", "新界东"),
+    (("荃灣", "荃湾", "大窩口", "大窝口", "深井", "麗城", "丽城", "汀九", "青龍頭"), "荃湾", "荃湾区", "新界西"),
     (("葵涌", "葵芳", "青衣", "荔景"), "葵青", "葵青区", "新界西"),
-    (("屯門", "屯门"), "屯门", "屯门区", "新界西"), (("元朗", "天水圍", "天水围", "洪水橋", "洪水桥", "錦田", "锦田"), "元朗", "元朗区", "新界西"),
-    (("東涌", "东涌", "愉景灣", "愉景湾", "馬灣", "马湾", "長洲", "长洲", "離島", "离岛"), "离岛", "离岛区", "新界西"),
+    (("屯門", "屯门", "兆康", "掃管笏", "扫管笏", "黃金海岸", "蝴蝶灣", "藍地", "大興", "良景", "青山灣"), "屯门", "屯门区", "新界西"),
+    (("元朗", "天水圍", "天水围", "洪水橋", "洪水桥", "錦田", "锦田", "錦上路", "朗屏", "流浮山", "牛潭尾"), "元朗", "元朗区", "新界西"),
+    (("東涌", "东涌", "愉景灣", "愉景湾", "馬灣", "马湾", "長洲", "长洲", "離島", "离岛", "南丫島", "大嶼山"), "离岛", "离岛区", "新界西"),
 ]
-# 中原「db」字段（繁体行政区名）→ 简体行政区 + 大区
 DB_MAP = {
     "中西區": ("中西区", "港岛"), "灣仔區": ("湾仔区", "港岛"), "東區": ("东区", "港岛"), "南區": ("南区", "港岛"),
     "油尖旺區": ("油尖旺区", "九龙"), "深水埗區": ("深水埗区", "九龙"), "九龍城區": ("九龙城区", "九龙"),
@@ -70,7 +74,7 @@ DB_MAP = {
 
 def detect_area(text: str):
     for keys, sub, district, region in AREA_MAP:
-        if any(k in text for k in keys):
+        if any(k in (text or "") for k in keys):
             return sub, district, region
     return None, None, None
 
@@ -153,9 +157,10 @@ def parse_centaline(payload, target: dict) -> list[dict]:
             if ch in ("露台", "平台", "天台", "花園", "连租约", "連租約"):
                 tags.append({"花園": "花园", "連租約": "连租约"}.get(ch, ch))
         db = it.get("db") or ""
-        district, region = DB_MAP.get(db, (None, None))
         hma = it.get("hma") or it.get("districtName") or ""
-        sub = detect_area(f"{hma} {it.get('webScope') or ''}")[0] or hma or None
+        geo_text = f"{hma} {it.get('webScope') or ''} {it.get('address') or ''}"
+        sub_d, dist_d, reg_d = detect_area(geo_text)
+        district, region = DB_MAP.get(db, (dist_d, reg_d))
         mtr = ((it.get("nearbyFacilities") or {}).get("mtrLabels") or [])
         out.append({
             "type": target["type"], "ref": it.get("refNo"), "estate": estate, "building": building,
@@ -165,9 +170,9 @@ def parse_centaline(payload, target: dict) -> list[dict]:
             "rentAsk": round(rent) if rent else None,
             "originalRent": round(orig_rent) if orig_rent and rent and orig_rent > rent else None,
             "ageYears": num(it.get("buildingAge")), "url": it.get("detailUrl") or target["url"],
-            "subArea": sub, "district": district, "region": region, "hma": hma,
+            "subArea": sub_d or hma or None, "district": district, "region": region, "hma": hma,
             "mtr": f"{mtr[0].get('name')}站 {mtr[0].get('walkMinutesInText', '')}".strip() if mtr and isinstance(mtr[0], dict) else "",
-            "listedOn": str(it.get("publishDate") or "")[:10], "tags": tags, "areaText": f"{hma} {db}",
+            "listedOn": str(it.get("publishDate") or "")[:10], "tags": tags, "areaText": geo_text,
         })
     return out
 
@@ -283,7 +288,6 @@ JS_EMBEDDED = r"""
 
 
 def estate_from_href(href: str) -> str:
-    """中原详情链接 /findproperty/detail/<屋苑-期-座>_<编号> → 屋苑名。"""
     m = re.search(r"/detail/([^/?#]+)", href or "")
     if not m:
         return ""
@@ -356,7 +360,6 @@ NEXT_SELECTORS = (".el-pagination button.btn-next", ".el-pagination .btn-next", 
 
 
 async def goto_next(page) -> bool:
-    """只点击分页区的「下一页」，点击后确认网址没有跳去别的页面。"""
     start_url = page.url.split("?")[0]
     for sel in NEXT_SELECTORS:
         try:
@@ -427,7 +430,7 @@ async def scrape_target(ctx, target: dict, max_pages: int, discover: bool, summa
             log("listings", f"BLOCK {target['source']} p{n} 出现验证/拦截页，跳过")
             break
 
-        embedded = await page.evaluate(JS_EMBEDDED) if n == 1 else []   # 内嵌数据只代表首屏
+        embedded = await page.evaluate(JS_EMBEDDED) if n == 1 else []
         cards = await page.evaluate(JS_CARDS)
         b_xhr, b_ssr, b_dom = [], [], []
         for _, payload in captured:
@@ -440,7 +443,7 @@ async def scrape_target(ctx, target: dict, max_pages: int, discover: bool, summa
                 b_dom.append(rec)
         pdiag.update({"xhr_urls": [u for u, _ in captured], "xhr_parsed": len(b_xhr),
                       "embedded_keys": [k for k, _ in embedded], "ssr_parsed": len(b_ssr),
-                      "dom_cards": len(cards), "dom_parsed": len(b_dom)})
+                      "dom_cards": len(cards), "dom_parsed": len(b_dom), "url_now": page.url[:160]})
         if discover:
             DEBUG_DIR.mkdir(exist_ok=True)
             (DEBUG_DIR / f"listing_{slug}_p{n}_parsed.json").write_text(json.dumps(
@@ -467,12 +470,12 @@ async def scrape_target(ctx, target: dict, max_pages: int, discover: bool, summa
     diag["status"] = "ok" if results else "empty"
     diag["total"] = len(results)
     for rec in results:
-        if rec.get("district") and rec.get("subArea"):
-            pass                      # 结构化数据自带片区/行政区（中原 hma/db），最准确
-        elif target.get("sub_area"):   # 焦点区目标：用目标设定的片区
+        if target.get("sub_area"):          # 焦点区目标：用目标设定的片区
             rec["subArea"], rec["district"], rec["region"] = target["sub_area"], target["district"], target["region"]
-        else:
-            rec["subArea"], rec["district"], rec["region"] = detect_area(rec.get("areaText", "") + rec.get("estate", ""))
+        elif not rec.get("district"):       # 全港目标：保留中原片区名，只补行政区/大区
+            sub, dist, reg = detect_area((rec.get("areaText") or "") + " " + (rec.get("estate") or ""))
+            rec["subArea"] = rec.get("subArea") or sub
+            rec["district"], rec["region"] = dist, reg
         rec.pop("areaText", None)
     return results
 
@@ -507,7 +510,6 @@ async def _scrape_all(max_pages: int, discover: bool, only: str | None):
 def merge(old: list[dict], fresh: list[dict], ok_sources: set[str]) -> list[dict]:
     by_id = {d["id"]: d for d in old}
     td = today()
-    # 旧版（v7.0）DOM 解析出的错误屋苑名（宣传语）一律清除，由本次结构化数据替换
     if ok_sources:
         by_id = {k: v for k, v in by_id.items()
                  if v.get("origin") == "seed_web_verified" or v.get("ref") or v.get("source") not in ok_sources}
@@ -527,6 +529,12 @@ def merge(old: list[dict], fresh: list[dict], ok_sources: set[str]) -> list[dict
             rec["firstSeen"] = rec.get("listedOn") or td
         rec["lastSeen"] = td
         by_id[rec["id"]] = {**(prev or {}), **{k: v for k, v in rec.items() if v not in (None, "")}}
+    # 旧数据补地区（v7.1/7.2 时期抓到的全港盘可能缺行政区）
+    for d in by_id.values():
+        if not d.get("district"):
+            sub, dist, reg = detect_area(f"{d.get('hma') or ''} {d.get('subArea') or ''} {d.get('estate') or ''}")
+            d["district"], d["region"] = dist, reg
+            d["subArea"] = d.get("subArea") or d.get("hma") or sub
     cutoff = days_ago(C.LISTING_STALE_DAYS).strftime("%Y-%m-%d")
     kept = [d for d in by_id.values()
             if not (d.get("origin") != "seed_web_verified" and d.get("source") in ok_sources and d.get("lastSeen", td) < cutoff)]
@@ -639,6 +647,7 @@ def build_meta(listings: list[dict]) -> dict:
     ys = [d["grossYield"] for d in sale if d.get("grossYield")]
     return {"total": len(listings), "sale": len(sale), "rent": len(listings) - len(sale),
             "bySource": by("source"), "bySubArea": by("subArea"), "byDistrict": by("district"),
+            "noDistrict": sum(1 for d in listings if not d.get("district")),
             "medianYield": round(statistics.median(ys), 2) if ys else None,
             "cutShare": round(sum(1 for d in sale if "减价盘" in d.get("tags", [])) / len(sale), 3) if sale else None}
 
@@ -657,9 +666,10 @@ def run(snapshot: dict, *, offline: bool, discover: bool, max_pages: int, only: 
     listings = enrich(merge(old, fresh, ok))
     listings.sort(key=lambda d: (d.get("lastSeen", ""), d.get("firstSeen", "")), reverse=True)
     prev_meta = snapshot.get("listings_meta", {})
+    meta = build_meta(listings)
     snapshot["listings"] = listings
-    snapshot["listings_meta"] = {**build_meta(listings), "lastRun": f"{__import__('datetime').datetime.now(HKT):%Y-%m-%d %H:%M} HKT",
+    snapshot["listings_meta"] = {**meta, "lastRun": f"{__import__('datetime').datetime.now(HKT):%Y-%m-%d %H:%M} HKT",
                                  "okSources": sorted(ok), "freshCount": len(fresh),
                                  "prevTotal": prev_meta.get("total"),
                                  "runSummary": [{k: s.get(k) for k in ("source", "url", "status", "total")} for s in summary]}
-    return {"count": len(listings), "fresh": len(fresh), "okSources": sorted(ok)}
+    return {"count": len(listings), "fresh": len(fresh), "okSources": sorted(ok), "noDistrict": meta["noDistrict"]}

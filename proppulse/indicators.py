@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-宏观指标：
+宏观指标（v7.3）：
   * 金管局开放 API —— 1 个月 / 隔夜 HIBOR、银行体系总结余（每日）
   * 差估署 data.gov.hk CSV —— 私人住宅售价 / 租金指数（每月）
-  * inbox/indicators_manual.json —— 手动补充（如中原 CCL、按揭优惠、成交宗数），抓取失败时也作后备
+  * inbox/indicators_manual.json —— 手动补充；抓取失败时作后备
+
+v7.3 修正：差估署 CSV 的月份格式是「01-1993」，且有「All Classes - Remarks」备注列；
+旧版解析不到月份、又误取备注列，所以两项都失败、一直用手动后备值。现已按实际格式解析。
 """
 from __future__ import annotations
 
 import csv
+import datetime as dt
 import io
 import re
 
@@ -26,7 +30,6 @@ def fetch_hkma() -> dict:
     last = recs[-1]
 
     def back(days):
-        import datetime as dt
         target = (dt.date.fromisoformat(last["end_of_date"]) - dt.timedelta(days=days)).isoformat()
         older = [r for r in recs if r["end_of_date"] <= target]
         return older[-1] if older else recs[0]
@@ -43,43 +46,47 @@ def fetch_hkma() -> dict:
     }
 
 
+def _month_of(cell: str):
+    s = (cell or "").strip()
+    m = re.fullmatch(r"(\d{1,2})[-/](\d{4})", s)          # 01-1993（差估署格式）
+    if m:
+        return int(m.group(2)), int(m.group(1))
+    m = re.fullmatch(r"(\d{4})[-/](\d{1,2})", s)          # 1993-01
+    if m:
+        return int(m.group(1)), int(m.group(2))
+    m = re.fullmatch(r"([A-Za-z]{3})[a-z]*[-\s](\d{2,4})", s)   # Jan-1993 / Jan 93
+    if m and m.group(1).lower() in MONTHS:
+        y = int(m.group(2))
+        return (y + 1900 if y > 50 else y + 2000) if y < 100 else y, MONTHS[m.group(1).lower()]
+    return None
+
+
 def parse_rvd_csv(text: str) -> list[tuple[str, float]]:
-    """返回 [(YYYY-MM, 整体指数)]。兼容「年,月,...,All classes」及「Jan-2026,...」等格式。"""
+    """返回 [(YYYY-MM, 整体指数)]，按月份排序。"""
     rows = list(csv.reader(io.StringIO(text.lstrip("\ufeff"))))
     col = None
     for r in rows[:15]:
         for i, c in enumerate(r):
             cl = c.strip().lower()
-            if "all class" in cl or "整體" in cl or "所有類別" in cl or cl in ("all", "overall"):
+            if col is None and cl in ("all classes", "all class", "整體", "所有類別", "overall"):
                 col = i
-    out, year = [], None
+    out = {}
     for r in rows:
-        cells = [c.strip() for c in r]
-        if not cells:
+        if not r:
             continue
-        joined = " ".join(cells[:3]).lower()
-        y = re.search(r"(19|20)\d{2}", joined)
-        if y:
-            year = int(y.group(0))
-        mm = None
-        m = re.search(r"\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)", joined)
-        if m:
-            mm = MONTHS[m.group(1)]
-        else:
-            m2 = re.search(r"(?:^|\s)(\d{1,2})(?:月|\s|$)", " ".join(cells[1:2]) + " ")
-            if m2 and 1 <= int(m2.group(1)) <= 12:
-                mm = int(m2.group(1))
-        if not (year and mm):
+        ym = _month_of(r[0])
+        if not ym:
             continue
-        vals = [num(c) for c in cells[2:] if re.fullmatch(r"-?[\d,.]+\s*(\(P\))?|-?[\d,.]+[A-Z]?", c or "")]
-        vals = [v for v in vals if v is not None]
-        if not vals:
-            continue
-        v = num(cells[col]) if col is not None and col < len(cells) and num(cells[col]) else vals[-1]
+        y, mo = ym
+        v = None
+        if col is not None and col < len(r):
+            v = num(r[col])
+        if v is None:   # 没有找到「All Classes」列时，取该行最后一个数字
+            vals = [num(c) for c in r[1:] if re.fullmatch(r"-?[\d,.]+", (c or "").strip())]
+            v = vals[-1] if vals else None
         if v and 20 < v < 1000:
-            out.append((f"{year}-{mm:02d}", v))
-    dedup = dict(out)
-    return sorted(dedup.items())
+            out[f"{y}-{mo:02d}"] = v
+    return sorted(out.items())
 
 
 def fetch_rvd(urls: list[str], label: str) -> dict:
@@ -89,9 +96,7 @@ def fetch_rvd(urls: list[str], label: str) -> dict:
             series = parse_rvd_csv(http_get(u, timeout=30))
             if len(series) >= 13:
                 (m0, v0) = series[-1]
-                v1 = series[-2][1]
-                v3 = series[-4][1]
-                v12 = series[-13][1]
+                v1, v3, v12 = series[-2][1], series[-4][1], series[-13][1]
                 return {"value": v0, "month": m0, "mom": round((v0 / v1 - 1) * 100, 2),
                         "chg3m": round((v0 / v3 - 1) * 100, 2), "yoy": round((v0 / v12 - 1) * 100, 2),
                         "series": [[m, v] for m, v in series[-36:]], "source": f"差估署 {label}（data.gov.hk）", "url": u}
@@ -113,9 +118,8 @@ def run(snapshot: dict, *, offline: bool) -> dict:
                 ind.update(fn())
                 log("indicators", f"{name} OK")
             except Exception as exc:
-                errors.append(f"{name}: {str(exc)[:160]}")
+                errors.append(f"{name}: {str(exc)[:200]}")
                 log("indicators", f"WARN {name}: {exc}")
-    # 后备顺序：本次抓取 > 手动文件 > 上次结果
     for k, v in manual.items():
         if k.startswith("_"):
             continue
@@ -124,7 +128,6 @@ def run(snapshot: dict, *, offline: bool) -> dict:
     for k, v in prev.items():
         if k not in ind and isinstance(v, dict) and not k.startswith("_"):
             ind[k] = {**v, "stale": True}
-    # 衍生：H 按实际利率
     h = ind.get("hibor1m", {}).get("value")
     if h is not None:
         ind["hMortgage"] = {"value": round(min(h + C.HIBOR_SPREAD, C.MORTGAGE_CAP_RATE), 3),
@@ -136,4 +139,4 @@ def run(snapshot: dict, *, offline: bool) -> dict:
         ind["cutShare"] = {"value": round(lm["cutShare"] * 100, 1), "note": "实盘库中已减价盘占比 %"}
     ind["_meta"] = {"updated": today(), "errors": errors}
     snapshot["macro_indicators"] = ind
-    return {"keys": [k for k in ind if not k.startswith("_")], "errors": len(errors)}
+    return {"keys": [k for k in ind if not k.startswith("_")], "errors": errors}

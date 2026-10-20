@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-"""公共工具：时间、HTTP（含 robots.txt 检查）、JSON 读写、印花税、数字解析。"""
+"""公共工具：时间、HTTP（含 robots.txt 检查）、JSON 读写、印花税、数字解析。  v7.3
+
+v7.3 修正：robots.txt 检查改按 RFC 9309 处理——
+  robots.txt 返回 4xx（如 403/404，即「没有提供规则」）→ 视为允许；
+  返回 5xx 或连不上 → 视为暂时不允许。
+  旧版用 Python 默认规则，robots.txt 一返回 403 就当成「全站禁止」，可能误跳过政府数据与新闻 RSS。
+"""
 from __future__ import annotations
 
 import datetime as dt
@@ -7,6 +13,7 @@ import gzip
 import json
 import re
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 import urllib.robotparser
@@ -20,7 +27,7 @@ DEBUG_DIR = ROOT / "debug"
 
 HKT = dt.timezone(dt.timedelta(hours=8))
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-      "Chrome/128.0.0.0 Safari/537.36 HKPropPulse/7.0 (personal research; low frequency)")
+      "Chrome/128.0.0.0 Safari/537.36 HKPropPulse/7.3 (personal research; low frequency)")
 
 
 def now_hkt() -> dt.datetime:
@@ -72,6 +79,7 @@ def parse_date(s) -> dt.datetime | None:
 
 # ---------------------------------------------------------------- HTTP
 _robots: dict = {}
+ROBOTS_LOG: dict = {}          # base -> 状态说明（写入 pipeline_status 便于排查）
 
 
 def robots_allows(url: str, ua: str = UA) -> bool:
@@ -79,12 +87,27 @@ def robots_allows(url: str, ua: str = UA) -> bool:
     if base not in _robots:
         rp = urllib.robotparser.RobotFileParser(base + "/robots.txt")
         try:
-            rp.read()
+            req = urllib.request.Request(base + "/robots.txt", headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=15) as r:
+                rp.parse(r.read().decode("utf-8", errors="replace").splitlines())
             _robots[base] = rp
-        except Exception:
-            _robots[base] = None
+            ROBOTS_LOG[base] = "robots.txt 已读取"
+        except urllib.error.HTTPError as e:
+            if 400 <= e.code < 500:
+                _robots[base] = None                       # 没有规则 → 允许
+                ROBOTS_LOG[base] = f"robots.txt 返回 {e.code}，按 RFC 9309 视为允许"
+            else:
+                _robots[base] = False
+                ROBOTS_LOG[base] = f"robots.txt 返回 {e.code}，暂时视为不允许"
+        except Exception as e:
+            _robots[base] = False
+            ROBOTS_LOG[base] = f"robots.txt 无法连接（{str(e)[:60]}），暂时视为不允许"
     rp = _robots[base]
-    return True if rp is None else rp.can_fetch(ua, url)
+    if rp is None:
+        return True
+    if rp is False:
+        return False
+    return rp.can_fetch(ua, url)
 
 
 class FetchError(Exception):
@@ -95,7 +118,8 @@ def http_get(url: str, *, timeout: int = 20, headers: dict | None = None, check_
              retries: int = 2, as_json: bool = False):
     """GET，带 UA / gzip / 重试；默认先检查 robots.txt。"""
     if check_robots and not robots_allows(url):
-        raise FetchError(f"robots.txt disallows {url}")
+        base = "{0.scheme}://{0.netloc}".format(urllib.parse.urlsplit(url))
+        raise FetchError(f"robots.txt 不允许或无法确认：{url}（{ROBOTS_LOG.get(base, '')}）")
     h = {"User-Agent": UA, "Accept-Language": "zh-HK,zh-TW;q=0.9,zh;q=0.8,en;q=0.7",
          "Accept-Encoding": "gzip"}
     h.update(headers or {})
