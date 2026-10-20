@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-盘源抓取（Playwright 真实 Chromium）+ 合并 + 指标计算。  v7.3
+盘源抓取（Playwright 真实 Chromium）+ 合并 + 指标计算。  v7.4
 
 提取顺序：
   1) 中原专用解析：页面自身发出的 /findproperty/api/Post/Search JSON 以及 __NUXT__ 内嵌数据
@@ -8,9 +8,10 @@
   3) DOM 卡片文字兜底（屋苑名从详情页链接解析）
 不做任何反爬绕过；遇验证码/拦截页即跳过该目标；robots.txt 不允许的目标直接跳过。
 
-v7.3 修正（2026-10-20 discover）：
-  * 中原首页内嵌数据没有行政区字段，旧版对全港目标会用文字识别覆盖掉片区，识别不到（如兆康、掃管笏）就变成空白
-    → 现在保留中原自带的片区名，并扩充片区→行政区对照表
+v7.4 修正（2026-10-20 13:37 discover：所有目标第 2 页都是空白）：
+  * 翻页前先滚动到页底，让分页按钮出现；只点击「分页区」内的下一页按钮（旧版的 text=Next 等宽泛选择器可能点错）
+  * 点击后最多等 15 秒，直到出现新卡片或列表接口回应，而不是固定等待
+  * 第 2 页仍空白时，自动保存截图、页面文字和所点击的按钮到 debug/，便于判断是改版、限流还是验证页
 """
 from __future__ import annotations
 
@@ -32,7 +33,8 @@ JSON_EXCLUDE = ("newproperty", "captcha", "getmtrlines", "schoolnet", "universit
                 "banner", "bookmark", "comparisoncart", "popularagent", "hottags", "estateandhmabrief",
                 "homevideo", "resolvesearchtolabel", "calculatehash", "logging",
                 "googleapis", "appier", "facebook", "doubleclick", "google-analytics")
-BLOCK_MARKERS = ("verify you are human", "access denied", "請完成驗證", "请完成验证", "cf-challenge", "captcha-container")
+BLOCK_MARKERS = ("verify you are human", "access denied", "請完成驗證", "请完成验证", "cf-challenge", "captcha-container",
+                 "請輸入驗證碼", "人機驗證", "too many requests")
 
 SOURCE_NAMES = {
     "Centaline": "中原地产", "28Hse": "28Hse 屋网", "Midland": "美联物业", "House730": "House730",
@@ -40,7 +42,6 @@ SOURCE_NAMES = {
     "HomeDash": "HomeDash 家速", "BuyHouse": "buyhouse.hk 聚合", "Agency": "地区代理",
 }
 
-# (关键词…) → (片区, 行政区, 大区)。中原「hma」片区名多数可在此找到。
 AREA_MAP = [
     (("黃埔", "黄埔"), "黄埔", "九龙城区", "九龙"), (("紅磡", "红磡"), "红磡", "九龙城区", "九龙"),
     (("灣仔", "湾仔", "金鐘", "金钟", "會展"), "湾仔", "湾仔区", "港岛"), (("銅鑼灣", "铜锣湾", "天后", "大坑"), "铜锣湾", "湾仔区", "港岛"),
@@ -273,6 +274,9 @@ JS_CARDS = r"""
   });
 }
 """
+JS_CARD_COUNT = r"""
+() => Array.from(document.querySelectorAll('a[href*="/findproperty/detail/"], a[href*="/detail/"]')).length
+"""
 JS_EMBEDDED = r"""
 () => {
   const out = [];
@@ -355,27 +359,51 @@ async def settle(page, ms=15000):
         await page.wait_for_timeout(2500)
 
 
-NEXT_SELECTORS = (".el-pagination button.btn-next", ".el-pagination .btn-next", "button.btn-next", "a[rel=next]",
-                  "li.next a", "button[aria-label*=Next]", "button:has-text('下一頁')", "a:has-text('下一頁')", "text=Next")
+# 只在分页区内找「下一页」：先找分页容器，再找容器里的下一页按钮
+PAGER_CONTAINERS = (".el-pagination", ".pagination", "nav[aria-label*=agination]", "ul.pager", ".pager")
+NEXT_IN_PAGER = ("button.btn-next", ".btn-next", "a[rel=next]", "li.next a", "button[aria-label*=Next]",
+                 "button[aria-label*=下一]", "a:has-text('下一頁')", "button:has-text('下一頁')", "a:has-text('›')", "button:has-text('›')")
 
 
-async def goto_next(page) -> bool:
-    start_url = page.url.split("?")[0]
-    for sel in NEXT_SELECTORS:
+async def goto_next(page, n: int, captured: list) -> tuple[bool, str]:
+    """返回 (是否翻页成功, 说明)。成功 = 出现新卡片或列表接口回应。"""
+    await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+    await page.wait_for_timeout(1500)
+    before_cards = await page.evaluate(JS_CARD_COUNT)
+    first_href = await page.evaluate("(document.querySelector('a[href*=\"/detail/\"]')||{}).href||''")
+    clicked = ""
+    for cont in PAGER_CONTAINERS:
+        box = page.locator(cont).first
         try:
-            loc = page.locator(sel).first
-            if await loc.count() and await loc.is_visible() and await loc.is_enabled():
-                await loc.scroll_into_view_if_needed(timeout=5000)
-                await loc.click(timeout=5000)
-                await settle(page)
-                if page.url.split("?")[0] != start_url and "/list/" not in page.url:
-                    await page.go_back()
-                    await settle(page)
-                    return False
-                return True
+            if not await box.count():
+                continue
         except Exception:
             continue
-    return False
+        # 优先直接点页码 n
+        for sel in (f"li.number:text-is('{n}')", f"button:text-is('{n}')", f"a:text-is('{n}')", *NEXT_IN_PAGER):
+            try:
+                loc = box.locator(sel).first
+                if await loc.count() and await loc.is_visible() and await loc.is_enabled():
+                    await loc.scroll_into_view_if_needed(timeout=5000)
+                    await loc.click(timeout=5000)
+                    clicked = f"{cont} >> {sel}"
+                    break
+            except Exception:
+                continue
+        if clicked:
+            break
+    if not clicked:
+        return False, "找不到分页区内的下一页按钮"
+    # 最多等 15 秒：出现列表接口回应，或第一张卡片换了
+    for _ in range(30):
+        await page.wait_for_timeout(500)
+        if captured:
+            return True, f"已点击 {clicked}（收到接口回应）"
+        now_first = await page.evaluate("(document.querySelector('a[href*=\"/detail/\"]')||{}).href||''")
+        if now_first and now_first != first_href:
+            return True, f"已点击 {clicked}（卡片已更新）"
+    after_cards = await page.evaluate(JS_CARD_COUNT)
+    return True, f"已点击 {clicked}，但 15 秒内无新数据（卡片 {before_cards}→{after_cards}）"
 
 
 async def scrape_target(ctx, target: dict, max_pages: int, discover: bool, summary: list) -> list[dict]:
@@ -417,9 +445,11 @@ async def scrape_target(ctx, target: dict, max_pages: int, discover: bool, summa
                     pdiag["error"] = f"HTTP {resp.status}"
                     break
                 await settle(page)
-            elif not await goto_next(page):
-                pdiag["note"] = "no next page"
-                break
+            else:
+                ok, note = await goto_next(page, n, captured)
+                pdiag["note"] = note
+                if not ok:
+                    break
         except Exception as exc:
             pdiag["error"] = str(exc)[:200]
             break
@@ -448,6 +478,16 @@ async def scrape_target(ctx, target: dict, max_pages: int, discover: bool, summa
             DEBUG_DIR.mkdir(exist_ok=True)
             (DEBUG_DIR / f"listing_{slug}_p{n}_parsed.json").write_text(json.dumps(
                 {"xhr": b_xhr[:5], "ssr": b_ssr[:5], "dom": b_dom[:5]}, ensure_ascii=False, indent=1), encoding="utf-8")
+        # 翻页后仍空白：保存截图与页面文字，方便判断原因
+        if n > 1 and not (b_xhr or b_dom):
+            DEBUG_DIR.mkdir(exist_ok=True)
+            try:
+                await page.screenshot(path=str(DEBUG_DIR / f"blank_{slug}_p{n}.png"), full_page=False)
+                (DEBUG_DIR / f"blank_{slug}_p{n}.txt").write_text(
+                    f"URL: {page.url}\nNOTE: {pdiag.get('note')}\n\n" + body[:4000], encoding="utf-8")
+                pdiag["debugSaved"] = f"blank_{slug}_p{n}.png / .txt"
+            except Exception as exc:
+                pdiag["debugError"] = str(exc)[:120]
         captured.clear()
 
         batch = b_xhr or b_ssr or b_dom
@@ -462,7 +502,7 @@ async def scrape_target(ctx, target: dict, max_pages: int, discover: bool, summa
                 new += 1
         pdiag["new"] = new
         log("listings", f"{target['source']} {target.get('sub_area', '全港')} {target['type']} p{n}: +{new} "
-                        f"(xhr {len(b_xhr)} / ssr {len(b_ssr)} / dom {len(b_dom)})")
+                        f"(xhr {len(b_xhr)} / ssr {len(b_ssr)} / dom {len(b_dom)}) {pdiag.get('note', '')}")
         if new == 0 and not discover:
             break
         await page.wait_for_timeout(random.randint(3000, 6000))
@@ -470,9 +510,9 @@ async def scrape_target(ctx, target: dict, max_pages: int, discover: bool, summa
     diag["status"] = "ok" if results else "empty"
     diag["total"] = len(results)
     for rec in results:
-        if target.get("sub_area"):          # 焦点区目标：用目标设定的片区
+        if target.get("sub_area"):
             rec["subArea"], rec["district"], rec["region"] = target["sub_area"], target["district"], target["region"]
-        elif not rec.get("district"):       # 全港目标：保留中原片区名，只补行政区/大区
+        elif not rec.get("district"):
             sub, dist, reg = detect_area((rec.get("areaText") or "") + " " + (rec.get("estate") or ""))
             rec["subArea"] = rec.get("subArea") or sub
             rec["district"], rec["region"] = dist, reg
@@ -529,7 +569,6 @@ def merge(old: list[dict], fresh: list[dict], ok_sources: set[str]) -> list[dict
             rec["firstSeen"] = rec.get("listedOn") or td
         rec["lastSeen"] = td
         by_id[rec["id"]] = {**(prev or {}), **{k: v for k, v in rec.items() if v not in (None, "")}}
-    # 旧数据补地区（v7.1/7.2 时期抓到的全港盘可能缺行政区）
     for d in by_id.values():
         if not d.get("district"):
             sub, dist, reg = detect_area(f"{d.get('hma') or ''} {d.get('subArea') or ''} {d.get('estate') or ''}")
@@ -667,9 +706,11 @@ def run(snapshot: dict, *, offline: bool, discover: bool, max_pages: int, only: 
     listings.sort(key=lambda d: (d.get("lastSeen", ""), d.get("firstSeen", "")), reverse=True)
     prev_meta = snapshot.get("listings_meta", {})
     meta = build_meta(listings)
+    page2 = [p.get("note") for s in summary for p in s.get("pages", []) if p.get("page") == 2]
     snapshot["listings"] = listings
     snapshot["listings_meta"] = {**meta, "lastRun": f"{__import__('datetime').datetime.now(HKT):%Y-%m-%d %H:%M} HKT",
                                  "okSources": sorted(ok), "freshCount": len(fresh),
                                  "prevTotal": prev_meta.get("total"),
                                  "runSummary": [{k: s.get(k) for k in ("source", "url", "status", "total")} for s in summary]}
-    return {"count": len(listings), "fresh": len(fresh), "okSources": sorted(ok), "noDistrict": meta["noDistrict"]}
+    return {"count": len(listings), "fresh": len(fresh), "okSources": sorted(ok), "noDistrict": meta["noDistrict"],
+            "page2": page2[:4]}

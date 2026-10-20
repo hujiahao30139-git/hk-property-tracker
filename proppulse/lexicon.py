@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-楼市情绪 / 话题词典（粤语 + 书面中文 + 英文），供新闻、社区舆情、前端手动导入共用。  v7.3
-规则：命中「看涨」词 +1，「看淡」词 −1；词前 5 字内出现否定/阻碍词则反转；同一个词只计一次。
+楼市情绪 / 话题词典（粤语 + 书面中文 + 英文），供新闻、社区舆情、前端手动导入共用。  v7.4
+规则：命中「看涨」词 +1，「看淡」词 −1；词前 5 字内出现否定/阻碍词则反转；双重否定（很難不…）视为肯定；同一词只计一次。
 
-v7.3 修正（根据 2026-10-20 discover 样本）：
-  * 「大跌」「急跌」等改为必须带楼市主语（如「樓價大跌」），避免把「股市大跌」算成楼市看淡
-  * 新增「樓市下跌」「樓市調整」「下調」「拖低」「有價無市」「零成交」「輸家」等看淡词
-  * 「窒礙」「阻礙」「打擊」也视为否定（「窒礙買家入市」不再判为看好）
-词典法不理解反讽和复杂语境；要更准确的判断请设置 OPENAI_API_KEY 让 AI 逐帖判断。
+v7.4 修正：「無論」「不論」「不過」「不少」「不斷」等不是否定，之前会把「無論樓價與成交急升」误判为「成交急升(否定)」。
+词典法不理解反讽和复杂语境；要更准确的判断请设置 OPENAI_API_KEY 让 AI 归纳。
 """
 from __future__ import annotations
 
@@ -21,7 +18,7 @@ _T2S_PAIRS = ("樓楼 價价 減减 撈捞 見见 築筑 樂乐 過过 買买 �
               "國国 際际 聯联 儲储 華华 東东 換换 貴贵 輕轻 響响 衝冲 擊击 適适 點点 對对 從从 雖虽 與与 舊旧 "
               "齡龄 層层 廳厅 間间 窩窝 號号 補补 費费 紓纾 撐撑 樣样 種种 難难 頭头 熱热 億亿 萬万 發发 灣湾 "
               "銅铜 鑼锣 紅红 環环 區区 運运 嚴严 釋释 頒颁 選选 戰战 傷伤 惡恶 產产 權权 庫库 規规 "
-              "後后 準准 營营 礙碍 輸输 無无")
+              "後后 準准 營营 礙碍 輸输 無无 論论 斷断")
 T2S = {}
 for pair in _T2S_PAIRS.split():
     if len(pair) == 2 and pair[0] != pair[1]:
@@ -55,6 +52,10 @@ BEAR_TERMS = [
     "crash", "prices fall", "bearish", "negative equity", "bubble", "rate hike", "oversupply", "pessimistic",
 ]
 NEGATIONS = ["唔", "不", "未", "冇", "沒", "無", "非", "未必", "唔會", "不會", "窒礙", "阻礙", "打擊", "not ", "no "]
+# 含否定字、但本身不是否定的词：判断前先从前文中剔除
+NOT_NEGATION = ["無論", "不論", "不過", "不少", "不斷", "不僅", "不但", "無疑", "非常", "未來", "不同", "無數", "不久",
+                "唔該", "唔使", "冇耐", "無限", "不錯", "沒錯"]
+DOUBLE_NEG = ("難不", "難唔", "不得不", "唔得唔", "無可避免", "免不了", "不能不")
 NEG_WINDOW = 5
 
 TOPICS = {
@@ -71,6 +72,16 @@ TOPICS = {
 }
 
 _ALL_SENT = sorted([(t, 1) for t in BULL_TERMS] + [(t, -1) for t in BEAR_TERMS], key=lambda x: -len(x[0]))
+_NEGS = [to_trad(n).lower() for n in NEGATIONS]
+_NOTNEG = [to_trad(n).lower() for n in NOT_NEGATION]
+
+
+def _polarity(pre: str, pol: int) -> int:
+    for w in _NOTNEG:
+        pre = pre.replace(w, "  ")
+    if any(d in pre for d in DOUBLE_NEG):
+        return pol
+    return -pol if any(n in pre for n in _NEGS) else pol
 
 
 def analyse(text: str) -> dict:
@@ -78,7 +89,6 @@ def analyse(text: str) -> dict:
     low = to_trad(text or "").lower()
     used = [False] * len(low)
     bull, bear = [], []
-    negs = [to_trad(n).lower() for n in NEGATIONS]
     for term, pol in _ALL_SENT:
         key = to_trad(term).lower()
         start = 0
@@ -91,9 +101,9 @@ def analyse(text: str) -> dict:
                 continue
             for k in range(i, i + len(key)):
                 used[k] = True
-            pre = low[max(0, i - NEG_WINDOW):i]
-            double = any(d in pre for d in ("難不", "難唔", "不得不", "唔得唔", "無可避免", "免不了"))   # 双重否定 = 肯定
-            p = pol if double else (-pol if any(n in pre for n in negs) else pol)
+            # 前文取到上一个标点为止，避免跨句的否定词
+            pre = re.split(r"[，。！？；,.!?;\s]", low[max(0, i - NEG_WINDOW - 2):i])[-1][-NEG_WINDOW:]
+            p = _polarity(pre, pol)
             lst = bull if p > 0 else bear
             label = term if p == pol else f"{term}(否定)"
             if label not in lst:
