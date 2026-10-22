@@ -123,3 +123,5 @@ HIBOR_SPREAD = 1.3
 
 # ============================================================ 7. 可选：大模型生成「大众感知」摘要
 LLM_DEFAULT_MODEL = "gpt-4o-mini"
+SRPE_ACCEPT_TERMS = True
+SRPE_MAX_PRICE_LISTS = 25
