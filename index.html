@@ -2,7 +2,7 @@
 <html lang="zh-HK" data-theme="light"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>HK PropPulse v7.4 | 盘源搜罗 · 笋盘雷达 · 近1月财经新闻 · 3/6/12个月走势预测 · 全网舆情</title>
+  <title>HK PropPulse v7.5 | 盘源搜罗 · 笋盘雷达 · 近1月财经新闻 · 3/6/12个月走势预测 · 全网舆情</title>
   <style>
     :root[data-theme="dark"] {
       --bg-base: #090d16; --bg-surface: #111827; --bg-elevated: #1e293b; --bg-hover: #283548; --border: #334155;
@@ -209,15 +209,16 @@
     <div class="brand">
       <div class="brand-logo">HK</div>
       <div style="min-width:0;">
-        <div class="brand-title">HK PropPulse v7.4 · 盘源搜罗 · 笋盘雷达 · 财经新闻 · 走势预测 · 全网舆情</div>
+        <div class="brand-title">HK PropPulse v7.5 · 盘源搜罗 · 笋盘雷达 · 财经新闻 · 走势预测 · 全网舆情</div>
         <div class="brand-sub"><span class="status-dot" id="syncDot"></span><span id="syncStatusText">正在读取云端数据 market_data.json …</span></div>
       </div>
     </div>
     <nav class="nav-tabs" role="tablist">
       <button class="nav-tab active" onclick="switchTab('screener', this)">1. 🏆 实盘笋盘筛选</button>
-      <button class="nav-tab" onclick="switchTab('macro', this)">2. 📈 宏观 · 新闻 · 走势预测</button>
-      <button class="nav-tab" onclick="switchTab('sentiment', this)">3. 🧭 全网舆情</button>
-      <button class="nav-tab" onclick="switchTab('pipeline', this)">4. 🚀 数据状态与部署</button>
+      <button class="nav-tab" onclick="switchTab('newlaunch', this)">2. 🏗️ 一手新盘</button>
+      <button class="nav-tab" onclick="switchTab('macro', this)">3. 📈 宏观 · 新闻 · 走势预测</button>
+      <button class="nav-tab" onclick="switchTab('sentiment', this)">4. 🧭 全网舆情</button>
+      <button class="nav-tab" onclick="switchTab('pipeline', this)">5. 🚀 数据状态与部署</button>
     </nav>
     <div class="top-actions">
       <button class="btn btn-primary" onclick="fetchCloudData(true)">🔄 刷新云端数据</button>
@@ -382,7 +383,69 @@
       </div>
     </section>
 
-    <!-- ================= TAB 2 ================= -->
+    <!-- ================= TAB 2：一手新盘 ================= -->
+    <section id="tab-newlaunch" class="tab-pane">
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">🏗️ 一手新盘总览 · 价单 / 精选推荐 / 区域影响 / 同区二手对比</div>
+          <span class="badge badge-accent" id="nlBadge">载入中…</span>
+        </div>
+        <div class="kpi-grid" id="nlKpis"></div>
+        <p class="muted" id="nlSourceNote" style="margin-top:0.6rem;"></p>
+      </div>
+
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">⭐ 新开精选新盘推荐（每日自动打分）</div>
+          <span class="badge badge-bull" id="nlPickBadge"></span>
+        </div>
+        <div class="pick-grid" id="nlPicks"><div class="empty">载入中…</div></div>
+        <p class="muted" id="nlMethod" style="margin-top:0.6rem;"></p>
+      </div>
+
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">🗺️ 新盘对所在区域二手楼价的影响（按行政区汇总）</div>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>行政区</th><th class="num">新盘数</th><th class="num">总伙数</th><th>综合影响</th><th>项目</th></tr></thead>
+          <tbody id="nlAreaBody"></tbody>
+        </table></div>
+        <p class="muted" style="margin-top:0.5rem;">影响分 −1（下压同区二手）… +1（支撑/利好）。新盘折实呎价低于「同区二手 + 新旧楼正常溢价」会分流买家、压抑二手叫价；高于则为区内较新屋苑提供价格参考。规则估算，未经回测。</p>
+      </div>
+
+      <div class="card" id="nlListCard">
+        <div class="section-header">
+          <div class="section-title">🔎 价单搜寻与对比（勾选最多 3 个项目并排比较）</div>
+          <span class="badge badge-accent" id="nlListBadge"></span>
+        </div>
+        <div class="filter-bar">
+          <input type="text" id="nlKw" placeholder="搜索楼盘 / 片区 / 发展商…" oninput="renderNlList()" style="flex:1;min-width:180px;">
+          <select id="nlRegion" onchange="renderNlList()"><option value="all">全港所有区域</option><option>港岛</option><option>九龙</option><option>新界东</option><option>新界西</option></select>
+          <select id="nlBudget" onchange="renderNlList()"><option value="99999">不限入场价</option><option value="400">400万或以下</option><option value="500">500万或以下</option><option value="700">700万或以下</option><option value="1000">1000万或以下</option></select>
+          <select id="nlSort" onchange="renderNlList()">
+            <option value="rec">推荐分 高→低</option><option value="netpsf">折实呎价 低→高</option><option value="entry">入场价 低→高</option>
+            <option value="gap">较同区二手 最低水优先</option><option value="date">最新价单</option>
+          </select>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>比较</th><th>楼盘</th><th>片区</th><th>最新价单</th><th class="num">入场价</th><th class="num">呎价（原价）</th><th class="num">折实呎价</th>
+            <th class="num">较同区二手</th><th>区域影响</th><th class="num">销情</th><th class="num">推荐分</th><th></th></tr></thead>
+          <tbody id="nlBody"></tbody>
+        </table></div>
+        <div id="nlCompare" style="margin-top:0.9rem;"></div>
+      </div>
+
+      <div class="card" id="nlDetailCard" style="display:none;">
+        <div class="section-header">
+          <div class="section-title" id="nlDetailTitle"></div>
+          <button class="btn" type="button" onclick="document.getElementById('nlDetailCard').style.display='none'">✕ 关闭</button>
+        </div>
+        <div id="nlDetail"></div>
+      </div>
+    </section>
+
+    <!-- ================= TAB 3 ================= -->
     <section id="tab-macro" class="tab-pane">
       <div class="card" id="macroCard">
         <div class="section-header">
@@ -521,7 +584,7 @@
     </section>
   </main>
   <button id="mToTop" type="button" aria-label="回到顶部" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
-  <footer class="footer-note">HK PropPulse v7.4 · 盘源/新闻/指标/舆情每日自动更新 · 模型与情绪分析为规则估算，仅供个人研究，不构成投资建议</footer>
+  <footer class="footer-note">HK PropPulse v7.5 · 盘源/新闻/指标/舆情每日自动更新 · 模型与情绪分析为规则估算，仅供个人研究，不构成投资建议</footer>
   <script>
     // ======================= 数据（全部从 market_data.json 载入） =======================
     let curatedDeals = [], recent1mNews = [], forecastHorizons = [], deepThreads = [], bulkListings = [], bulkMeta = {};
@@ -1137,7 +1200,7 @@
         if (!s.ok) return esc(s.error || "失败");
         const pick = { listings: `共 ${s.count} 盘 · 新抓 ${s.fresh} · 缺行政区 ${s.noDistrict ?? "—"}`, deals: `评分 ${s.scored} · S ${s.tiers?.S} / A ${s.tiers?.A} / B ${s.tiers?.B} · 引擎 ${s.engineDeals ?? "—"} 盘`,
           indicators: `${(s.keys || []).length} 项指标 · 错误 ${Array.isArray(s.errors) ? s.errors.length : (s.errors ?? 0)}`, news: `抓取 ${s.fetched ?? "—"} · 收录 ${s.kept ?? s.fresh ?? "—"} · 剔除 ${s.rejected ?? "—"} · 共 ${s.total}`,
-          social: `${s.items} 条 · 读正文 ${s.detailRead ?? "—"} · 指数 ${fmtIdx(s.index)}`, forecast: Object.entries(s.scores || {}).map(([a, b]) => `${a} ${b >= 0 ? "+" : ""}${b}`).join(" · ") };
+          social: `${s.items} 条 · 读正文 ${s.detailRead ?? "—"} · 指数 ${fmtIdx(s.index)}`, newlaunch: `${s.projects} 个新盘 · 官方价单 ${s.srpe ?? 0} · 手动 ${s.manual ?? 0} · 价单 PDF ${s.pdfCandidates ?? "—"}`, forecast: Object.entries(s.scores || {}).map(([a, b]) => `${a} ${b >= 0 ? "+" : ""}${b}`).join(" · ") };
         return esc(pick[k] || "");
       };
       document.getElementById("pipeBody").innerHTML = Object.entries(st).map(([k, s]) => `<tr><td><strong>${esc(k)}</strong></td><td>${s.ok ? '<span class="badge badge-bull">✓ 成功</span>' : '<span class="badge badge-bear">✗ 失败</span>'}</td><td class="num">${s.secs ?? "—"}s</td><td>${summ(k, s)}</td></tr>`).join("")
@@ -1145,6 +1208,154 @@
       const errs = [...((pp7.news_meta || {}).errors || []).map(e => "新闻：" + e), ...(((pp7.macro_indicators || {})._meta || {}).errors || []).map(e => "指标：" + e),
         ...((pp7.sentiment_summary || {}).errors || []).map(e => "舆情：" + e)];
       document.getElementById("pipeErrors").innerHTML = errs.length ? `<div style="font-size:0.8rem;font-weight:800;margin-bottom:0.3rem;">⚠ 来源错误（${errs.length}）</div>` + errs.map(e => `<div class="muted">· ${esc(e)}</div>`).join("") : `<div class="muted">没有来源错误记录。</div>`;
+      labelTables();
+    }
+
+
+    // ======================= 一手新盘 =======================
+    let nlProjects = [], nlMeta = {}, nlSelected = [];
+    const nlImpactBadge = s => s == null ? "badge-neutral" : (s >= 0.1 ? "badge-bull" : (s <= -0.1 ? "badge-bear" : "badge-accent"));
+    const nlPct = v => v == null ? "—" : `${v > 0 ? "+" : ""}${v}%`;
+    function nlEntry(p) { const pl = p.priceList || {}; return pl.netPriceMinWan || pl.priceMinWan || null; }
+    function renderNewlaunch() {
+      const m = nlMeta || {};
+      document.getElementById("nlBadge").textContent = m.generated ? `更新 ${m.generated} · ${nlProjects.length} 个项目` : "暂无数据";
+      const withCmp = nlProjects.filter(p => p.compare?.gapPct != null).length;
+      const latest = nlProjects.map(p => p.priceList?.date || "").sort().pop() || "—";
+      const nps = nlProjects.map(p => p.netPsf).filter(Boolean).sort((a, b) => a - b);
+      const medNps = nps.length ? nps[Math.floor(nps.length / 2)] : null;
+      document.getElementById("nlKpis").innerHTML = [
+        kpi("追踪新盘", nlProjects.length, `官方 ${m.fromSrpe ?? 0} · 手动 ${m.manual ?? 0} · 种子 ${m.seed ?? 0}`),
+        kpi("最新价单日期", esc(latest), ""),
+        kpi("折实呎价中位数", medNps ? "$" + medNps.toLocaleString() : "—", "价单最低/中位呎价，已扣可知折扣"),
+        kpi("可与二手对比", `${withCmp} / ${nlProjects.length}`, "同区二手样本 ≥3 盘"),
+      ].join("");
+      document.getElementById("nlSourceNote").textContent = (m.seed ? `⚠ 其中 ${m.seed} 个项目来自人工整理快照（注明来源与日期），官方价单抓取成功后会自动覆盖。 ` : "") +
+        "资料以发展商价单、售楼说明书及成交纪录册为准。";
+      // 精选推荐
+      const picks = nlProjects.filter(p => p.rec?.tier).slice(0, 6);
+      document.getElementById("nlPickBadge").textContent = `S ${nlProjects.filter(p => p.rec?.tier === "S").length} · A ${nlProjects.filter(p => p.rec?.tier === "A").length} · B ${nlProjects.filter(p => p.rec?.tier === "B").length}`;
+      document.getElementById("nlPicks").innerHTML = picks.map(p => {
+        const pl = p.priceList || {}, c = p.compare || {};
+        return `<div class="pick-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:0.3rem;">
+            <span><span class="tier tier-${p.rec.tier}">${p.rec.tier}</span> <strong style="font-size:0.85rem;">${esc(p.name)}</strong></span>
+            <span style="font-weight:800;color:var(--accent);">${p.rec.score}</span></div>
+          <div class="muted">${esc(p.subArea || p.areaText || "")} · ${esc(p.developer || "")} · 价单 ${esc(pl.no || "—")}（${esc(pl.date || "")}）</div>
+          <div><strong style="color:var(--accent);">${nlEntry(p) ? nlEntry(p) + " 万起" : "—"}</strong>${p.netPsf ? ` · 折实 $${p.netPsf.toLocaleString()}/呎` : ""}${c.gapPct != null ? ` · 扣楼龄后较二手 <span style="color:${c.gapPct <= 0 ? "var(--bull)" : "var(--neutral)"};">${nlPct(c.gapPct)}</span>` : ""}</div>
+          <div><span class="badge ${nlImpactBadge(p.impact?.score)}">${esc(p.impact?.label || "")}</span></div>
+          <div>${(p.rec.reasons || []).map(r => `<span class="tag-mini hot">${esc(r)}</span>`).join("")}</div>
+          ${(p.rec.warnings || []).length ? `<div>${p.rec.warnings.map(r => `<span class="tag-mini cut">⚠ ${esc(r)}</span>`).join("")}</div>` : ""}
+          <div style="display:flex;gap:0.35rem;margin-top:auto;"><button class="btn" type="button" onclick="openNlDetail('${esc(p.id)}')">📋 详情与二手对比</button></div>
+        </div>`;
+      }).join("") || `<div class="empty">暂无达到 B 级以上的新盘（多为同区二手样本不足）。</div>`;
+      document.getElementById("nlMethod").textContent = m.method || "";
+      // 区域影响
+      document.getElementById("nlAreaBody").innerHTML = (m.areas || []).map(a => `<tr>
+        <td><strong>${esc(a.district)}</strong></td><td class="num">${a.projects}</td><td class="num">${a.units ? a.units.toLocaleString() : "—"}</td>
+        <td>${a.impactScore == null ? '<span class="muted">数据不足</span>' : `<span class="badge ${nlImpactBadge(a.impactScore)}">${a.impactScore > 0 ? "+" : ""}${a.impactScore}</span>`}</td>
+        <td>${(a.names || []).map(esc).join("、")}</td></tr>`).join("") || `<tr><td colspan="5" class="empty">暂无</td></tr>`;
+      renderNlList();
+    }
+    function renderNlList() {
+      const kw = (document.getElementById("nlKw").value || "").trim().toLowerCase();
+      const reg = document.getElementById("nlRegion").value, bud = parseFloat(document.getElementById("nlBudget").value), sort = document.getElementById("nlSort").value;
+      const list = nlProjects.filter(p => (reg === "all" || p.region === reg) && (!nlEntry(p) || nlEntry(p) <= bud)
+        && (!kw || [p.name, p.nameEn, p.subArea, p.areaText, p.district, p.developer].join(" ").toLowerCase().includes(kw)));
+      const cmp = {
+        rec: (a, b) => (b.rec?.score ?? 0) - (a.rec?.score ?? 0), netpsf: (a, b) => (a.netPsf ?? 1e9) - (b.netPsf ?? 1e9),
+        entry: (a, b) => (nlEntry(a) ?? 1e9) - (nlEntry(b) ?? 1e9), gap: (a, b) => (a.compare?.gapPct ?? 1e9) - (b.compare?.gapPct ?? 1e9),
+        date: (a, b) => String(b.priceList?.date || "").localeCompare(String(a.priceList?.date || ""))
+      }[sort];
+      list.sort(cmp);
+      document.getElementById("nlListBadge").textContent = `${list.length} 个项目 · 已选 ${nlSelected.length}/3`;
+      document.getElementById("nlBody").innerHTML = list.map(p => {
+        const pl = p.priceList || {}, c = p.compare || {}, sold = p.impact?.soldRatio;
+        return `<tr>
+          <td><input type="checkbox" aria-label="比较 ${esc(p.name)}" ${nlSelected.includes(p.id) ? "checked" : ""} onchange="toggleNlCompare('${esc(p.id)}', this.checked)"></td>
+          <td><strong>${esc(p.name)}</strong><div class="muted">${esc(p.developer || "")}${p.origin === "seed" ? " · 种子快照" : p.origin === "srpe" ? " · 官方价单" : " · 手动"}</div></td>
+          <td>${esc(p.subArea || p.areaText || "—")}<div class="muted">${esc(p.district || "")}</div></td>
+          <td>${esc(pl.no ? "No." + pl.no : "—")}<div class="muted">${esc(pl.date || "")}</div></td>
+          <td class="num" style="color:var(--accent);font-weight:700;">${nlEntry(p) ? nlEntry(p) + " 万" : "—"}${pl.netPriceMinWan && pl.priceMinWan ? `<div class="muted">原价 ${pl.priceMinWan} 万</div>` : ""}</td>
+          <td class="num">${pl.psfMin ? "$" + pl.psfMin.toLocaleString() + (pl.psfMax ? "–" + pl.psfMax.toLocaleString() : "") : "—"}</td>
+          <td class="num">${p.netPsf ? "$" + p.netPsf.toLocaleString() : "—"}</td>
+          <td class="num">${c.premiumPct != null ? `${nlPct(c.premiumPct)}<div class="muted">扣楼龄 ${nlPct(c.gapPct)}</div>` : `<span class="muted">${esc(c.basis || "—")}</span>`}</td>
+          <td><span class="badge ${nlImpactBadge(p.impact?.score)}">${esc(p.impact?.label || "—")}</span></td>
+          <td class="num">${sold != null ? Math.round(sold * 100) + "%" : "—"}<div class="muted">${p.unitsTotal ? p.unitsTotal + " 伙" : ""}</div></td>
+          <td class="num">${p.rec?.tier ? `<span class="tier tier-${p.rec.tier}">${p.rec.tier}</span> ` : ""}${p.rec?.score ?? "—"}</td>
+          <td style="white-space:nowrap;"><button class="btn" type="button" onclick="openNlDetail('${esc(p.id)}')">详情</button></td>
+        </tr>`;
+      }).join("") || `<tr><td colspan="12" class="empty">没有符合条件的新盘。</td></tr>`;
+      renderNlCompare();
+      labelTables();
+    }
+    function toggleNlCompare(id, on) {
+      nlSelected = nlSelected.filter(x => x !== id);
+      if (on) { if (nlSelected.length >= 3) { showToast("最多同时比较 3 个项目"); renderNlList(); return; } nlSelected.push(id); }
+      renderNlList();
+    }
+    function renderNlCompare() {
+      const box = document.getElementById("nlCompare");
+      const ps = nlSelected.map(id => nlProjects.find(p => p.id === id)).filter(Boolean);
+      if (!ps.length) { box.innerHTML = `<p class="muted">勾选上表的项目即可并排比较价单。</p>`; return; }
+      const row = (label, f) => `<tr><td><strong>${label}</strong></td>${ps.map(p => `<td>${f(p)}</td>`).join("")}</tr>`;
+      box.innerHTML = `<div style="font-size:0.85rem;font-weight:800;margin-bottom:0.4rem;">📊 价单并排比较</div><div class="table-wrap"><table>
+        <thead><tr><th>项目</th>${ps.map(p => `<th>${esc(p.name)}</th>`).join("")}</tr></thead><tbody>
+        ${row("片区", p => esc(p.subArea || p.areaText || "—"))}
+        ${row("最新价单", p => esc((p.priceList?.no ? "No." + p.priceList.no + " · " : "") + (p.priceList?.date || "—")))}
+        ${row("入场价（折实）", p => nlEntry(p) ? nlEntry(p) + " 万" : "—")}
+        ${row("价单售价范围", p => p.priceList?.priceMinWan ? `${p.priceList.priceMinWan}${p.priceList.priceMaxWan ? "–" + p.priceList.priceMaxWan : ""} 万` : "—")}
+        ${row("实用面积", p => p.priceList?.areaMin ? `${p.priceList.areaMin}–${p.priceList.areaMax || "?"} 呎` : "—")}
+        ${row("原价呎价", p => p.priceList?.psfMin ? "$" + p.priceList.psfMin.toLocaleString() + (p.priceList.psfMax ? "–" + p.priceList.psfMax.toLocaleString() : "") : "—")}
+        ${row("最高折扣", p => p.priceList?.discountPct != null ? p.priceList.discountPct + "%" : "—")}
+        ${row("折实呎价", p => p.netPsf ? "$" + p.netPsf.toLocaleString() : "—")}
+        ${row("同区二手中位呎价", p => p.compare?.secMedianPsf ? "$" + p.compare.secMedianPsf.toLocaleString() + `（${p.compare.secN} 盘，楼龄中位 ${p.compare.secMedianAge ?? "—"} 年）` : esc(p.compare?.basis || "—"))}
+        ${row("新盘较二手", p => p.compare?.premiumPct != null ? `${nlPct(p.compare.premiumPct)}（扣楼龄 ${nlPct(p.compare.gapPct)}）` : "—")}
+        ${row("区域影响", p => `<span class="badge ${nlImpactBadge(p.impact?.score)}">${esc(p.impact?.label || "—")}</span>`)}
+        ${row("伙数 / 已售", p => `${p.unitsTotal ?? "—"} / ${p.unitsSold ?? "—"}`)}
+        ${row("预计关键日期", p => esc(p.keyDate || "—"))}
+        ${row("港铁", p => esc(p.mtr || "—"))}
+        ${row("推荐分", p => `${p.rec?.tier ? `<span class="tier tier-${p.rec.tier}">${p.rec.tier}</span> ` : ""}${p.rec?.score ?? "—"}`)}
+        </tbody></table></div>`;
+    }
+    function openNlDetail(id) {
+      const p = nlProjects.find(x => x.id === id); if (!p) return;
+      const c = p.compare || {}, pl = p.priceList || {};
+      document.getElementById("nlDetailTitle").textContent = `📋 ${p.name}`;
+      const comps = (c.comps || []).map(d => `<tr><td><strong>${esc(d.estate)}</strong><div class="muted">${esc(d.unit || "")}</div></td><td>${esc(d.rooms || "—")}</td>
+        <td class="num">${d.area ?? "—"}</td><td class="num">${d.priceWan ?? "—"} 万</td><td class="num">$${fmtN(d.psf)}</td><td class="num">${d.ageYears ?? "—"}</td>
+        <td class="num" style="color:${(d.vsNewPct ?? 0) <= 0 ? "var(--bull)" : "var(--neutral)"};font-weight:700;">${nlPct(d.vsNewPct)}</td>
+        <td>${d.id ? `<button class="btn" type="button" onclick="loadListingIntoCalc('${esc(d.id)}');switchTab('screener', document.querySelector('.nav-tab'))">⚡测算</button> ` : ""}<a class="btn" href="${esc(safeUrl(d.url))}" target="_blank" rel="noopener">↗</a></td></tr>`).join("");
+      const units = p.units || [];
+      document.getElementById("nlDetail").innerHTML = `
+        <div class="kpi-grid">
+          ${kpi("入场价", nlEntry(p) ? nlEntry(p) + " 万" : "—", pl.netPriceMinWan ? `原价 ${pl.priceMinWan} 万` : "价单原价")}
+          ${kpi("折实呎价", p.netPsf ? "$" + p.netPsf.toLocaleString() : "—", pl.discountPct != null ? `最高折扣 ${pl.discountPct}%` : "")}
+          ${kpi("同区二手中位", c.secMedianPsf ? "$" + c.secMedianPsf.toLocaleString() : "—", esc(c.basis || ""))}
+          ${kpi("较同区二手", nlPct(c.premiumPct), c.gapPct != null ? `正常新旧溢价 ${c.expectedPremiumPct}% · 扣除后 ${nlPct(c.gapPct)}` : "")}
+          ${c.secNewMedianPsf ? kpi("较区内≤15年二手", nlPct(c.vsNewSecPct), `中位 $${c.secNewMedianPsf.toLocaleString()}（${c.secNewN} 盘）`) : ""}
+        </div>
+        <div class="expert-check-box"><strong>对区域楼价影响：</strong><span class="badge ${nlImpactBadge(p.impact?.score)}">${esc(p.impact?.label || "")}</span> ${esc(p.impact?.text || "")}</div>
+        <div style="font-size:0.85rem;font-weight:800;margin:0.9rem 0 0.4rem;">🏘️ 同区可比二手盘（面积相近、楼龄较新优先）</div>
+        <div class="table-wrap"><table><thead><tr><th>屋苑</th><th>间隔</th><th class="num">实用呎</th><th class="num">叫价</th><th class="num">实尺</th><th class="num">楼龄</th><th class="num">较新盘折实呎价</th><th></th></tr></thead>
+          <tbody>${comps || `<tr><td colspan="8" class="empty">${esc(c.basis || "同区二手样本不足")}</td></tr>`}</tbody></table></div>
+        ${units.length ? `<div style="font-size:0.85rem;font-weight:800;margin:0.9rem 0 0.4rem;">📄 价单单位（${units.length} 个）</div>
+          <div class="filter-bar"><input type="number" id="nlUMax" placeholder="售价上限(万)" oninput="renderNlUnits('${esc(p.id)}')"><input type="number" id="nlUAreaMin" placeholder="最小面积(呎)" oninput="renderNlUnits('${esc(p.id)}')"></div>
+          <div class="table-wrap"><table><thead><tr><th>座</th><th>层</th><th>室</th><th class="num">实用呎</th><th class="num">售价</th><th class="num">呎价</th><th class="num">折实售价</th></tr></thead><tbody id="nlUnitsBody"></tbody></table></div>` : `<p class="muted" style="margin-top:0.6rem;">此项目暂无单位级价单资料（种子快照只有价单摘要）。</p>`}
+        <p class="muted" style="margin-top:0.6rem;">资料来源：${esc(p.source || "")}${pl.url ? ` · <a href="${esc(safeUrl(pl.url))}" target="_blank" rel="noopener">价单 PDF ↗</a>` : ""}${p.sourceUrl ? ` · <a href="${esc(safeUrl(p.sourceUrl))}" target="_blank" rel="noopener">来源 ↗</a>` : ""}</p>`;
+      const card = document.getElementById("nlDetailCard"); card.style.display = "block";
+      if (units.length) renderNlUnits(id);
+      labelTables();
+      card.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+    function renderNlUnits(id) {
+      const p = nlProjects.find(x => x.id === id); if (!p) return;
+      const mx = parseFloat(document.getElementById("nlUMax")?.value) || Infinity, amin = parseFloat(document.getElementById("nlUAreaMin")?.value) || 0;
+      const k = 1 - (p.priceList?.discountPct || 0) / 100;
+      const rows = (p.units || []).filter(u => u.priceWan * k <= mx && u.area >= amin).slice(0, 200);
+      document.getElementById("nlUnitsBody").innerHTML = rows.map(u => `<tr><td>${esc(u.block)}</td><td>${esc(u.floor)}</td><td>${esc(u.unit)}</td><td class="num">${u.area}</td>
+        <td class="num">${u.priceWan} 万</td><td class="num">$${fmtN(u.psf)}</td><td class="num" style="color:var(--accent);font-weight:700;">${(u.priceWan * k).toFixed(1)} 万</td></tr>`).join("")
+        || `<tr><td colspan="7" class="empty">没有符合条件的单位。</td></tr>`;
       labelTables();
     }
 
@@ -1177,7 +1388,7 @@
     }
     function downloadV5Json() {
       downloadFile("market_data.json", JSON.stringify({ ...pp7, listings: bulkListings, listings_meta: bulkMeta, curated_deals: curatedDeals,
-        recent_1m_news: recent1mNews, forecast_horizons: forecastHorizons, deep_sentiment_threads: deepThreads }, null, 1), "application/json;charset=utf-8;");
+        recent_1m_news: recent1mNews, newlaunch_projects: nlProjects, newlaunch_meta: nlMeta, forecast_horizons: forecastHorizons, deep_sentiment_threads: deepThreads }, null, 1), "application/json;charset=utf-8;");
     }
     function setStatus(text, warn) {
       document.getElementById("syncStatusText").textContent = text;
@@ -1185,7 +1396,7 @@
     }
     function renderAll() {
       renderOverview(); fillDealFilters(); renderDealsList(); renderPicks(); initBulkFilters(); renderBulk();
-      renderMacro(); renderForecastSection(); renderRecentNews(); renderSentiment(); renderDeepThreads(); renderPipeline(); labelTables();
+      renderMacro(); renderForecastSection(); renderRecentNews(); renderSentiment(); renderDeepThreads(); renderPipeline(); renderNewlaunch(); labelTables();
     }
     async function fetchCloudData(isManual = false) {
       let custom = "";
@@ -1203,6 +1414,9 @@
         recent1mNews = Array.isArray(data.recent_1m_news) ? data.recent_1m_news : [];
         forecastHorizons = Array.isArray(data.forecast_horizons) ? data.forecast_horizons : [];
         deepThreads = Array.isArray(data.deep_sentiment_threads) ? data.deep_sentiment_threads : [];
+        nlProjects = Array.isArray(data.newlaunch_projects) ? data.newlaunch_projects : [];
+        nlMeta = data.newlaunch_meta || {};
+        nlSelected = nlSelected.filter(id => nlProjects.some(p => p.id === id));
         pp7 = {};
         ["forecast_model", "macro_indicators", "news_meta", "sentiment_summary", "deal_picks", "sentiment_lexicon", "history", "pipeline_status", "curated_meta"]
           .forEach(k => { if (data[k]) pp7[k] = data[k]; });
