@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-一手住宅物业销售资讯网（SRPE）抓取（v7.6）。
+一手住宅物业销售资讯网（SRPE）抓取（v7.7）。
 
-2026-10-21 discover 结果：网站内容页（新上载的销售文件、住宅发展项目索引等）前面有一页「条款及细则」，
-须勾选「已阅读并同意」后按 Continue 才能进入；旧版没有处理这一页，所以 0 个价单。
+2026-10-22 discover：已勾选同意并按 Continue，网站调用了 addActivityLog（记录同意），随即跳到
+/opip/disclaimer?return=... 这个中转页；程序在中转页还没转到目标页时就截图，所以是白页、0 个链接。
 
-本版处理方式：
-  * 只有在 config.py 设 SRPE_ACCEPT_TERMS = True 时才会代你勾选同意。请先亲自在浏览器读完 SRPE 的
-    条款及细则与版权告示，确认个人研究、低频下载价单符合条款后再打开。默认 False，不会自动同意。
-  * 进入后记录页面自身调用的 /api/SrpeWebService/ 数据接口、页面链接、PDF 回应，从中找价单 PDF。
-  * discover 模式额外保存：同意后页面截图、页面文字、全部接口回应，用于下一步调整。
-  * 每个 PDF 之间间隔 2 秒，最多 SRPE_MAX_PRICE_LISTS 份；遇验证/拦截页即停止。
+v7.7：
+  * 同意后最多等 30 秒，直到网址离开 disclaimer 页、且页面出现内容；仍未转到时，在同一分页直接打开目标页
+    （同意状态保存在同一浏览器会话里）
+  * 勾选框若是自订元件，改为点击文字标签，并确认已勾选才按 Continue
+  * 记录网站全部 /api/ 请求网址（含非 JSON），discover 时保存，方便找出项目列表与价单接口
+  * 价单只用于个人研究：单位级价单不写入公开的 market_data.json（见 PUBLISH_UNITS）
+
+条款要点（2026-09-24 版）：政府版权内容只限个人或非商业内部用途下载；价单属发展商（第三方）版权，
+除了查阅及下载，转载或分发须取得版权持有人授权。GitHub Pages 公开网站属「向公众提供」，
+所以默认只公开从价单计算出的摘要数字（价钱范围、呎价、折扣），不公开逐个单位的价单表。
 """
 from __future__ import annotations
 
@@ -22,34 +26,26 @@ import urllib.parse
 from . import config as C
 from .common import DEBUG_DIR, robots_allows, today
 
-START_URLS = getattr(C, "SRPE_START_URLS", [
-    "https://www.srpe.gov.hk/opip/disclaimer_newly_upload_sales_brochure_price_list",
+BASE = "https://www.srpe.gov.hk/opip/"
+TARGETS = getattr(C, "SRPE_TARGETS", [
+    # (同意页, 同意后的目标页)
+    ("disclaimer_newly_upload_sales_brochure_price_list", "newly_upload_sales_brochure_price_list"),
 ])
 ACCEPT = getattr(C, "SRPE_ACCEPT_TERMS", False)
 MAX_PDF = getattr(C, "SRPE_MAX_PRICE_LISTS", 25)
+PUBLISH_UNITS = getattr(C, "SRPE_PUBLISH_UNITS", False)
 BLOCK = ("verify you are human", "access denied", "請完成驗證", "captcha")
 
 JS_LINKS = r"""
-() => Array.from(document.querySelectorAll('a[href], [onclick]')).map(a => ({
+() => Array.from(document.querySelectorAll('a[href], [onclick], button')).map(a => ({
   t: (a.innerText || a.title || a.getAttribute('aria-label') || '').trim().slice(0, 160),
   h: a.href || '', oc: (a.getAttribute('onclick') || '').slice(0, 200),
   ctx: ((a.closest('tr,li') || a.parentElement || a).innerText || '').slice(0, 300)}))
 """
 
 
-def _walk(obj, path=""):
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            yield from _walk(v, f"{path}.{k}")
-    elif isinstance(obj, list):
-        for i, v in enumerate(obj[:2000]):
-            yield from _walk(v, f"{path}[{i}]")
-    else:
-        yield path, obj
-
-
 def _records(payloads):
-    """从接口 JSON 找出「项目 + 价单」记录：同一个 dict 里同时有名称类字段与 pdf/文件类字段。"""
+    """从接口 JSON 找出带 PDF 的记录（项目 + 价单）。"""
     out = []
 
     def visit(o):
@@ -63,48 +59,79 @@ def _records(payloads):
             for v in o.values():
                 visit(v)
         elif isinstance(o, list):
-            for v in o[:2000]:
+            for v in o[:3000]:
                 visit(v)
-    for url, p in payloads:
+    for _, p in payloads:
         visit(p)
     return out
 
 
-async def accept_terms(page, diag) -> bool:
-    """勾选「已阅读并同意」并按 Continue / 繼續。只在 SRPE_ACCEPT_TERMS=True 时调用。"""
+async def _settle(page, ms=15000):
+    try:
+        await page.wait_for_load_state("networkidle", timeout=ms)
+    except Exception:
+        await page.wait_for_timeout(3000)
+
+
+async def _content_ready(page) -> bool:
+    """离开 disclaimer 页且页面有实质内容（文字 > 300 字或有表格/链接）。"""
+    if "disclaimer" in page.url:
+        return False
+    try:
+        return await page.evaluate("""() => {
+          const t = (document.body && document.body.innerText) || '';
+          return t.length > 300 || document.querySelectorAll('table tr, a[href*=".pdf"]').length > 0;
+        }""")
+    except Exception:
+        return False
+
+
+async def accept_and_open(page, target: str, diag: dict) -> bool:
+    """在同意页勾选并 Continue，等待转到目标页；不成功则在同一会话直接打开目标页。"""
+    log = {"target": target}
+    diag.setdefault("terms", []).append(log)
     try:
         box = page.locator("input[type=checkbox]").first
-        if not await box.count():
-            diag["terms"] = "未见条款页"
-            return True
-        try:
-            await box.check(timeout=5000)
-        except Exception:
-            await page.get_by_text(re.compile("agree to be bound|同意受|同意遵守|已閱讀|已阅读")).first.click(timeout=5000)
-        for name in ("Continue", "繼續", "继续"):
-            btn = page.get_by_role("button", name=name)
-            if await btn.count():
-                await btn.first.click(timeout=5000)
-                break
+        if await box.count():
+            try:
+                await box.check(timeout=5000)
+            except Exception:
+                await page.get_by_text(re.compile("agree to be bound|同意受|已閱讀|已阅读")).first.click(timeout=5000)
+            if not await box.is_checked():
+                await page.get_by_text(re.compile("agree to be bound|同意受|已閱讀|已阅读")).first.click(timeout=5000)
+            log["checked"] = await box.is_checked()
+            btn = page.get_by_role("button", name=re.compile("Continue|繼續|继续"))
+            if not await btn.count():
+                btn = page.locator("button, input[type=submit], a").filter(has_text=re.compile("Continue|繼續|继续"))
+            await btn.first.click(timeout=5000)
         else:
-            await page.locator("button, input[type=submit]").filter(has_text=re.compile("Continue|繼續|继续")).first.click(timeout=5000)
-        try:
-            await page.wait_for_load_state("networkidle", timeout=20000)
-        except Exception:
-            await page.wait_for_timeout(4000)
-        diag["terms"] = f"已按设定同意，现时网址 {page.url}"
-        return True
+            log["checked"] = "未见勾选框"
+        for _ in range(30):                      # 最多等 30 秒，让中转页转到目标页
+            await page.wait_for_timeout(1000)
+            if await _content_ready(page):
+                break
+        log["afterContinue"] = page.url
+        if not await _content_ready(page):
+            await page.goto(BASE + target, wait_until="domcontentloaded", timeout=45000)
+            await _settle(page)
+            for _ in range(15):
+                if await _content_ready(page):
+                    break
+                await page.wait_for_timeout(1000)
+            log["directOpen"] = page.url
+        ok = await _content_ready(page)
+        log["ok"] = ok
+        return ok
     except Exception as exc:
-        diag["terms"] = f"处理条款页失败：{str(exc)[:150]}"
+        log["error"] = str(exc)[:200]
         return False
 
 
 async def fetch(discover: bool, parse_pdf, summarise, detect) -> tuple[list[dict], dict]:
     from playwright.async_api import async_playwright
-    diag = {"accept": ACCEPT, "pages": [], "pdfs": []}
+    diag = {"accept": ACCEPT, "pages": [], "pdfs": [], "apiCalls": []}
     if not ACCEPT:
-        diag["status"] = ("SRPE 内容页须先同意条款及细则；config.py 的 SRPE_ACCEPT_TERMS 为 False，已跳过。"
-                          "请先亲自阅读条款后再决定是否开启。")
+        diag["status"] = ("SRPE 内容页须先同意条款及细则；config.py 的 SRPE_ACCEPT_TERMS 为 False，已跳过。")
         return [], diag
     projects, payloads, pdf_resps, links = [], [], [], []
     async with async_playwright() as p:
@@ -112,39 +139,38 @@ async def fetch(discover: bool, parse_pdf, summarise, detect) -> tuple[list[dict
         if os.environ.get("CHROMIUM_PATH"):
             launch["executable_path"] = os.environ["CHROMIUM_PATH"]
         browser = await p.chromium.launch(**launch)
-        ctx = await browser.new_context(locale="zh-HK", timezone_id="Asia/Hong_Kong")
+        ctx = await browser.new_context(locale="zh-HK", timezone_id="Asia/Hong_Kong", viewport={"width": 1280, "height": 900})
         page = await ctx.new_page()
         ua = await page.evaluate("navigator.userAgent")
 
         async def on_resp(resp):
             try:
-                ct = resp.headers.get("content-type", "")
+                u, ct = resp.url, resp.headers.get("content-type", "")
+                if "/api/" in u:
+                    diag["apiCalls"].append({"url": u[:200], "status": resp.status, "type": ct[:40]})
                 if "pdf" in ct:
-                    pdf_resps.append(resp.url)
-                elif "json" in ct and "/api/" in resp.url:
-                    payloads.append((resp.url, await resp.json()))
+                    pdf_resps.append(u)
+                elif "json" in ct and "/api/" in u:
+                    payloads.append((u, await resp.json()))
             except Exception:
                 pass
         page.on("response", on_resp)
 
-        for i, start in enumerate(START_URLS):
+        for i, (gate, target) in enumerate(TARGETS):
+            start = BASE + gate
             if not robots_allows(start, ua):
                 diag["pages"].append({"url": start, "status": "skipped_robots"})
                 continue
             try:
                 r = await page.goto(start, wait_until="domcontentloaded", timeout=45000)
-                try:
-                    await page.wait_for_load_state("networkidle", timeout=15000)
-                except Exception:
-                    await page.wait_for_timeout(3000)
-                if not await accept_terms(page, diag):
-                    continue
+                await _settle(page)
+                if not await accept_and_open(page, target, diag):
+                    diag["pages"].append({"url": page.url, "status": "未能进入目标页"})
                 body = await page.evaluate("document.body ? document.body.innerText : ''")
                 if any(b in body.lower()[:4000] for b in BLOCK):
-                    diag["pages"].append({"url": start, "status": "blocked"})
+                    diag["pages"].append({"url": page.url, "status": "blocked"})
                     continue
-                # 页面可能是分页列表 / 需要展开：滚到底触发懒加载
-                for _ in range(3):
+                for _ in range(3):                    # 触发懒加载
                     await page.mouse.wheel(0, 4000)
                     await page.wait_for_timeout(800)
                 links += await page.evaluate(JS_LINKS)
@@ -160,12 +186,12 @@ async def fetch(discover: bool, parse_pdf, summarise, detect) -> tuple[list[dict
 
         recs = _records(payloads)
         cands, seen = [], set()
-        for r in recs:
-            for u in r["pdfs"]:
+        for rec in recs:
+            for u in rec["pdfs"]:
                 full = urllib.parse.urljoin("https://www.srpe.gov.hk/", u)
-                if full not in seen and re.search(r"price|pl|價單|价单", full + json.dumps(r["fields"], ensure_ascii=False), re.I):
+                if full not in seen and re.search(r"price|pl|價單|价单", full + json.dumps(rec["fields"], ensure_ascii=False), re.I):
                     seen.add(full)
-                    cands.append({"url": full, "name": r["name"], "ctx": json.dumps(r["fields"], ensure_ascii=False)})
+                    cands.append({"url": full, "name": rec["name"], "ctx": json.dumps(rec["fields"], ensure_ascii=False)})
         for l in links:
             h = l.get("h", "")
             if ".pdf" in h.lower() and re.search(r"價單|价单|price\s*list", l.get("t", "") + l.get("ctx", "") + h, re.I) and h not in seen:
@@ -199,12 +225,13 @@ async def fetch(discover: bool, parse_pdf, summarise, detect) -> tuple[list[dict
                     projects.append({"name": name, "areaText": c["ctx"][:80], "subArea": sub, "district": dist, "region": reg,
                                      "priceList": {"no": parsed["no"], "date": parsed["date"] or today(), "url": c["url"],
                                                    **summarise(parsed["units"], parsed["discountPct"])},
-                                     "units": parsed["units"][:400], "origin": "srpe",
-                                     "source": "一手住宅物业销售资讯网（价单 PDF）"})
+                                     "units": parsed["units"][:400] if PUBLISH_UNITS else [],
+                                     "origin": "srpe", "source": "一手住宅物业销售资讯网（价单 PDF，只公开摘要数字）"})
             except Exception as exc:
                 diag["pdfs"].append({"url": c["url"], "error": str(exc)[:150]})
             await page.wait_for_timeout(2000)
         await browser.close()
+    diag["apiCalls"] = diag["apiCalls"][:80]
     if discover:
         (DEBUG_DIR / "srpe_pdfs.json").write_text(json.dumps(diag["pdfs"], ensure_ascii=False, indent=1), encoding="utf-8")
         (DEBUG_DIR / "srpe_diag.json").write_text(json.dumps({k: v for k, v in diag.items() if k != "pdfs"},
