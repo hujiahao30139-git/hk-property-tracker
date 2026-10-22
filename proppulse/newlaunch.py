@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-一手新盘（v7.5）：价单搜寻 / 新开精选推荐 / 对所在区域楼价的影响 / 与同区二手对比。
+一手新盘（v7.6）：价单搜寻 / 新开精选推荐 / 对所在区域楼价的影响 / 与同区二手对比。
 
 数据来源（后者覆盖前者）：
   1) seed_newlaunch.json —— 人工整理的起始快照（注明来源与日期）
-  2) inbox/newlaunch/*.csv —— 手动补充（发展商网站 / 价单 PDF 自行整理），格式见该文件夹 README
-  3) 一手住宅物业销售资讯网 SRPE（www.srpe.gov.hk，销售监管局官方资料库）——
-     Playwright 打开公开页面，读取页面链接与数据接口中的价单 PDF，再用 pdfplumber 解析。
-     先检查 robots.txt；遇验证/拦截页即停止。SRPE 页面结构未经实测，首次请用 discover 模式检查样本。
+  2) inbox/newlaunch/*.csv —— 手动补充，格式见该文件夹 README
+  3) 一手住宅物业销售资讯网 SRPE —— 见 srpe.py；须在 config.py 设 SRPE_ACCEPT_TERMS = True 才会抓取
 
-「对区域楼价影响」是按新盘折实呎价相对同区二手（扣除新旧楼正常溢价）、项目规模和销情推算的方向判断，
-是规则估算，不是统计模型，仅供参考。
+「对区域楼价影响」是规则估算，不是统计模型，仅供参考。
 """
 from __future__ import annotations
 
@@ -19,21 +16,15 @@ import csv
 import datetime as dt
 import io
 import json
-import os
 import re
 import statistics
-import urllib.parse
 
 from . import config as C
-from .common import DEBUG_DIR, INBOX_DIR, ROOT, load_json, log, num, robots_allows, today
+from .common import DEBUG_DIR, INBOX_DIR, ROOT, load_json, log, num, today
 
 SEED_FILE = ROOT / "seed_newlaunch.json"
-SRPE_START = getattr(C, "SRPE_START_URLS", ["https://www.srpe.gov.hk/opip/index.htm?lang=zh_TW"])
-SRPE_MAX_PDF = getattr(C, "SRPE_MAX_PRICE_LISTS", 25)
-NL_DAYS = getattr(C, "NEWLAUNCH_DAYS", 120)          # 只保留最近 N 天有价单的项目
-BLOCK_MARKERS = ("verify you are human", "access denied", "請完成驗證", "captcha")
+NL_DAYS = getattr(C, "NEWLAUNCH_DAYS", 120)
 
-# 新盘常见地名 → (片区, 行政区, 大区)；listings.AREA_MAP 未覆盖的先在这里处理
 EXTRA_AREA = [
     (("西沙", "十四鄉", "十四乡", "烏溪沙", "乌溪沙"), "西沙/马鞍山", "沙田区", "新界东"),
     (("石硤尾", "石硖尾", "南昌", "西九龍", "西九龙"), "深水埗", "深水埗区", "九龙"),
@@ -52,7 +43,6 @@ def _detect(text: str):
 
 
 # ------------------------------------------------------------------ 价单 PDF 解析
-# 香港价单标准格式：座 / 楼层 / 单位 | 实用面积 平方米(平方呎) | 售价 | 每平方米(每平方呎)售价
 RE_UNIT_ROW = re.compile(
     r"(?P<pre>.*?)"
     r"(?P<sqm>\d{1,3}\.\d{1,3})\s*\(\s*(?P<sqft>\d{2,4})\s*\)\s*"
@@ -64,7 +54,6 @@ RE_PL_DATE = re.compile(r"(20\d{2})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日|(\
 
 
 def parse_price_list_text(text: str) -> dict:
-    """从价单文字解析单位行与最高折扣。返回 {units, discountPct, no, date}。"""
     units = []
     for line in (text or "").splitlines():
         m = RE_UNIT_ROW.search(line.replace("，", ","))
@@ -73,10 +62,10 @@ def parse_price_list_text(text: str) -> dict:
         area, price, psf = int(m["sqft"]), num(m["price"]), num(m["rsqft"])
         if not (120 <= area <= 6000 and 1_000_000 <= price <= 2_000_000_000):
             continue
-        if psf and abs(price / area - psf) / psf > 0.08:      # 呎价与 售价/面积 不符 → 视为误读
+        if psf and abs(price / area - psf) / psf > 0.08:
             continue
         pre = m["pre"].split()
-        units.append({"block": " ".join(pre[:-2]) if len(pre) > 2 else (pre[0] if len(pre) == 3 else ""),
+        units.append({"block": " ".join(pre[:-2]) if len(pre) > 2 else "",
                       "floor": pre[-2] if len(pre) >= 2 else "", "unit": pre[-1] if pre else "",
                       "area": area, "priceWan": round(price / 10_000, 1), "psf": int(psf or price / area)})
     discs = [float(x) for x in RE_DISCOUNT.findall(text or "") if 0 < float(x) <= 25]
@@ -110,138 +99,12 @@ def summarise_units(units: list[dict], discount: float | None) -> dict:
             "netPsfMedian": int(statistics.median(psf) * k)}
 
 
-# ------------------------------------------------------------------ SRPE（Playwright）
-JS_LINKS = r"""
-() => Array.from(document.querySelectorAll('a[href]')).map(a => ({t: (a.innerText || a.title || '').trim().slice(0, 120),
-  h: a.href, ctx: ((a.closest('tr,li') || a.parentElement || a).innerText || '').slice(0, 300)}))
-"""
-
-
-def _walk(obj, path=""):
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            yield from _walk(v, f"{path}.{k}")
-    elif isinstance(obj, list):
-        for i, v in enumerate(obj[:500]):
-            yield from _walk(v, f"{path}[{i}]")
-    else:
-        yield path, obj
-
-
-def _pdf_candidates(links: list[dict], payloads: list) -> list[dict]:
-    out, seen = [], set()
-    for l in links:
-        h, t, ctx = l.get("h", ""), l.get("t", ""), l.get("ctx", "")
-        if ".pdf" in h.lower() and re.search(r"價單|价单|price\s*list|/pl/|_pl", t + " " + h, re.I) and h not in seen:
-            seen.add(h)
-            out.append({"url": h, "ctx": ctx, "title": t})
-    for url, p in payloads:
-        for path, v in _walk(p):
-            if isinstance(v, str) and ".pdf" in v.lower() and re.search(r"price|pl|價單", path + v, re.I):
-                h = urllib.parse.urljoin(url, v)
-                if h not in seen:
-                    seen.add(h)
-                    out.append({"url": h, "ctx": path, "title": ""})
-    return out
-
-
-async def _srpe(discover: bool) -> tuple[list[dict], dict]:
-    from playwright.async_api import async_playwright
-    diag = {"pages": [], "pdfs": []}
-    projects = []
-    async with async_playwright() as p:
-        launch = {"headless": True}
-        if os.environ.get("CHROMIUM_PATH"):
-            launch["executable_path"] = os.environ["CHROMIUM_PATH"]
-        browser = await p.chromium.launch(**launch)
-        ctx = await browser.new_context(locale="zh-HK", timezone_id="Asia/Hong_Kong")
-        page = await ctx.new_page()
-        ua = await page.evaluate("navigator.userAgent")
-        payloads, links = [], []
-
-        async def on_resp(resp):
-            try:
-                if "json" in resp.headers.get("content-type", ""):
-                    payloads.append((resp.url, await resp.json()))
-            except Exception:
-                pass
-        page.on("response", on_resp)
-
-        async def settle():
-            try:
-                await page.wait_for_load_state("networkidle", timeout=15000)
-            except Exception:
-                await page.wait_for_timeout(3000)
-
-        for start in SRPE_START:
-            if not robots_allows(start, ua):
-                diag["pages"].append({"url": start, "status": "skipped_robots"})
-                continue
-            try:
-                r = await page.goto(start, wait_until="domcontentloaded", timeout=45000)
-                await settle()
-                body = (await page.evaluate("document.body ? document.body.innerText.slice(0,4000) : ''")).lower()
-                if any(b in body for b in BLOCK_MARKERS):
-                    diag["pages"].append({"url": start, "status": "blocked"})
-                    continue
-                links += await page.evaluate(JS_LINKS)
-                diag["pages"].append({"url": start, "http": r.status if r else None, "links": len(links), "json": len(payloads)})
-                for label in ("新上載的銷售文件", "新上载的销售文件", "Newly Uploaded Sales Documents"):
-                    loc = page.get_by_text(label, exact=False).first
-                    try:
-                        if await loc.count():
-                            await loc.click(timeout=5000)
-                            await settle()
-                            links += await page.evaluate(JS_LINKS)
-                            diag["pages"].append({"url": page.url, "clicked": label, "links": len(links), "json": len(payloads)})
-                            break
-                    except Exception as exc:
-                        diag["pages"].append({"clicked": label, "error": str(exc)[:120]})
-            except Exception as exc:
-                diag["pages"].append({"url": start, "error": str(exc)[:200]})
-        cands = _pdf_candidates(links, payloads)
-        diag["pdfCandidates"] = len(cands)
-        if discover:
-            DEBUG_DIR.mkdir(exist_ok=True)
-            (DEBUG_DIR / "srpe_links.json").write_text(json.dumps(links[:400], ensure_ascii=False, indent=1), encoding="utf-8")
-            (DEBUG_DIR / "srpe_json.json").write_text(json.dumps([{"url": u, "body": b} for u, b in payloads[:15]],
-                                                                ensure_ascii=False)[:600000], encoding="utf-8")
-            try:
-                await page.screenshot(path=str(DEBUG_DIR / "srpe_page.png"), full_page=True)
-            except Exception:
-                pass
-        for c in cands[:SRPE_MAX_PDF]:
-            try:
-                resp = await ctx.request.get(c["url"], timeout=45000)
-                if resp.status >= 400:
-                    diag["pdfs"].append({"url": c["url"], "http": resp.status})
-                    continue
-                parsed = parse_price_list_pdf(await resp.body())
-                name = re.split(r"\s{2,}|\n|價單|价单|Price List", c["ctx"] or c["title"])[0].strip()[:40] or "（未识别项目名）"
-                diag["pdfs"].append({"url": c["url"], "name": name, "units": len(parsed["units"]), "discount": parsed["discountPct"],
-                                     "sample": parsed.get("textSample", "")[:400] if discover else None})
-                if parsed["units"]:
-                    sub, dist, reg = _detect(c["ctx"])
-                    projects.append({"name": name, "areaText": c["ctx"][:80], "subArea": sub, "district": dist, "region": reg,
-                                     "priceList": {"no": parsed["no"], "date": parsed["date"] or today(), "url": c["url"],
-                                                   **summarise_units(parsed["units"], parsed["discountPct"])},
-                                     "units": parsed["units"][:400], "origin": "srpe", "source": "一手住宅物业销售资讯网（价单 PDF）"})
-            except Exception as exc:
-                diag["pdfs"].append({"url": c["url"], "error": str(exc)[:150]})
-            await page.wait_for_timeout(1500)
-        await browser.close()
-    if discover:
-        (DEBUG_DIR / "srpe_pdfs.json").write_text(json.dumps(diag["pdfs"], ensure_ascii=False, indent=1), encoding="utf-8")
-    return projects, diag
-
-
 # ------------------------------------------------------------------ 手动 CSV
 PL_NUM = ("priceMinWan", "priceMaxWan", "psfMin", "psfMax", "psfMedian", "areaMin", "areaMax", "discountPct",
           "netPsfMin", "netPriceMinWan", "units")
 
 
 def load_manual() -> list[dict]:
-    """inbox/newlaunch/*.csv：项目级行（priceMinWan、psfMin…）或价单单位级行（area、price）都可以。"""
     folder = INBOX_DIR / "newlaunch"
     out = {}
     if not folder.exists():
@@ -271,7 +134,7 @@ def load_manual() -> list[dict]:
             for k in PL_NUM:
                 if num(r.get(k)) is not None:
                     pl[k] = num(r[k])
-            if num(r.get("area")) and num(r.get("price")):          # 单位级行
+            if num(r.get("area")) and num(r.get("price")):
                 price = num(r["price"])
                 price = price * 10_000 if price < 100_000 else price
                 p["units"].append({"block": r.get("block", ""), "floor": r.get("floor", ""), "unit": r.get("unit", ""),
@@ -290,7 +153,6 @@ def _key(name: str) -> str:
 
 
 def merge(*groups) -> list[dict]:
-    """后面的组覆盖前面的组（seed < 上次结果 < 手动 < SRPE）；若新数据价单日期更旧则保留旧价单、只补资料。"""
     by = {}
     for g in groups:
         for p in g:
@@ -319,7 +181,7 @@ def _net_psf(p) -> int | None:
     if not base:
         return None
     if not pl.get("discountPct") and pl.get("netPriceMinWan") and pl.get("priceMinWan"):
-        return int(base * pl["netPriceMinWan"] / pl["priceMinWan"])      # 用 折实入场价/原价入场价 推算折扣
+        return int(base * pl["netPriceMinWan"] / pl["priceMinWan"])
     return int(base * (1 - (pl.get("discountPct") or 0) / 100))
 
 
@@ -344,7 +206,7 @@ def compare_secondary(p: dict, listings: list[dict]) -> dict:
         res["secNewMedianPsf"], res["secNewN"] = int(statistics.median(d["psf"] for d in newer)), len(newer)
     if npsf:
         res["premiumPct"] = round((npsf / med - 1) * 100, 1)
-        exp = min(30.0, 0.6 * med_age) if med_age is not None else 15.0   # 经验假设：楼龄每差 1 年约 0.6%，封顶 30%
+        exp = min(30.0, 0.6 * med_age) if med_age is not None else 15.0
         res["expectedPremiumPct"] = round(exp, 1)
         res["gapPct"] = round(res["premiumPct"] - exp, 1)
         if res.get("secNewMedianPsf"):
@@ -354,17 +216,16 @@ def compare_secondary(p: dict, listings: list[dict]) -> dict:
     comps = sorted(pool, key=lambda d: (abs((d.get("area") or 0) - mid) / mid > 0.3,
                                         d["ageYears"] if d.get("ageYears") is not None else 99, abs((d.get("area") or 0) - mid)))
     per, picked = {}, []
-    for d in comps:                                   # 每个屋苑最多 2 盘，让对比更多元
+    for d in comps:
         if per.get(d.get("estate"), 0) < 2:
             per[d.get("estate")] = per.get(d.get("estate"), 0) + 1
             picked.append(d)
         if len(picked) >= 6:
             break
-    comps = picked
     res["comps"] = [{"id": d.get("id"), "estate": d.get("estate"), "unit": " ".join(x for x in (d.get("building"), d.get("floor")) if x),
                      "rooms": d.get("rooms"), "area": d.get("area"), "priceWan": d.get("priceWan"), "psf": d.get("psf"),
                      "ageYears": d.get("ageYears"), "vsNewPct": round((d["psf"] / npsf - 1) * 100, 1) if npsf else None,
-                     "url": d.get("url"), "sourceName": d.get("sourceName")} for d in comps]
+                     "url": d.get("url"), "sourceName": d.get("sourceName")} for d in picked]
     return res
 
 
@@ -456,19 +317,20 @@ def recommend(p: dict, cmp: dict) -> dict:
 
 
 def run(snapshot: dict, *, offline: bool, discover: bool = False) -> dict:
+    from . import srpe
     seed = load_json(SEED_FILE, []) or []
     for s in seed:
         s.setdefault("origin", "seed")
     prev = [p for p in snapshot.get("newlaunch_projects", []) if p.get("origin") != "seed"]
     manual = load_manual()
-    srpe, diag = [], {}
+    got, diag = [], {}
     if not offline:
         try:
-            srpe, diag = asyncio.run(_srpe(discover))
+            got, diag = asyncio.run(srpe.fetch(discover, parse_price_list_pdf, summarise_units, _detect))
         except Exception as exc:
             diag = {"error": str(exc)[:300]}
             log("newlaunch", f"WARN SRPE: {exc}")
-    projects = merge(seed, prev, manual, srpe)
+    projects = merge(seed, prev, manual, got)
     cutoff = (dt.date.fromisoformat(today()) - dt.timedelta(days=NL_DAYS)).isoformat()
     projects = [p for p in projects if (p.get("priceList", {}).get("date") or today()) >= cutoff]
     listings = snapshot.get("listings", [])
@@ -499,11 +361,12 @@ def run(snapshot: dict, *, offline: bool, discover: bool = False) -> dict:
         (DEBUG_DIR / "newlaunch_summary.json").write_text(json.dumps(diag, ensure_ascii=False, indent=1), encoding="utf-8")
     snapshot["newlaunch_projects"] = projects
     snapshot["newlaunch_meta"] = {
-        "generated": today(), "count": len(projects), "fromSrpe": len(srpe), "manual": len(manual),
+        "generated": today(), "count": len(projects), "fromSrpe": len(got), "manual": len(manual),
         "seed": sum(1 for p in projects if p.get("origin") == "seed"), "areas": area_summary,
-        "diag": {k: v for k, v in diag.items() if k in ("pages", "pdfCandidates", "error")},
+        "diag": {k: v for k, v in diag.items() if k in ("status", "terms", "pages", "pdfCandidates", "apiRecordsWithPdf", "error")},
         "method": ("推荐分 = 30% 扣除楼龄后较同区二手折让 + 20% 入场价 + 15% 港铁距离 + 15% 销情 + 10% 价单新鲜度 + 10% 焦点区；"
                    "同区二手样本不足时最多 B 级。区域影响 = 新盘折实呎价相对同区二手（扣除新旧楼正常溢价）× 项目规模 + 销情，"
                    "为规则估算，未经回测。"),
     }
-    return {"projects": len(projects), "srpe": len(srpe), "manual": len(manual), "pdfCandidates": diag.get("pdfCandidates")}
+    return {"projects": len(projects), "srpe": len(got), "manual": len(manual), "pdfCandidates": diag.get("pdfCandidates"),
+            "srpeStatus": diag.get("status") or diag.get("terms")}
