@@ -1,0 +1,263 @@
+[
+ {
+  "name": "首岸 第3期 ONE VICTORIA COVE",
+  "areaText": "紅磡",
+  "address": "庇利街1號",
+  "mtr": "土瓜灣站 直线约520米",
+  "origin": "seed",
+  "priceList": {
+   "no": "3A",
+   "date": "2026-10-14",
+   "priceMinWan": 767.6,
+   "psfMin": 22371
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）",
+  "sourceUrl": "https://hknewproject.com/",
+  "developer": "市建局 / 恒基兆業等"
+ },
+ {
+  "name": "首岸 第2期 ONE VICTORIA COVE",
+  "areaText": "紅磡",
+  "address": "庇利街1號",
+  "mtr": "土瓜灣站 直线约480米",
+  "origin": "seed",
+  "priceList": {
+   "no": "1",
+   "date": "2026-10-07",
+   "priceMinWan": 724.1,
+   "psfMin": 20851,
+   "areaMin": 339,
+   "areaMax": 661
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）；美联物业一手新盘页 2026-10-07 撷取（伙数/已售/折实入场价）；千居 Spacious 新盘页（面积/关键日期/折后价）",
+  "sourceUrl": "https://hknewproject.com/",
+  "developer": "市建局 / 恒基兆業 / 帝國集團 / 希慎興業",
+  "unitsTotal": 384,
+  "keyDate": "2027-08-31"
+ },
+ {
+  "name": "擎海 第1期 THE ATLAS",
+  "areaText": "油塘",
+  "address": "東源街23號",
+  "mtr": "油塘站 直线约580米",
+  "origin": "seed",
+  "priceList": {
+   "no": "2A",
+   "date": "2026-10-13",
+   "priceMinWan": 458.5,
+   "psfMin": 15864,
+   "netPriceMinWan": 376,
+   "netPsfMin": 13008,
+   "areaMin": 242,
+   "areaMax": 721
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）；美联物业一手新盘页 2026-10-07 撷取（伙数/已售/折实入场价）；千居 Spacious 新盘页（面积/关键日期/折后价）",
+  "sourceUrl": "https://hknewproject.com/",
+  "developer": "越秀地產",
+  "unitsTotal": 617,
+  "keyDate": "2028-12-30"
+ },
+ {
+  "name": "連方II BONDLANE II",
+  "areaText": "長沙灣",
+  "address": "海壇街268號",
+  "mtr": "深水埗站 直线约490米",
+  "origin": "seed",
+  "priceList": {
+   "no": "7I",
+   "date": "2026-10-12",
+   "priceMinWan": 569.7,
+   "psfMin": 20346
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）",
+  "sourceUrl": "https://hknewproject.com/"
+ },
+ {
+  "name": "DOUBLE COAST III",
+  "areaText": "啟德",
+  "address": "承豐道19號",
+  "mtr": "牛頭角站 直线约1.3公里",
+  "origin": "seed",
+  "priceList": {
+   "no": "3A",
+   "date": "2026-10-10",
+   "priceMinWan": 476.2,
+   "psfMin": 18930,
+   "netPriceMinWan": 419
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）；美联物业一手新盘页 2026-10-07 撷取（伙数/已售/折实入场价）",
+  "sourceUrl": "https://hknewproject.com/",
+  "developer": "中海外等",
+  "unitsTotal": 525,
+  "unitsSold": 237
+ },
+ {
+  "name": "SIERRA SEA 第2C(2)期",
+  "areaText": "西沙",
+  "address": "海映路8號",
+  "mtr": "烏溪沙站 直线约2.5公里",
+  "origin": "seed",
+  "priceList": {
+   "no": "4",
+   "date": "2026-10-17",
+   "priceMinWan": 633.2,
+   "psfMin": 14726,
+   "netPsfMin": 12517,
+   "areaMin": 381,
+   "areaMax": 924
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）；美联物业一手新盘页 2026-10-07 撷取（伙数/已售/折实入场价）；千居 Spacious 新盘页（面积/关键日期/折后价）",
+  "sourceUrl": "https://hknewproject.com/",
+  "developer": "新鴻基地產",
+  "unitsTotal": 522,
+  "keyDate": "2028-03-28"
+ },
+ {
+  "name": "芊御",
+  "areaText": "錦田",
+  "address": "",
+  "mtr": "",
+  "origin": "seed",
+  "priceList": {
+   "no": "6B",
+   "date": "2026-10-06",
+   "priceMinWan": 468,
+   "netPsfMin": 11950
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）；美联物业一手新盘页 2026-10-07 撷取（伙数/已售/折实入场价）",
+  "sourceUrl": "https://hknewproject.com/",
+  "developer": "新鴻基地產",
+  "unitsTotal": 566,
+  "unitsSold": 425,
+  "keyDate": "2027-05-17"
+ },
+ {
+  "name": "叡璟II",
+  "areaText": "南昌（西九龍）",
+  "address": "",
+  "mtr": "",
+  "origin": "seed",
+  "priceList": {
+   "no": "3",
+   "date": "2026-09-28",
+   "priceMinWan": 645.9,
+   "areaMin": 269,
+   "areaMax": 730
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）；美联物业一手新盘页 2026-10-07 撷取（伙数/已售/折实入场价）；千居 Spacious 新盘页（面积/关键日期/折后价）",
+  "sourceUrl": "https://hknewproject.com/",
+  "developer": "華潤置地",
+  "unitsTotal": 407,
+  "unitsSold": 330,
+  "keyDate": "2028-12-25"
+ },
+ {
+  "name": "映匯 Midtown South",
+  "areaText": "紅磡",
+  "address": "",
+  "mtr": "",
+  "origin": "seed",
+  "priceList": {
+   "no": "6A",
+   "date": "2026-09-24",
+   "priceMinWan": 603.2,
+   "areaMin": 226,
+   "areaMax": 630
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）；美联物业一手新盘页 2026-10-07 撷取（伙数/已售/折实入场价）；千居 Spacious 新盘页（面积/关键日期/折后价）",
+  "sourceUrl": "https://hknewproject.com/",
+  "developer": "恒基兆業",
+  "unitsTotal": 263,
+  "unitsSold": 180
+ },
+ {
+  "name": "海瑅灣II",
+  "areaText": "將軍澳 日出康城",
+  "address": "",
+  "mtr": "",
+  "origin": "seed",
+  "priceList": {
+   "no": "2B",
+   "date": "2026-09-23",
+   "priceMinWan": 678
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）；美联物业一手新盘页 2026-10-07 撷取（伙数/已售/折实入场价）",
+  "sourceUrl": "https://hknewproject.com/",
+  "developer": "信和等",
+  "unitsTotal": 1284,
+  "unitsSold": 324
+ },
+ {
+  "name": "皇璇",
+  "areaText": "北角",
+  "address": "",
+  "mtr": "",
+  "origin": "seed",
+  "priceList": {
+   "no": "5",
+   "date": "2026-09-26",
+   "priceMinWan": 754
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）；美联物业一手新盘页 2026-10-07 撷取（伙数/已售/折实入场价）",
+  "sourceUrl": "https://hknewproject.com/",
+  "developer": "周大福",
+  "unitsTotal": 194,
+  "unitsSold": 188
+ },
+ {
+  "name": "皓日",
+  "areaText": "九龍灣",
+  "address": "",
+  "mtr": "",
+  "origin": "seed",
+  "priceList": {
+   "no": "3A",
+   "date": "2026-10-06",
+   "priceMinWan": 690.6
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）",
+  "sourceUrl": "https://hknewproject.com/"
+ },
+ {
+  "name": "維港1號",
+  "areaText": "啟德",
+  "address": "",
+  "mtr": "",
+  "origin": "seed",
+  "priceList": {
+   "no": "7Q",
+   "date": "2026-10-02",
+   "priceMinWan": 758.8
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）",
+  "sourceUrl": "https://hknewproject.com/"
+ },
+ {
+  "name": "UNI RESIDENCE",
+  "areaText": "沙田",
+  "address": "",
+  "mtr": "",
+  "origin": "seed",
+  "priceList": {
+   "no": "7B",
+   "date": "2026-09-28",
+   "priceMinWan": 512.4
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）",
+  "sourceUrl": "https://hknewproject.com/"
+ },
+ {
+  "name": "映居",
+  "areaText": "旺角",
+  "address": "",
+  "mtr": "",
+  "origin": "seed",
+  "priceList": {
+   "no": "2B",
+   "date": "2026-09-30",
+   "priceMinWan": 658
+  },
+  "source": "hknewproject.com 价单整理（资料取自一手住宅物业销售资讯网，2026-10-17 撷取；价单原价未扣折扣）",
+  "sourceUrl": "https://hknewproject.com/"
+ }
+]
